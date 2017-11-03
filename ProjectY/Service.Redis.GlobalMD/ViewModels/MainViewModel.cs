@@ -95,16 +95,32 @@ namespace Service.Redis.GlobalMD.ViewModels
                 LoadTSEData();
                 LoadTPEXData();
                 LoadTAIFEXData();
-                foreach(KeyValuePair<string, SymbolTse> data in SymbolTseDictionary)
+                //foreach (KeyValuePair<string, SymbolTse> data in SymbolTseDictionary)
+                //{
+                //client.SetEntryInHash("I010", data.Key, data.Value.CurrencyCode);
+                //client.SetEntryInHash("hashid", "商品代碼", "");
+                //client.SetEntryInHash("hashid", "商品代碼", "");
+                //var i010 = client.GetAllEntriesFromHash("hashid");
+
+                //}
+                
+                foreach (KeyValuePair<string,SymbolTaifex> data in SymbolTaifexDictionary)
                 {
-                    client.SetAll<SymbolTse>(SymbolTseDictionary);
-                    //client.GetAll<>
-                    client.SetEntryInHash("I010", data.Key, data.Value.CurrencyCode);
-                    client.SetEntryInHash("hashid", "商品代碼", "");
-                    client.SetEntryInHash("hashid", "商品代碼", "");
-                    var i010 = client.GetAllEntriesFromHash("hashid");
+                    System.Reflection.PropertyInfo[] propertyInfos = typeof(SymbolTaifex).GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+
+                    foreach (System.Reflection.PropertyInfo p in propertyInfos)
+                    {
+                        client.SetEntryInHash("I010", p.Name, (p.GetValue(data.Value) == null)? "" : p.GetValue(data.Value).ToString());
+                    }
 
                 }
+                Dictionary<string, string> hashData = client.GetAllEntriesFromHash("I010");
+
+                //client.SetAll<SymbolTse>(SymbolTseDictionary);
+                //client.SetAll<SymbolTpex>(SymbolTpexDictionary);
+                //client.SetAll<SymbolTaifex>(SymbolTaifexDictionary);
+                
+                Dictionary<string,SymbolTse> returnValue = new Dictionary<string, SymbolTse>( client.GetAll<SymbolTse>(SymbolTseDictionary.Keys));
             }
             else
             {

@@ -550,10 +550,10 @@ namespace MarketDataApiExample.Model
             _market = "上櫃";
             _matchPrice = data.LastPrice;
             _matchTotalQty = data.TotalVolume;
-            _bid1Price = data.BidData[0].Price;
-            _bid1Qty = data.BidData[0].Volume;
-            _ask1Price = data.AskData[0].Price;
-            _ask1Qty = data.AskData[0].Volume;
+            _bid1Price = (data.BidData.Count == 0) ? 0 : data.BidData[0].Price;
+            _bid1Qty = (data.BidData.Count == 0) ? 0 : data.BidData[0].Volume;
+            _ask1Price = (data.AskData.Count == 0) ? 0 : data.AskData[0].Price;
+            _ask1Qty = (data.AskData.Count == 0) ? 0 : data.AskData[0].Volume;
             OnPropertyChanged();
         }
 
@@ -565,10 +565,40 @@ namespace MarketDataApiExample.Model
             _market = "上市";
             _matchPrice = data.LastPrice;
             _matchTotalQty = data.TotalVolume;
-            _bid1Price = data.BidData[0].Price;
-            _bid1Qty = data.BidData[0].Volume;
-            _ask1Price = data.AskData[0].Price;
-            _ask1Qty = data.AskData[0].Volume;
+            _bid1Price = (data.BidData.Count == 0) ? 0 : data.BidData[0].Price;
+            _bid1Qty = (data.BidData.Count == 0) ? 0 : data.BidData[0].Volume;
+            _ask1Price = (data.AskData.Count == 0) ? 0 : data.AskData[0].Price;
+            _ask1Qty = (data.AskData.Count == 0) ? 0 : data.AskData[0].Volume;
+            OnPropertyChanged();
+        }
+
+        public void SetTpexData(long seq, MarketDataApi.PacketTPEX.Format17 data)
+        {
+            _seq = seq;
+            _symbolNo = data.StockID;
+            _typeNo = "17";
+            _market = "上櫃";
+            _matchPrice = data.LastPrice;
+            _matchTotalQty = data.TotalVolume;
+            _bid1Price = (data.BidData.Count == 0) ? 0 : data.BidData[0].Price;
+            _bid1Qty = (data.BidData.Count == 0) ? 0 : data.BidData[0].Volume;
+            _ask1Price = (data.AskData.Count == 0) ? 0 : data.AskData[0].Price;
+            _ask1Qty = (data.AskData.Count == 0) ? 0 : data.AskData[0].Volume;
+            OnPropertyChanged();
+        }
+
+        public void SetTseData(long seq, MarketDataApi.PacketTSE.Format17 data)
+        {
+            _seq = seq;
+            _symbolNo = data.StockID;
+            _typeNo = "17";
+            _market = "上市";
+            _matchPrice = data.LastPrice;
+            _matchTotalQty = data.TotalVolume;
+            _bid1Price = (data.BidData.Count == 0) ? 0 : data.BidData[0].Price;
+            _bid1Qty = (data.BidData.Count == 0) ? 0 : data.BidData[0].Volume;
+            _ask1Price = (data.AskData.Count == 0) ? 0 : data.AskData[0].Price;
+            _ask1Qty = (data.AskData.Count == 0) ? 0 : data.AskData[0].Volume;
             OnPropertyChanged();
         }
 

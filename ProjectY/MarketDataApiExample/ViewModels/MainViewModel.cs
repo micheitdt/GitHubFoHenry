@@ -48,7 +48,7 @@ namespace MarketDataApiExample.ViewModels
 
         #region Fields
         public static readonly List<string> MarketList = new List<string>() { "0-上市", "1-上櫃", "2-期貨AM盤", "3-選擇權AM盤", "4-期貨PM盤", "5-選擇權PM盤", "6-PATS" };
-        public static readonly List<string> TypeList = new List<string>() { "I010", "I020", "I080", "1", "6", "0" };
+        public static readonly List<string> TypeList = new List<string>() { "I010", "I020", "I080", "1", "6", "17", "0" };
 
         private static MainViewModel _instance;
         private string _ipAddress = "10.214.217.45";//"127.0.0.1";
@@ -430,6 +430,8 @@ namespace MarketDataApiExample.ViewModels
                 api.TaifexI080Received += api_TaifexI080Received;  /// <- 期貨I080[委買委賣]回呼事件
                 api.TseFormat6Received += api_TseFormat6Received;  /// <- 上市現貨格式6(Format6)回呼事件
                 api.TpexFormat6Received += api_TpexFormat6Received; /// <- 上櫃現貨格式6(Format6)回呼事件
+                api.TseFormat17Received += api_TseFormat17Received;  /// <- 上市現貨格式6(Format17)回呼事件
+                api.TpexFormat17Received += api_TpexFormat17Received; /// <- 上櫃現貨格式6(Format17)回呼事件
                 api.TaifexI010Received += api_TaifexI010Received; /// <- 期貨I010[盘前]回呼事件
                 api.TseFormat1Received += api_TseFormat1Received; /// <- 上櫃現貨格式1(盘前)回呼事件
                 api.TpexFormat1Received += api_TpexFormat1Received;/// <- 上市現貨格式1(盘前)回呼事件
@@ -657,10 +659,10 @@ namespace MarketDataApiExample.ViewModels
                     , e.PacketData.StockID
                     , e.PacketData.LastPrice
                     , e.PacketData.TotalVolume
-                    , e.PacketData.BidData[0].Price
-                    , e.PacketData.BidData[0].Volume
-                    , e.PacketData.AskData[0].Price
-                    , e.PacketData.AskData[0].Volume);
+                        , (e.PacketData.BidData.Count == 0) ? 0 : e.PacketData.BidData[0].Price
+                        , (e.PacketData.BidData.Count == 0) ? 0 : e.PacketData.BidData[0].Volume
+                        , (e.PacketData.AskData.Count == 0) ? 0 : e.PacketData.AskData[0].Price
+                        , (e.PacketData.AskData.Count == 0) ? 0 : e.PacketData.AskData[0].Volume);
                 Quotes model = new Quotes();
                 model.SetTpexData(_gridSeq,  e.PacketData);
                 QuotesList.Insert(0, model);
@@ -680,16 +682,62 @@ namespace MarketDataApiExample.ViewModels
                     , e.PacketData.StockID
                     , e.PacketData.LastPrice
                     , e.PacketData.TotalVolume
-                    , e.PacketData.BidData[0].Price
-                    , e.PacketData.BidData[0].Volume
-                    , e.PacketData.AskData[0].Price
-                    , e.PacketData.AskData[0].Volume);
+                    , (e.PacketData.BidData.Count == 0) ? 0 : e.PacketData.BidData[0].Price
+                    , (e.PacketData.BidData.Count == 0) ? 0 : e.PacketData.BidData[0].Volume
+                    , (e.PacketData.AskData.Count == 0) ? 0 : e.PacketData.AskData[0].Price
+                    , (e.PacketData.AskData.Count == 0) ? 0 : e.PacketData.AskData[0].Volume);
                 Quotes model = new Quotes();
                 model.SetTseData(_gridSeq, e.PacketData);
                 QuotesList.Insert(0,model);
                 _gridSeq++;
             }));
         }
+        //------------------------------------------------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// 上櫃現貨格式6回呼事件
+        /// </summary>
+        void api_TpexFormat17Received(object sender, MarketDataApi.MarketDataApi.TpexFormat17ReceivedEventArgs e)
+        {
+            App.Current.Dispatcher.Invoke((Action)(() =>
+            {
+                String fData;
+                fData = string.Format("Tpex(上櫃),{0},{1}({2}),Bid1 {3}({4}),Ask1 {5}({6})"
+                    , e.PacketData.StockID
+                    , e.PacketData.LastPrice
+                    , e.PacketData.TotalVolume
+                        , (e.PacketData.BidData.Count == 0) ? 0 : e.PacketData.BidData[0].Price
+                        , (e.PacketData.BidData.Count == 0) ? 0 : e.PacketData.BidData[0].Volume
+                        , (e.PacketData.AskData.Count == 0) ? 0 : e.PacketData.AskData[0].Price
+                        , (e.PacketData.AskData.Count == 0) ? 0 : e.PacketData.AskData[0].Volume);
+                Quotes model = new Quotes();
+                model.SetTpexData(_gridSeq, e.PacketData);
+                QuotesList.Insert(0, model);
+                _gridSeq++;
+            }));
+        }
+        //------------------------------------------------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// 上市現貨格式17回呼事件
+        /// </summary>
+        void api_TseFormat17Received(object sender, MarketDataApi.MarketDataApi.TseFormat17ReceivedEventArgs e)
+        {
+            App.Current.Dispatcher.Invoke((Action)(() =>
+            {
+                String fData;
+                fData = string.Format("TSE(上市),{0},{1}({2}),Bid1 {3}({4}),Ask1 {5}({6})"
+                    , e.PacketData.StockID
+                    , e.PacketData.LastPrice
+                    , e.PacketData.TotalVolume
+                    , (e.PacketData.BidData.Count == 0) ? 0 : e.PacketData.BidData[0].Price
+                    , (e.PacketData.BidData.Count == 0) ? 0 : e.PacketData.BidData[0].Volume
+                    , (e.PacketData.AskData.Count == 0) ? 0 : e.PacketData.AskData[0].Price
+                    , (e.PacketData.AskData.Count == 0) ? 0 : e.PacketData.AskData[0].Volume);
+                Quotes model = new Quotes();
+                model.SetTseData(_gridSeq, e.PacketData);
+                QuotesList.Insert(0, model);
+                _gridSeq++;
+            }));
+        }        
         //------------------------------------------------------------------------------------------------------------------------------------------
         /// <summary>
         /// 上市現貨格式1回呼事件

@@ -291,6 +291,9 @@ namespace MarketDataApi
                     case "6":
                         OnTseFormat6Received(new PacketTSE.Format6(packetData));
                         break;
+                    case "17":
+                        OnTseFormat17Received(new PacketTSE.Format17(packetData));
+                        break;
                     default:
                         break;
                 }
@@ -314,6 +317,9 @@ namespace MarketDataApi
                         break;
                     case "6":
                         OnTpexFormat6Received(new PacketTPEX.Format6(packetData));
+                        break;
+                    case "17":
+                        OnTpexFormat17Received(new PacketTPEX.Format17(packetData));
                         break;
                     default:
                         break;
@@ -512,6 +518,36 @@ namespace MarketDataApi
         {
             if (TpexFormat6Received != null)
                 TpexFormat6Received(this, new TpexFormat6ReceivedEventArgs(packetData));
+        }
+
+        public event EventHandler<TseFormat17ReceivedEventArgs> TseFormat17Received;
+        public class TseFormat17ReceivedEventArgs : EventArgs
+        {
+            public readonly PacketTSE.Format17 PacketData;
+            public TseFormat17ReceivedEventArgs(PacketTSE.Format17 packetData)
+            {
+                PacketData = packetData;
+            }
+        }
+        private void OnTseFormat17Received(PacketTSE.Format17 packetData)
+        {
+            if (TseFormat17Received != null)
+                TseFormat17Received(this, new TseFormat17ReceivedEventArgs(packetData));
+        }
+
+        public event EventHandler<TpexFormat17ReceivedEventArgs> TpexFormat17Received;
+        public class TpexFormat17ReceivedEventArgs : EventArgs
+        {
+            public readonly PacketTPEX.Format17 PacketData;
+            public TpexFormat17ReceivedEventArgs(PacketTPEX.Format17 packetData)
+            {
+                PacketData = packetData;
+            }
+        }
+        private void OnTpexFormat17Received(PacketTPEX.Format17 packetData)
+        {
+            if (TpexFormat17Received != null)
+                TpexFormat17Received(this, new TpexFormat17ReceivedEventArgs(packetData));
         }
 
         public event EventHandler<PatsFormat0ReceivedEventArgs> PatsFormat0Received;

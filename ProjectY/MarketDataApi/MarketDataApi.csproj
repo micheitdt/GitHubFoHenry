@@ -63,12 +63,14 @@
     <Compile Include="PacketTAIFEX\I080.cs" />
     <Compile Include="PacketTAIFEX\I082.cs" />
     <Compile Include="PacketTPEX\Format1.cs" />
+    <Compile Include="PacketTPEX\Format17.cs" />
     <Compile Include="PacketTPEX\Format6.cs" />
     <Compile Include="PacketTPEX\Header.cs" />
     <Compile Include="PacketTPEX\LimitInfo.cs" />
     <Compile Include="PacketTPEX\MatchInfo.cs" />
     <Compile Include="PacketTPEX\StatusInfo.cs" />
     <Compile Include="PacketTSE\Format1.cs" />
+    <Compile Include="PacketTSE\Format17.cs" />
     <Compile Include="PacketTSE\Format6.cs" />
     <Compile Include="PacketTSE\Header.cs" />
     <Compile Include="PacketTSE\LimitInfo.cs" />
