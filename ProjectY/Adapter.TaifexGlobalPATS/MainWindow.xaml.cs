@@ -23,7 +23,6 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using Newtonsoft.Json;
-using CommonLibrary;
 
 namespace Adapter.TaifexGlobalPATS
 {

@@ -9,12 +9,13 @@ using System.Windows.Input;
 using System.Diagnostics;
 using System.ComponentModel;
 using System.Collections.ObjectModel;
-using MarketDataApiExample.Model;
+using CommonLibrary.Model;
 using NLog;
 using System.IO;
-using static CommonLibrary.Utility;
+using CommonLibrary;
 using System.Collections.Concurrent;
 using System.Data;
+using ServiceStack.Redis;
 
 namespace MarketDataApiExample.ViewModels
 {
@@ -27,31 +28,12 @@ namespace MarketDataApiExample.ViewModels
         private static Logger _logger = LogManager.GetCurrentClassLogger();
         #endregion Logger
 
-        public MainViewModel()
-        {
-            //LoadTSEData();
-            //LoadTPEXData();
-            //LoadTAIFEXData();
-            ////ConcurrentDictionary<string, SymbolTse>
-            //foreach (KeyValuePair<string,SymbolTse> data in SymbolTseList.AllSymbolTseList)
-            //{
-            //    api.Sub(Rtn_adapterCode(SelectMarket), SelectType, SymbolNo);
-            //}
-            //foreach (KeyValuePair<string, SymbolTpex> data in SymbolTpexList.AllSymbolTpexList)
-            //{
-            //}
-            //foreach (KeyValuePair<string, SymbolTaifex> data in SymbolTaifexList.AllSymbolTaifexList)
-            //{
-            //}
-
-        }
-
         #region Fields
         public static readonly List<string> MarketList = new List<string>() { "0-上市", "1-上櫃", "2-期貨AM盤", "3-選擇權AM盤", "4-期貨PM盤", "5-選擇權PM盤", "6-PATS" };
         public static readonly List<string> TypeList = new List<string>() { "I010", "I020", "I080", "1", "6", "17", "0" };
 
         private static MainViewModel _instance;
-        private string _ipAddress = "10.214.217.45";//"127.0.0.1";
+        private string _ipAddress = "10.214.217.51";//"127.0.0.1";
         private string _ipPort = "6688";
         private string _selectMarket = "2-期貨AM盤";//"6-PATS";
         private string _selectType = "I020";
@@ -67,9 +49,10 @@ namespace MarketDataApiExample.ViewModels
         private SymbolTaifexList _symbolTaifexDictionary = new SymbolTaifexList();
         MarketDataApi.MarketDataApi api;
         private long _gridSeq = 1;
-        
-        private ObservableCollection<MarketDataApi.PacketPATS.Format0> _patsFormat0List = new ObservableCollection<MarketDataApi.PacketPATS.Format0>();
-        private ObservableCollection<MarketDataApi.PacketPATS.Format1> _patsFormat1List = new ObservableCollection<MarketDataApi.PacketPATS.Format1>();
+        RedisClient _redisClient;
+
+        private ObservableCollection<CommonLibrary.Model.PacketPATS.Format0> _patsFormat0List = new ObservableCollection<CommonLibrary.Model.PacketPATS.Format0>();
+        private ObservableCollection<CommonLibrary.Model.PacketPATS.Format1> _patsFormat1List = new ObservableCollection<CommonLibrary.Model.PacketPATS.Format1>();
         private ObservableCollection<string> _statusMessageList = new ObservableCollection<string>();
 
         //行情資料
@@ -80,6 +63,27 @@ namespace MarketDataApiExample.ViewModels
             set { _quotesDT = value; }
         }
         #endregion
+
+        public MainViewModel()
+        {
+            //讀設定檔
+            DefaultSettings.Instance.Initialize();
+            _redisClient = new RedisClient(DefaultSettings.Instance.REDIS_DB_IP, DefaultSettings.Instance.REDIS_DB_PORT);
+            //LoadTSEData();
+            //LoadTPEXData();
+            //LoadTAIFEXData();
+            ////ConcurrentDictionary<string, SymbolTse>
+            //foreach (KeyValuePair<string,SymbolTse> data in SymbolTseList.AllSymbolTseList)
+            //{
+            //    api.Sub(Rtn_adapterCode(SelectMarket), SelectType, SymbolNo);
+            //}
+            //foreach (KeyValuePair<string, SymbolTpex> data in SymbolTpexList.AllSymbolTpexList)
+            //{
+            //}
+            //foreach (KeyValuePair<string, SymbolTaifex> data in SymbolTaifexList.AllSymbolTaifexList)
+            //{
+            //}
+        }
 
         #region prop
         /// <summary>
@@ -315,7 +319,7 @@ namespace MarketDataApiExample.ViewModels
             }
         }
         
-        public ObservableCollection<MarketDataApi.PacketPATS.Format0> PatsFormat0List
+        public ObservableCollection<CommonLibrary.Model.PacketPATS.Format0> PatsFormat0List
         {
             get
             {
@@ -327,7 +331,7 @@ namespace MarketDataApiExample.ViewModels
                 OnPropertyChanged("PatsFormat0List");
             }
         }
-        public ObservableCollection<MarketDataApi.PacketPATS.Format1> PatsFormat1List
+        public ObservableCollection<CommonLibrary.Model.PacketPATS.Format1> PatsFormat1List
         {
             get
             {
@@ -597,6 +601,15 @@ namespace MarketDataApiExample.ViewModels
             QuotesList.Clear();
             _gridSeq = 1;
         }
+        /// <summary>
+        /// 取盤前資料
+        /// </summary>
+        private void GetQData()
+        {
+            Utility.GetRedisDB(_redisClient, Parameter.TAIFEX_HASH_KEY);
+            Utility.GetRedisDB(_redisClient, Parameter.TPEX_HASH_KEY);
+            Utility.GetRedisDB(_redisClient, Parameter.TPEX_HASH_KEY);
+        }
         #endregion
 
         #region Event
@@ -624,6 +637,7 @@ namespace MarketDataApiExample.ViewModels
                 model.SetI080Data(_gridSeq, e.PacketData);
                 QuotesList.Insert(0, model);
                 _gridSeq++;
+                _logger.Debug(fData);
             }));
         }
         //------------------------------------------------------------------------------------------------------------------------------------------
@@ -644,6 +658,7 @@ namespace MarketDataApiExample.ViewModels
                 model.SetI020Data(_gridSeq, e.PacketData);
                 QuotesList.Insert(0, model);
                 _gridSeq++;
+                _logger.Debug(fData);
             }));
         }
         //------------------------------------------------------------------------------------------------------------------------------------------
@@ -667,6 +682,7 @@ namespace MarketDataApiExample.ViewModels
                 model.SetTpexData(_gridSeq,  e.PacketData);
                 QuotesList.Insert(0, model);
                 _gridSeq++;
+                _logger.Debug(fData);
             }));
         }
         //------------------------------------------------------------------------------------------------------------------------------------------
@@ -690,11 +706,12 @@ namespace MarketDataApiExample.ViewModels
                 model.SetTseData(_gridSeq, e.PacketData);
                 QuotesList.Insert(0,model);
                 _gridSeq++;
+                _logger.Debug(fData);
             }));
         }
         //------------------------------------------------------------------------------------------------------------------------------------------
         /// <summary>
-        /// 上櫃現貨格式6回呼事件
+        /// 上櫃現貨格式17回呼事件
         /// </summary>
         void api_TpexFormat17Received(object sender, MarketDataApi.MarketDataApi.TpexFormat17ReceivedEventArgs e)
         {
@@ -713,6 +730,7 @@ namespace MarketDataApiExample.ViewModels
                 model.SetTpexData(_gridSeq, e.PacketData);
                 QuotesList.Insert(0, model);
                 _gridSeq++;
+                _logger.Debug(fData);
             }));
         }
         //------------------------------------------------------------------------------------------------------------------------------------------
@@ -736,6 +754,7 @@ namespace MarketDataApiExample.ViewModels
                 model.SetTseData(_gridSeq, e.PacketData);
                 QuotesList.Insert(0, model);
                 _gridSeq++;
+                _logger.Debug(fData);
             }));
         }        
         //------------------------------------------------------------------------------------------------------------------------------------------
@@ -864,7 +883,7 @@ namespace MarketDataApiExample.ViewModels
                         {
                             continue;
                         }
-                        MarketDataApi.PacketTSE.Format1 data = new MarketDataApi.PacketTSE.Format1(Encoding.Default.GetBytes(line));
+                        CommonLibrary.Model.PacketTSE.Format1 data = new CommonLibrary.Model.PacketTSE.Format1(Encoding.Default.GetBytes(line));
                         AddSymbolTseDictionary(data);
                     }
                 }
@@ -874,7 +893,7 @@ namespace MarketDataApiExample.ViewModels
                 _logger.Error(err, string.Format("LoadTSEData(): ErrMsg = {0}.", err.Message));
             }
         }
-        private void AddSymbolTseDictionary(MarketDataApi.PacketTSE.Format1 data)
+        private void AddSymbolTseDictionary(CommonLibrary.Model.PacketTSE.Format1 data)
         {
 
             if (string.IsNullOrEmpty(data.StockID) || SymbolTseDictionary.ContainsKey(data.StockID))
@@ -904,7 +923,7 @@ namespace MarketDataApiExample.ViewModels
                         {
                             continue;
                         }
-                        MarketDataApi.PacketTPEX.Format1 data = new MarketDataApi.PacketTPEX.Format1(Encoding.Default.GetBytes(line));
+                        CommonLibrary.Model.PacketTPEX.Format1 data = new CommonLibrary.Model.PacketTPEX.Format1(Encoding.Default.GetBytes(line));
                         AddSymbolTpexDictionary(data);
                     }
                 }
@@ -914,7 +933,7 @@ namespace MarketDataApiExample.ViewModels
                 _logger.Error(err, string.Format("LoadData(): ErrMsg = {0}.", err.Message));
             }
         }
-        private void AddSymbolTpexDictionary(MarketDataApi.PacketTPEX.Format1 data)
+        private void AddSymbolTpexDictionary(CommonLibrary.Model.PacketTPEX.Format1 data)
         {
 
             if (string.IsNullOrEmpty(data.StockID) || SymbolTpexDictionary.ContainsKey(data.StockID))
@@ -944,7 +963,7 @@ namespace MarketDataApiExample.ViewModels
                         {
                             continue;
                         }
-                        MarketDataApi.PacketTAIFEX.I010 data = new MarketDataApi.PacketTAIFEX.I010(Encoding.Default.GetBytes(line), 0);
+                        CommonLibrary.Model.PacketTAIFEX.I010 data = new CommonLibrary.Model.PacketTAIFEX.I010(Encoding.Default.GetBytes(line), 0);
                         AddSymbolTaifexDictionary(data);
                     }
                 }
@@ -954,7 +973,7 @@ namespace MarketDataApiExample.ViewModels
                 _logger.Error(err, string.Format("LoadData(): ErrMsg = {0}.", err.Message));
             }
         }
-        private void AddSymbolTaifexDictionary(MarketDataApi.PacketTAIFEX.I010 data)
+        private void AddSymbolTaifexDictionary(CommonLibrary.Model.PacketTAIFEX.I010 data)
         {
 
             if (string.IsNullOrEmpty(data.B_ProdId) || SymbolTaifexDictionary.ContainsKey(data.B_ProdId))
@@ -975,54 +994,5 @@ namespace MarketDataApiExample.ViewModels
                 this.PropertyChanged(this, new PropertyChangedEventArgs(name));
         }
         #endregion
-    }
-    /// <summary>
-    /// 綁定按鈕事件
-    /// </summary>
-    public class RelayCommand : ICommand
-    {
-
-        readonly Func<Boolean> _canExecute;
-        readonly Action _execute;
-
-        public RelayCommand(Action execute)
-            : this(execute, null)
-        {
-        }
-
-        public RelayCommand(Action execute, Func<Boolean> canExecute)
-        {
-            if (execute == null)
-                throw new ArgumentNullException("execute");
-            _execute = execute;
-            _canExecute = canExecute;
-        }
-
-        public event EventHandler CanExecuteChanged
-        {
-            add
-            {
-
-                if (_canExecute != null)
-                    CommandManager.RequerySuggested += value;
-            }
-            remove
-            {
-
-                if (_canExecute != null)
-                    CommandManager.RequerySuggested -= value;
-            }
-        }
-
-        [DebuggerStepThrough]
-        public Boolean CanExecute(Object parameter)
-        {
-            return _canExecute == null ? true : _canExecute();
-        }
-
-        public void Execute(Object parameter)
-        {
-            _execute();
-        }
     }
 }

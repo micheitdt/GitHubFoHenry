@@ -1,4 +1,6 @@
-﻿using System;
+﻿using CommonLibrary.Model;
+using ServiceStack.Redis;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
@@ -20,6 +22,58 @@ namespace CommonLibrary
                 FS.Close();
             }
             return true;
+        }
+        /// <summary>
+        /// 存RedisDB資料
+        /// </summary>
+        public static void SetRedisDB(RedisClient conndb, string hashid, string key, object data)
+        {
+            //方法1
+            var switchTypeAction = new Dictionary<Type, Action>
+            {
+                { typeof(SymbolTse), () => { conndb.Set<SymbolTse>(key, data as SymbolTse); conndb.SetEntryInHashIfNotExists(hashid, key, ""); } },
+                { typeof(SymbolTpex), () => {  conndb.Set<SymbolTpex>(key, data as SymbolTpex); conndb.SetEntryInHashIfNotExists(hashid, key, ""); }  },
+                { typeof(SymbolTaifex), () => { conndb.Set<SymbolTaifex>(key, data as SymbolTaifex); conndb.SetEntryInHashIfNotExists(hashid, key, ""); }},
+            };
+            switchTypeAction[data.GetType()]();
+
+            //方法2
+            //Type type = data.GetType();
+            //System.Reflection.PropertyInfo[] propertyInfos = type.GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+
+            //foreach (System.Reflection.PropertyInfo p in propertyInfos)
+            //{
+            //    string saveData = (p.GetValue(data) == null) ? "" : p.GetValue(data).ToString();
+            //    _client.SetEntryInHash(hashid, key + "_" + p.Name, saveData);
+            //}
+        }
+        /// <summary>
+        /// 取RedisDB資料
+        /// </summary>
+        public static void GetRedisDB(RedisClient conndb, string hashid)
+        {
+            //方法1
+            var switchTypeAction = new Dictionary<string, Action>
+            {
+                { Parameter.TSE_HASH_KEY, () => { SymbolTseList.SetSymbolTseDataList(conndb.GetAll<SymbolTse>(conndb.GetHashKeys(hashid))); } },
+                { Parameter.TPEX_HASH_KEY, () => { SymbolTpexList.SetSymbolTseDataList(conndb.GetAll<SymbolTpex>(conndb.GetHashKeys(hashid))); } },
+                { Parameter.TAIFEX_HASH_KEY, () => { SymbolTaifexList.SetSymbolTseDataList(conndb.GetAll<SymbolTaifex>(conndb.GetHashKeys(hashid))); }},
+            };
+            switchTypeAction[hashid]();
+            //方法2-string to int error
+            //Dictionary<string, string> hashData = _client.GetAllEntriesFromHash(hashid);//所有key/value
+            //var keyList = _client.GetHashKeys(hashid).GroupBy(x => x.Split('_')[0]);
+            //foreach (var obj in keyList.ToList())
+            //{
+            //    SymbolTse ret = new SymbolTse();
+            //    System.Reflection.PropertyInfo[] propertyInfos = ret.GetType().GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+            //    foreach (System.Reflection.PropertyInfo p in propertyInfos)
+            //    {
+            //        p.SetValue(ret, _client.GetValueFromHash(hashid, (obj.Key + "_" + p.Name)));
+            //    }
+            //    SymbolTseList.AddSymbolTseData(ret);
+            //    SymbolTseDictionary = SymbolTseList.AllSymbolTseList;
+            //}
         }
     }
     //--------------------------------------------------------------------

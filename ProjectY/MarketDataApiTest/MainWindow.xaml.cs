@@ -1,4 +1,5 @@
-﻿using MarketDataApi;
+﻿using CommonLibrary;
+using MarketDataApi;
 using System;
 using System.Windows;
 

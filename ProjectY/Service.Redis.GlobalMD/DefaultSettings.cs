@@ -13,7 +13,6 @@ namespace Service.Redis.GlobalMD
         public int REDIS_DB_PORT;
         public string UDP_IP;
         public int UDP_PORT;
-        public string PUB_ADDRESS;
 
         private DefaultSettings() { }
 
@@ -25,7 +24,6 @@ namespace Service.Redis.GlobalMD
             REDIS_DB_PORT = Convert.ToInt32(mapIni.ParamMap["REDIS_DB_PORT"]);
             UDP_IP = mapIni.ParamMap["UDP_IP"];
             UDP_PORT = Convert.ToInt32(mapIni.ParamMap["UDP_PORT"]);
-            PUB_ADDRESS = mapIni.ParamMap["PUB_ADDRESS"];
         }
     }
 }

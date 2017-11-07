@@ -1,6 +1,6 @@
-﻿using MarketDataApi;
+﻿using CommonLibrary.Model;
+using MarketDataApi;
 using NLog;
-using Service.Redis.GlobalMD.Model;
 using ServiceStack.Redis;
 using System;
 using System.Collections.Generic;
@@ -9,6 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CommonLibrary;
 
 namespace Service.Redis.GlobalMD.ViewModels
 {
@@ -17,6 +18,7 @@ namespace Service.Redis.GlobalMD.ViewModels
 
         private static MainViewModel _instance;
         MarketDataApi.MarketDataApi api;
+        RedisClient _client;
         private SymbolTseList _symbolTseDictionary = new SymbolTseList();
         private SymbolTpexList _symbolTpexDictionary = new SymbolTpexList();
         private SymbolTaifexList _symbolTaifexDictionary = new SymbolTaifexList();
@@ -36,95 +38,44 @@ namespace Service.Redis.GlobalMD.ViewModels
                 return _instance;
             }
         }
-        /// <summary>
-        /// 現貨上市商品資料
-        /// </summary>
-        public SymbolTseList SymbolTseDictionary
-        {
-            get
-            {
-                return _symbolTseDictionary;
-            }
-            set
-            {
-                _symbolTseDictionary = value;
-                OnPropertyChanged("SymbolTseDictionary");
-            }
-        }
-        /// <summary>
-        /// 現貨上櫃商品資料
-        /// </summary>
-        public SymbolTpexList SymbolTpexDictionary
-        {
-            get
-            {
-                return _symbolTpexDictionary;
-            }
-            set
-            {
-                _symbolTpexDictionary = value;
-                OnPropertyChanged("SymbolTpexDictionary");
-            }
-        }
-        /// <summary>
-        /// 期貨商品資料
-        /// </summary>
-        public SymbolTaifexList SymbolTaifexDictionary
-        {
-            get
-            {
-                return _symbolTaifexDictionary;
-            }
-            set
-            {
-                _symbolTaifexDictionary = value;
-                OnPropertyChanged("SymbolTaifexDictionary");
-            }
-        }
         #endregion
 
         public MainViewModel()
         {
             //讀設定檔
             DefaultSettings.Instance.Initialize();
+            _logger.Debug("Init");
             //連接redis
-            RedisClient client = new RedisClient(DefaultSettings.Instance.REDIS_DB_IP, DefaultSettings.Instance.REDIS_DB_PORT);
+            _client = new RedisClient(DefaultSettings.Instance.REDIS_DB_IP, DefaultSettings.Instance.REDIS_DB_PORT);
             if (DefaultSettings.Instance.IS_LOAD_FILE)
             {
-                //取盤前資料方法1-讀檔
+                _logger.Debug("取盤前資料方法-讀檔");
                 LoadTSEData();
                 LoadTPEXData();
                 LoadTAIFEXData();
-                //foreach (KeyValuePair<string, SymbolTse> data in SymbolTseDictionary)
+                //存取redis方法一
+                //foreach (KeyValuePair<string, SymbolTaifex> data in SymbolTaifexDictionary)
                 //{
-                //client.SetEntryInHash("I010", data.Key, data.Value.CurrencyCode);
-                //client.SetEntryInHash("hashid", "商品代碼", "");
-                //client.SetEntryInHash("hashid", "商品代碼", "");
-                //var i010 = client.GetAllEntriesFromHash("hashid");
-
+                //    System.Reflection.PropertyInfo[] propertyInfos = typeof(SymbolTaifex).GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+                //    foreach (System.Reflection.PropertyInfo p in propertyInfos)
+                //    {
+                //        client.SetEntryInHash("I010", data.Key + "_" + p.Name, (p.GetValue(data.Value) == null) ? "" : p.GetValue(data.Value).ToString());
+                //    }
                 //}
-                
-                foreach (KeyValuePair<string,SymbolTaifex> data in SymbolTaifexDictionary)
-                {
-                    System.Reflection.PropertyInfo[] propertyInfos = typeof(SymbolTaifex).GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+                //Dictionary<string, string> hashData = client.GetAllEntriesFromHash("I010");
 
-                    foreach (System.Reflection.PropertyInfo p in propertyInfos)
-                    {
-                        client.SetEntryInHash("I010", p.Name, (p.GetValue(data.Value) == null)? "" : p.GetValue(data.Value).ToString());
-                    }
+                //存取redis方法二
+                //_client.SetAll<SymbolTse>(SymbolTseDictionary);
+                //_client.SetAll<SymbolTpex>(SymbolTpexDictionary);
+                //_client.SetAll<SymbolTaifex>(SymbolTaifexDictionary);
 
-                }
-                Dictionary<string, string> hashData = client.GetAllEntriesFromHash("I010");
-
-                //client.SetAll<SymbolTse>(SymbolTseDictionary);
-                //client.SetAll<SymbolTpex>(SymbolTpexDictionary);
-                //client.SetAll<SymbolTaifex>(SymbolTaifexDictionary);
-                
-                Dictionary<string,SymbolTse> returnValue = new Dictionary<string, SymbolTse>( client.GetAll<SymbolTse>(SymbolTseDictionary.Keys));
+                //Dictionary<string,SymbolTse> returnValue1 = new Dictionary<string, SymbolTse>( _client.GetAll<SymbolTse>(SymbolTseDictionary.Keys));
+                //Dictionary<string, SymbolTpex> returnValue2 = new Dictionary<string, SymbolTpex>(_client.GetAll<SymbolTpex>(SymbolTpexDictionary.Keys));
+                //Dictionary<string, SymbolTaifex> returnValue3 = new Dictionary<string, SymbolTaifex>(_client.GetAll<SymbolTaifex>(SymbolTaifexDictionary.Keys));
             }
             else
             {
-                //方法2-連接proxy接收訊息
+                _logger.Debug("盤前資料方法-連接proxy接收訊息");
                 api = new MarketDataApi.MarketDataApi(DefaultSettings.Instance.UDP_IP, DefaultSettings.Instance.UDP_PORT);
                 api.TaifexI010Received += api_TaifexI010Received; /// <- 期貨I010[盘前]回呼事件
                 api.TseFormat1Received += api_TseFormat1Received; /// <- 上櫃現貨格式1(盘前)回呼事件
@@ -135,7 +86,6 @@ namespace Service.Redis.GlobalMD.ViewModels
                 api.Sub(AdapterCode.TSE, "1");
                 api.Sub(AdapterCode.TPEX, "1");
             }
-            //StatusMessageList.Insert(0, DateTime.Now.ToString("HH:mm:ss:ttt") + "    " + "连接" + IPAddress);
         }
 
         #region func
@@ -160,7 +110,7 @@ namespace Service.Redis.GlobalMD.ViewModels
                         {
                             continue;
                         }
-                        MarketDataApi.PacketTSE.Format1 data = new MarketDataApi.PacketTSE.Format1(Encoding.Default.GetBytes(line));
+                        CommonLibrary.Model.PacketTSE.Format1 data = new CommonLibrary.Model.PacketTSE.Format1(Encoding.Default.GetBytes(line));
                         AddSymbolTseDictionary(data);
                     }
                 }
@@ -170,16 +120,17 @@ namespace Service.Redis.GlobalMD.ViewModels
                 _logger.Error(err, string.Format("LoadTSEData(): ErrMsg = {0}.", err.Message));
             }
         }
-        private void AddSymbolTseDictionary(MarketDataApi.PacketTSE.Format1 data)
+        private void AddSymbolTseDictionary(CommonLibrary.Model.PacketTSE.Format1 data)
         {
-
-            if (string.IsNullOrEmpty(data.StockID) || SymbolTseDictionary.ContainsKey(data.StockID))
+            if (string.IsNullOrEmpty(data.StockID) || SymbolTseList.AllSymbolTseList.ContainsKey(data.StockID))
             {
                 return;
             }
-
-            SymbolTseList.AddSymbolTseData(new SymbolTse(data));
-            SymbolTseDictionary = SymbolTseList.AllSymbolTseList;
+            SymbolTse temp = new SymbolTse(data);
+            SymbolTseList.AddSymbolTseData(temp);
+            
+            Utility.SetRedisDB(_client, Parameter.TSE_HASH_KEY, data.StockID, temp);
+            _logger.Debug(string.Format("Redis新增：{0}    {1}", data.StockID, data.StockName));
         }
         /// <summary>
         /// 讀現貨 上櫃
@@ -202,7 +153,7 @@ namespace Service.Redis.GlobalMD.ViewModels
                         {
                             continue;
                         }
-                        MarketDataApi.PacketTPEX.Format1 data = new MarketDataApi.PacketTPEX.Format1(Encoding.Default.GetBytes(line));
+                        CommonLibrary.Model.PacketTPEX.Format1 data = new CommonLibrary.Model.PacketTPEX.Format1(Encoding.Default.GetBytes(line));
                         AddSymbolTpexDictionary(data);
                     }
                 }
@@ -212,16 +163,17 @@ namespace Service.Redis.GlobalMD.ViewModels
                 _logger.Error(err, string.Format("LoadData(): ErrMsg = {0}.", err.Message));
             }
         }
-        private void AddSymbolTpexDictionary(MarketDataApi.PacketTPEX.Format1 data)
+        private void AddSymbolTpexDictionary(CommonLibrary.Model.PacketTPEX.Format1 data)
         {
-
-            if (string.IsNullOrEmpty(data.StockID) || SymbolTpexDictionary.ContainsKey(data.StockID))
+            if (string.IsNullOrEmpty(data.StockID) || SymbolTpexList.AllSymbolTpexList.ContainsKey(data.StockID))
             {
                 return;
             }
-
-            SymbolTpexList.AddSymbolTpexData(new SymbolTpex(data));
-            SymbolTpexDictionary = SymbolTpexList.AllSymbolTpexList;
+            SymbolTpex temp = new SymbolTpex(data);
+            SymbolTpexList.AddSymbolTpexData(temp);
+            
+            Utility.SetRedisDB(_client, Parameter.TPEX_HASH_KEY,data.StockID, temp);
+            _logger.Debug(string.Format("Redis新增：{0}    {1}", data.StockID, data.StockName));
         }
         /// <summary>
         /// 讀期權
@@ -244,7 +196,7 @@ namespace Service.Redis.GlobalMD.ViewModels
                         {
                             continue;
                         }
-                        MarketDataApi.PacketTAIFEX.I010 data = new MarketDataApi.PacketTAIFEX.I010(Encoding.Default.GetBytes(line), 0);
+                        CommonLibrary.Model.PacketTAIFEX.I010 data = new CommonLibrary.Model.PacketTAIFEX.I010(Encoding.Default.GetBytes(line), 0);
                         AddSymbolTaifexDictionary(data);
                     }
                 }
@@ -254,16 +206,18 @@ namespace Service.Redis.GlobalMD.ViewModels
                 _logger.Error(err, string.Format("LoadData(): ErrMsg = {0}.", err.Message));
             }
         }
-        private void AddSymbolTaifexDictionary(MarketDataApi.PacketTAIFEX.I010 data)
+        private void AddSymbolTaifexDictionary(CommonLibrary.Model.PacketTAIFEX.I010 data)
         {
-
-            if (string.IsNullOrEmpty(data.B_ProdId) || SymbolTaifexDictionary.ContainsKey(data.B_ProdId))
+            if (string.IsNullOrEmpty(data.B_ProdId) || SymbolTaifexList.AllSymbolTaifexList.ContainsKey(data.B_ProdId))
             {
                 return;
             }
 
-            SymbolTaifexList.AddSymbolTalfexData(new SymbolTaifex(data));
-            SymbolTaifexDictionary = SymbolTaifexList.AllSymbolTaifexList;
+            SymbolTaifex temp = new SymbolTaifex(data);
+            SymbolTaifexList.AddSymbolTalfexData(temp);
+            
+            Utility.SetRedisDB(_client, Parameter.TAIFEX_HASH_KEY, data.B_ProdId, temp);
+            _logger.Debug(string.Format("Redis新增：{0}", data.B_ProdId));
         }
         #endregion
 
