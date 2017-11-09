@@ -53,12 +53,6 @@ namespace CommonLibrary.Model
             OnPropertyChanged();
         }
 
-        public KeyValuePair<string, HashSet<SymbolTse>> ToRedisHash()
-        {
-
-            return new KeyValuePair<string, HashSet<SymbolTse>>("", new HashSet<SymbolTse>());
-        }
-
         #region Fields
         private string _symbolNo;
         private string _symbolName;
@@ -678,6 +672,11 @@ namespace CommonLibrary.Model
             internal set;
         }
 
+        public static ObservableCollection<SymbolTse> GetAllSymbolTpexCollection()
+        {
+            return new ObservableCollection<SymbolTse>(AllSymbolTseList.Values);
+        }
+
         public static void AddSymbolTseData(SymbolTse data)
         {
             AllSymbolTseList.TryAdd(data.SymbolNo, data);
@@ -700,8 +699,12 @@ namespace CommonLibrary.Model
 
         public static ObservableCollection<SymbolTse> GetFilterSymbolTseList(string symbolno, string symbolName)
         {
-            IEnumerable<SymbolTse> data = AllSymbolTseList.Values.Where(x => x.SymbolNo == symbolno & (string.IsNullOrEmpty(symbolName) ? true : x.SymbolNo == symbolName));
-            return new ObservableCollection<SymbolTse>(data);
+            return new ObservableCollection<SymbolTse>(AllSymbolTseList.Values.Where(x => (string.IsNullOrEmpty(symbolno) ? true : x.SymbolNo.Contains(symbolno) & (string.IsNullOrEmpty(symbolName) ? true : x.SymbolName.Contains(symbolName)))));
+        }
+
+        public static ObservableCollection<SymbolTse> GetFilterSymbolNo(string symbolno)
+        {
+            return new ObservableCollection<SymbolTse>(AllSymbolTseList.Values.Where(x => (string.IsNullOrEmpty(symbolno) ? true : x.SymbolNo.Contains(symbolno))));
         }
     }
 }

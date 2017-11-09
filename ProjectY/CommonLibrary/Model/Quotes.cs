@@ -505,7 +505,7 @@ namespace CommonLibrary.Model
             _seq = seq;
             _symbolNo = data.B_ProdId;
             _typeNo = "I080";
-            _market = "期權5檔";
+            _market = (data.H_TransmissionCode == "2") ? "期貨" : "選擇權";
             _bid1Price = data.B_BuyOrderBook[0].MatchPrice;
             _bid1Qty = data.B_BuyOrderBook[0].MatchQuantity;
             _bid2Price = data.B_BuyOrderBook[1].MatchPrice;
@@ -534,7 +534,7 @@ namespace CommonLibrary.Model
             _seq = seq;
             _symbolNo = data.B_ProdId;
             _typeNo = "I020";
-            _market = "期權成交";
+            _market = (data.H_TransmissionCode == "2") ? "期貨" : "選擇權";
             _matchPrice = data.B_FirstMatchPrice;
             _matchQty = data.B_FirstMatchQnty;
             _matchTotalQty = data.B_MatchTotalQty;

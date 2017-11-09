@@ -24,6 +24,11 @@ namespace Service.Redis.GlobalMD
         public MainWindow()
         {
             InitializeComponent();
+            this.Loaded += MainWindow_Loaded;
+        }
+
+        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        {
             this.DataContext = ViewModels.MainViewModel.Instance;
 
             tbMessage.Text = string.Format("IS_LOAD_FILE={0}", DefaultSettings.Instance.IS_LOAD_FILE) + Environment.NewLine;

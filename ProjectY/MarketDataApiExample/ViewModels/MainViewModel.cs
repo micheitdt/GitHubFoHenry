@@ -16,6 +16,7 @@ using CommonLibrary;
 using System.Collections.Concurrent;
 using System.Data;
 using ServiceStack.Redis;
+using System.Windows.Data;
 
 namespace MarketDataApiExample.ViewModels
 {
@@ -33,7 +34,7 @@ namespace MarketDataApiExample.ViewModels
         public static readonly List<string> TypeList = new List<string>() { "I010", "I020", "I080", "1", "6", "17", "0" };
 
         private static MainViewModel _instance;
-        private string _ipAddress = "10.214.217.51";//"127.0.0.1";
+        private string _ipAddress = "10.214.19.51";//"10.214.19.51";"203.66.93.83";"127.0.0.1";
         private string _ipPort = "6688";
         private string _selectMarket = "2-期貨AM盤";//"6-PATS";
         private string _selectType = "I020";
@@ -41,12 +42,16 @@ namespace MarketDataApiExample.ViewModels
         private string _selectSubscribe = string.Empty;
         private ObservableCollection<string> _subscribeList = new ObservableCollection<string>();
         private ObservableCollection<Quotes> _quotesList = new ObservableCollection<Quotes>();
+        private Quotes _selectQuotes;
         private string _tSESymbolNoFilter = string.Empty;
         private string _tPEXSymbolNoFilter = string.Empty;
         private string _tAIFEXSymbolNoFilter = string.Empty;
-        private SymbolTseList _symbolTseDictionary = new SymbolTseList();
-        private SymbolTpexList _symbolTpexDictionary = new SymbolTpexList();
-        private SymbolTaifexList _symbolTaifexDictionary = new SymbolTaifexList();
+        private ObservableCollection<SymbolTse> _symbolTseDictionary = new ObservableCollection<SymbolTse>();
+        private SymbolTse _selectTse;
+        private ObservableCollection<SymbolTpex> _symbolTpexDictionary = new ObservableCollection<SymbolTpex>();
+        private SymbolTpex _selectTpex;
+        private ObservableCollection<SymbolTaifex> _symbolTaifexDictionary = new ObservableCollection<SymbolTaifex>();
+        private SymbolTaifex _selectTaifex;
         MarketDataApi.MarketDataApi api;
         private long _gridSeq = 1;
         RedisClient _redisClient;
@@ -63,26 +68,34 @@ namespace MarketDataApiExample.ViewModels
             set { _quotesDT = value; }
         }
         #endregion
-
         public MainViewModel()
         {
-            //讀設定檔
-            DefaultSettings.Instance.Initialize();
-            _redisClient = new RedisClient(DefaultSettings.Instance.REDIS_DB_IP, DefaultSettings.Instance.REDIS_DB_PORT);
-            //LoadTSEData();
-            //LoadTPEXData();
-            //LoadTAIFEXData();
-            ////ConcurrentDictionary<string, SymbolTse>
-            //foreach (KeyValuePair<string,SymbolTse> data in SymbolTseList.AllSymbolTseList)
-            //{
-            //    api.Sub(Rtn_adapterCode(SelectMarket), SelectType, SymbolNo);
-            //}
-            //foreach (KeyValuePair<string, SymbolTpex> data in SymbolTpexList.AllSymbolTpexList)
-            //{
-            //}
-            //foreach (KeyValuePair<string, SymbolTaifex> data in SymbolTaifexList.AllSymbolTaifexList)
-            //{
-            //}
+            try
+            {
+                //讀設定檔
+                DefaultSettings.Instance.Initialize();
+
+                if (Utility.TestConn(DefaultSettings.Instance.REDIS_DB_IP, DefaultSettings.Instance.REDIS_DB_PORT))
+                {
+                    _redisClient = new RedisClient(DefaultSettings.Instance.REDIS_DB_IP, DefaultSettings.Instance.REDIS_DB_PORT);
+
+                    Utility.GetTAIFEXRedisDB(_redisClient, Parameter.TAIFEX_HASH_KEY);
+                    Utility.GetTPEXRedisDB(_redisClient, Parameter.TPEX_HASH_KEY);
+                    Utility.GetTSERedisDB(_redisClient, Parameter.TSE_HASH_KEY);
+
+                    SymbolTaifexDictionary = SymbolTaifexList.GetAllSymbolTpexCollection();
+                    SymbolTpexDictionary = SymbolTpexList.GetAllSymbolTpexCollection();
+                    SymbolTseDictionary = SymbolTseList.GetAllSymbolTpexCollection();
+                }
+                else
+                {
+                    StatusMessageList.Insert(0, DateTime.Now.ToString("HH:mm:ss:ttt") + "    Redis连接失敗:" + DefaultSettings.Instance.REDIS_DB_IP + ":" + DefaultSettings.Instance.REDIS_DB_PORT + "  無法抓取盤前資料");
+                }
+            }
+            catch(Exception ex)
+            {
+                _logger.Error(ex, string.Format("MainViewModel(): ErrMsg = {0}.", ex.Message));
+            }
         }
 
         #region prop
@@ -231,7 +244,7 @@ namespace MarketDataApiExample.ViewModels
         /// <summary>
         /// 現貨上市商品資料
         /// </summary>
-        public SymbolTseList SymbolTseDictionary
+        public ObservableCollection<SymbolTse> SymbolTseDictionary
         {
             get
             {
@@ -246,7 +259,7 @@ namespace MarketDataApiExample.ViewModels
         /// <summary>
         /// 現貨上櫃商品資料
         /// </summary>
-        public SymbolTpexList SymbolTpexDictionary
+        public ObservableCollection<SymbolTpex> SymbolTpexDictionary
         {
             get
             {
@@ -261,7 +274,7 @@ namespace MarketDataApiExample.ViewModels
         /// <summary>
         /// 期貨商品資料
         /// </summary>
-        public SymbolTaifexList SymbolTaifexDictionary
+        public ObservableCollection<SymbolTaifex> SymbolTaifexDictionary
         {
             get
             {
@@ -284,8 +297,13 @@ namespace MarketDataApiExample.ViewModels
             }
             set
             {
+                if (_tAIFEXSymbolNoFilter == value)
+                    return;
+
                 _tAIFEXSymbolNoFilter = value;
                 OnPropertyChanged("TAIFEXSymbolNoFilter");
+
+                SymbolTaifexDictionary = SymbolTaifexList.GetFilterSymbolNo(value);
             }
         }
         /// <summary>
@@ -299,8 +317,13 @@ namespace MarketDataApiExample.ViewModels
             }
             set
             {
+                if (_tSESymbolNoFilter == value)
+                    return;
+                
                 _tSESymbolNoFilter = value;
                 OnPropertyChanged("TSESymbolNoFilter");
+
+                SymbolTseDictionary = SymbolTseList.GetFilterSymbolNo(value);
             }
         }
         /// <summary>
@@ -314,8 +337,13 @@ namespace MarketDataApiExample.ViewModels
             }
             set
             {
+                if (_tPEXSymbolNoFilter == value)
+                    return;
+
                 _tPEXSymbolNoFilter = value;
                 OnPropertyChanged("TPEXSymbolNoFilter");
+
+                SymbolTpexDictionary = SymbolTpexList.GetFilterSymbolNo(value);
             }
         }
         
@@ -356,6 +384,62 @@ namespace MarketDataApiExample.ViewModels
             {
                 _statusMessageList = value;
                 OnPropertyChanged("StatusMessageList");
+            }
+        }
+        /// <summary>
+        /// 所選行情
+        /// </summary>
+        public Quotes SelectQuotes
+        {
+            get
+            {
+                return _selectQuotes;
+            }
+            set
+            {
+                _selectQuotes = value;
+            }
+        }
+        /// <summary>
+        /// 所選盤前TSE
+        /// </summary>
+        public SymbolTse SelectTse
+        {
+            get
+            {
+                return _selectTse;
+            }
+            set
+            {
+                _selectTse = value;
+            }
+        }
+        /// <summary>
+        /// 所選盤前TPEX
+        /// </summary>
+        public SymbolTpex SelectTpex
+        {
+            get
+            {
+                return _selectTpex;
+            }
+            set
+            {
+                _selectTpex = value;
+            }
+        }
+        /// <summary>
+        /// 所選盤前TAIFEX
+        /// </summary>
+        public SymbolTaifex SelectTaifex
+        {
+            get
+            {
+                return _selectTaifex;
+            }
+            set
+            {
+                _selectTaifex = value;
             }
         }
 
@@ -421,6 +505,65 @@ namespace MarketDataApiExample.ViewModels
                 return _clearContentCommand;
             }
         }
+        private ICommand _gridDoubleClickCommand;
+        public ICommand GridDoubleClickCommand
+        {
+            get
+            {
+                if (_gridDoubleClickCommand == null)
+                {
+                    _gridDoubleClickCommand = new RelayCommand(
+                        QuotesGridDoubleClick
+                    );
+                }
+                return _gridDoubleClickCommand;
+            }
+        }
+
+        private ICommand _gridTseDoubleClickCommand;
+        public ICommand GridTseDoubleClickCommand
+        {
+            get
+            {
+                if (_gridTseDoubleClickCommand == null)
+                {
+                    _gridTseDoubleClickCommand = new RelayCommand(
+                        TseGridDoubleClick
+                    );
+                }
+                return _gridTseDoubleClickCommand;
+            }
+        }
+
+        private ICommand _gridTpexDoubleClickCommand;
+        public ICommand GridTpexDoubleClickCommand
+        {
+            get
+            {
+                if (_gridTpexDoubleClickCommand == null)
+                {
+                    _gridTpexDoubleClickCommand = new RelayCommand(
+                        TpexGridDoubleClick
+                    );
+                }
+                return _gridTpexDoubleClickCommand;
+            }
+        }
+
+        private ICommand _gridTaifexDoubleClickCommand;
+        public ICommand GridTaifexDoubleClickCommand
+        {
+            get
+            {
+                if (_gridTaifexDoubleClickCommand == null)
+                {
+                    _gridTaifexDoubleClickCommand = new RelayCommand(
+                        TaifexGridDoubleClick
+                    );
+                }
+                return _gridTaifexDoubleClickCommand;
+            }
+        }
 
         /// <summary>
         /// 連接行情伺服器
@@ -441,13 +584,8 @@ namespace MarketDataApiExample.ViewModels
                 api.TpexFormat1Received += api_TpexFormat1Received;/// <- 上市現貨格式1(盘前)回呼事件
                 api.PatsFormat0Received += api_PatsFormat0Received; ; /// <- pats(盤前)格式0回呼事件
                 api.PatsFormat1Received += api_PatsFormat1Received; ; /// <- pats(行情)格式1回呼事件
-                //盤前订阅测试
-                //api.Sub(AdapterCode.TAIFEX_FUTURES_DAY, "I010");
-                //api.Sub(AdapterCode.TAIFEX_OPTIONS_DAY, "I010");
-                //api.Sub(AdapterCode.TSE, "1");
-                //api.Sub(AdapterCode.TPEX, "1");
 
-                StatusMessageList.Insert(0, DateTime.Now.ToString("HH:mm:ss:ttt") + "    " + "连接" + IPAddress);
+                StatusMessageList.Insert(0, DateTime.Now.ToString("HH:mm:ss:ttt") + "    " + "连接" + IPAddress + ":" + IPPort);
             }
             catch (Exception err)
             {
@@ -462,6 +600,10 @@ namespace MarketDataApiExample.ViewModels
         /// </summary>
         private void SupscribeSymbol()
         {
+            if (api == null || string.IsNullOrEmpty(SelectMarket) || string.IsNullOrEmpty(SelectType))
+            {
+                return;
+            }
             string subSymbol = SelectMarket + ";" + SelectType + ";" + SymbolNo;
             if (Rtn_adapterCode(SelectMarket) == AdapterCode.TAIFEX_GLOBAL_PATS && SymbolNo != "all")
             {
@@ -496,18 +638,31 @@ namespace MarketDataApiExample.ViewModels
             }
             else
             {
-                if (string.IsNullOrEmpty(SymbolNo))
-                {
-                    api.Sub(Rtn_adapterCode(SelectMarket), SelectType);
-                    SubscribeList.Insert(0, SelectMarket + ";" + SelectType);
-                }
-                else
-                {
-                    api.Sub(Rtn_adapterCode(SelectMarket), SelectType, SymbolNo);
-                    SubscribeList.Insert(0, subSymbol);
-                }
-                StatusMessageList.Insert(0, DateTime.Now.ToString("HH:mm:ss:ttt") + "    " + "订阅:" + subSymbol);
+                GeneralSupscribeSymbol(SelectMarket, SelectType, SymbolNo);
             }
+        }
+        /// <summary>
+        /// 一般訂閱
+        /// </summary>
+        private void GeneralSupscribeSymbol(string market, string type, string symbolno)
+        {
+            if (api == null)
+            {
+                MessageBox.Show("未連接或連接錯誤");
+                return;
+            }
+            string subSymbol = market + ";" + type + ";" + symbolno;
+            if (string.IsNullOrEmpty(symbolno))
+            {
+                api.Sub(Rtn_adapterCode(market), type);
+                SubscribeList.Insert(0, market + ";" + type);
+            }
+            else
+            {
+                api.Sub(Rtn_adapterCode(market), type, symbolno);
+                SubscribeList.Insert(0, subSymbol);
+            }
+            StatusMessageList.Insert(0, DateTime.Now.ToString("HH:mm:ss:ttt") + "    " + "订阅:" + subSymbol);
         }
         /// <summary>
         /// PATS轉易盛訂閱資料
@@ -577,12 +732,18 @@ namespace MarketDataApiExample.ViewModels
         /// </summary>
         private void UnSupscribeSymbol()
         {
+            if(string.IsNullOrEmpty( SelectMarket) || string.IsNullOrEmpty(SelectType))
+            {
+                return;
+            }
             if (string.IsNullOrEmpty(SymbolNo))
             {
                 api.UnSub(Rtn_adapterCode(SelectMarket), SelectType);
 
                 SubscribeList.Remove(SelectSubscribe);
                 StatusMessageList.Insert(0, DateTime.Now.ToString("HH:mm:ss:ttt") + "    " + "取消订阅:" + SelectMarket + ";" + SelectType);
+                SelectType = string.Empty;
+                SelectMarket = string.Empty;
             }
             else
             {
@@ -590,7 +751,11 @@ namespace MarketDataApiExample.ViewModels
 
                 SubscribeList.Remove(SelectSubscribe);
                 StatusMessageList.Insert(0, DateTime.Now.ToString("HH:mm:ss:ttt") + "    " + "取消订阅:" + SelectMarket + ";" + SelectType + ";" + SymbolNo);
+                SymbolNo = string.Empty;
+                SelectType = string.Empty;
+                SelectMarket = string.Empty;
             }
+            SelectSubscribe = SubscribeList.FirstOrDefault();
         }
         //------------------------------------------------------------------------------------------------------------------------------------------
         /// <summary>
@@ -601,14 +766,69 @@ namespace MarketDataApiExample.ViewModels
             QuotesList.Clear();
             _gridSeq = 1;
         }
+        //------------------------------------------------------------------------------------------------------------------------------------------
         /// <summary>
-        /// 取盤前資料
+        /// 行情滑鼠左鍵點2下
         /// </summary>
-        private void GetQData()
+        private void QuotesGridDoubleClick()
         {
-            Utility.GetRedisDB(_redisClient, Parameter.TAIFEX_HASH_KEY);
-            Utility.GetRedisDB(_redisClient, Parameter.TPEX_HASH_KEY);
-            Utility.GetRedisDB(_redisClient, Parameter.TPEX_HASH_KEY);
+            switch (_selectQuotes.Market)
+            {
+                case "上市":
+                    GeneralSupscribeSymbol("0-上市", _selectQuotes.TypeNo, _selectQuotes.SymbolNo);
+                    break;
+                case "上櫃":
+                    GeneralSupscribeSymbol("0-上櫃", _selectQuotes.TypeNo, _selectQuotes.SymbolNo);
+                    break;
+                case "期貨":
+                    GeneralSupscribeSymbol("2-期貨AM盤", _selectQuotes.TypeNo, _selectQuotes.SymbolNo);
+                    GeneralSupscribeSymbol("4-期貨PM盤", _selectQuotes.TypeNo, _selectQuotes.SymbolNo);
+                    break;
+                case "選擇權":
+                    GeneralSupscribeSymbol("3-選擇權AM盤", _selectQuotes.TypeNo, _selectQuotes.SymbolNo);
+                    GeneralSupscribeSymbol("5-選擇權PM盤", _selectQuotes.TypeNo, _selectQuotes.SymbolNo);
+                    break;
+            }
+            
+        }
+        //------------------------------------------------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// TSE滑鼠左鍵點2下
+        /// </summary>
+        private void TseGridDoubleClick()
+        {
+            GeneralSupscribeSymbol("0-上市", "6", _selectTse.SymbolNo);
+            GeneralSupscribeSymbol("0-上市", "17", _selectTse.SymbolNo);
+        }
+        //------------------------------------------------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// TPEX滑鼠左鍵點2下
+        /// </summary>
+        private void TpexGridDoubleClick()
+        {
+            GeneralSupscribeSymbol("1-上櫃", "6", _selectTpex.SymbolNo);
+            GeneralSupscribeSymbol("1-上櫃", "17", _selectTpex.SymbolNo);
+        }
+        //------------------------------------------------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// TAIFEX滑鼠左鍵點2下
+        /// </summary>
+        private void TaifexGridDoubleClick()
+        {
+            if(_selectTaifex.TypeNo == "期貨")
+            {
+                GeneralSupscribeSymbol("2-期貨AM盤", "I020", _selectTaifex.SymbolNo);
+                GeneralSupscribeSymbol("2-期貨AM盤", "I080", _selectTaifex.SymbolNo);
+                GeneralSupscribeSymbol("4-期貨PM盤", "I020", _selectTaifex.SymbolNo);
+                GeneralSupscribeSymbol("4-期貨PM盤", "I080", _selectTaifex.SymbolNo);
+            }
+            else
+            {
+                GeneralSupscribeSymbol("3-選擇權AM盤", "I020", _selectTaifex.SymbolNo);
+                GeneralSupscribeSymbol("3-選擇權AM盤", "I080", _selectTaifex.SymbolNo);
+                GeneralSupscribeSymbol("5-選擇權PM盤", "I020", _selectTaifex.SymbolNo);
+                GeneralSupscribeSymbol("5-選擇權PM盤", "I080", _selectTaifex.SymbolNo);
+            }
         }
         #endregion
 
@@ -637,7 +857,7 @@ namespace MarketDataApiExample.ViewModels
                 model.SetI080Data(_gridSeq, e.PacketData);
                 QuotesList.Insert(0, model);
                 _gridSeq++;
-                _logger.Debug(fData);
+                //_logger.Debug(fData);
             }));
         }
         //------------------------------------------------------------------------------------------------------------------------------------------
@@ -658,7 +878,7 @@ namespace MarketDataApiExample.ViewModels
                 model.SetI020Data(_gridSeq, e.PacketData);
                 QuotesList.Insert(0, model);
                 _gridSeq++;
-                _logger.Debug(fData);
+                //_logger.Debug(fData);
             }));
         }
         //------------------------------------------------------------------------------------------------------------------------------------------
@@ -682,7 +902,7 @@ namespace MarketDataApiExample.ViewModels
                 model.SetTpexData(_gridSeq,  e.PacketData);
                 QuotesList.Insert(0, model);
                 _gridSeq++;
-                _logger.Debug(fData);
+                //_logger.Debug(fData);
             }));
         }
         //------------------------------------------------------------------------------------------------------------------------------------------
@@ -706,7 +926,7 @@ namespace MarketDataApiExample.ViewModels
                 model.SetTseData(_gridSeq, e.PacketData);
                 QuotesList.Insert(0,model);
                 _gridSeq++;
-                _logger.Debug(fData);
+                //_logger.Debug(fData);
             }));
         }
         //------------------------------------------------------------------------------------------------------------------------------------------
@@ -730,7 +950,7 @@ namespace MarketDataApiExample.ViewModels
                 model.SetTpexData(_gridSeq, e.PacketData);
                 QuotesList.Insert(0, model);
                 _gridSeq++;
-                _logger.Debug(fData);
+                //_logger.Debug(fData);
             }));
         }
         //------------------------------------------------------------------------------------------------------------------------------------------
@@ -754,7 +974,7 @@ namespace MarketDataApiExample.ViewModels
                 model.SetTseData(_gridSeq, e.PacketData);
                 QuotesList.Insert(0, model);
                 _gridSeq++;
-                _logger.Debug(fData);
+                //_logger.Debug(fData);
             }));
         }        
         //------------------------------------------------------------------------------------------------------------------------------------------
@@ -765,13 +985,7 @@ namespace MarketDataApiExample.ViewModels
         {
             App.Current.Dispatcher.Invoke((Action)(() =>
             {
-                if (SymbolTseDictionary.ContainsKey(e.PacketData.StockID))
-                {
-                    return;
-                }
-
-                SymbolTseList.AddSymbolTseData(new SymbolTse(e.PacketData));
-                SymbolTseDictionary = SymbolTseList.AllSymbolTseList;
+                AddSymbolTseDictionary(e.PacketData);
             }));
         }
         //------------------------------------------------------------------------------------------------------------------------------------------
@@ -782,13 +996,7 @@ namespace MarketDataApiExample.ViewModels
         {
             App.Current.Dispatcher.Invoke((Action)(() =>
             {
-                if (SymbolTpexDictionary.ContainsKey(e.PacketData.StockID))
-                {
-                    return;
-                }
-
-                SymbolTpexList.AddSymbolTpexData(new SymbolTpex(e.PacketData));
-                SymbolTpexDictionary = SymbolTpexList.AllSymbolTpexList;
+                AddSymbolTpexDictionary(e.PacketData);
             }));
         }
         //------------------------------------------------------------------------------------------------------------------------------------------
@@ -842,7 +1050,7 @@ namespace MarketDataApiExample.ViewModels
         AdapterCode Rtn_adapterCode(string Str)
         {
             AdapterCode adapterCode = AdapterCode.TSE; ;
-            switch (SelectMarket.Substring(0, 1))
+            switch (Str.Substring(0, 1))
             {
                 case "0":
                     adapterCode = AdapterCode.TSE; break;                  /// <- 上市
@@ -896,13 +1104,13 @@ namespace MarketDataApiExample.ViewModels
         private void AddSymbolTseDictionary(CommonLibrary.Model.PacketTSE.Format1 data)
         {
 
-            if (string.IsNullOrEmpty(data.StockID) || SymbolTseDictionary.ContainsKey(data.StockID))
+            if (string.IsNullOrEmpty(data.StockID) || SymbolTseList.AllSymbolTseList.ContainsKey(data.StockID))
             {
                 return;
             }
 
             SymbolTseList.AddSymbolTseData(new SymbolTse(data));
-            SymbolTseDictionary = SymbolTseList.AllSymbolTseList;
+            SymbolTseDictionary = SymbolTseList.GetAllSymbolTpexCollection();
         }
 
         private void LoadTPEXData()
@@ -936,13 +1144,13 @@ namespace MarketDataApiExample.ViewModels
         private void AddSymbolTpexDictionary(CommonLibrary.Model.PacketTPEX.Format1 data)
         {
 
-            if (string.IsNullOrEmpty(data.StockID) || SymbolTpexDictionary.ContainsKey(data.StockID))
+            if (string.IsNullOrEmpty(data.StockID) || SymbolTpexList.AllSymbolTpexList.ContainsKey(data.StockID))
             {
                 return;
             }
 
             SymbolTpexList.AddSymbolTpexData(new SymbolTpex(data));
-            SymbolTpexDictionary = SymbolTpexList.AllSymbolTpexList;
+            SymbolTpexDictionary = SymbolTpexList.GetAllSymbolTpexCollection();
         }
 
         private void LoadTAIFEXData()
@@ -976,13 +1184,13 @@ namespace MarketDataApiExample.ViewModels
         private void AddSymbolTaifexDictionary(CommonLibrary.Model.PacketTAIFEX.I010 data)
         {
 
-            if (string.IsNullOrEmpty(data.B_ProdId) || SymbolTaifexDictionary.ContainsKey(data.B_ProdId))
+            if (string.IsNullOrEmpty(data.B_ProdId) || SymbolTaifexList.AllSymbolTaifexList.ContainsKey(data.B_ProdId))
             {
                 return;
             }
 
             SymbolTaifexList.AddSymbolTalfexData(new SymbolTaifex(data));
-            SymbolTaifexDictionary = SymbolTaifexList.AllSymbolTaifexList;
+            SymbolTaifexDictionary = SymbolTaifexList.GetAllSymbolTpexCollection();
         }
         #endregion
 

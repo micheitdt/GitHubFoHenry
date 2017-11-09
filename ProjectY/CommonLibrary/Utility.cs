@@ -24,6 +24,51 @@ namespace CommonLibrary
             return true;
         }
         /// <summary>
+        /// 測試連接
+        /// </summary>
+        /// <param name="ip"></param>
+        /// <param name="port"></param>
+        /// <returns></returns>
+        public static bool TestConn(string ip, int port)
+        {
+            try
+            {
+                using (System.Net.Sockets.TcpClient tc = new System.Net.Sockets.TcpClient())
+                {
+                    IAsyncResult result = tc.BeginConnect(ip, port, null, null);
+                    DateTime start = DateTime.Now;
+
+                    do
+                    {
+                        System.Threading.SpinWait.SpinUntil(() => { return false; }, 100);
+                        if (result.IsCompleted) break;
+                    }
+                    while (DateTime.Now.Subtract(start).TotalSeconds < 0.3);
+
+                    if (result.IsCompleted)
+                    {
+                        tc.EndConnect(result);
+                        return true;
+                    }
+
+                    tc.Close();
+
+                    if (!result.IsCompleted)
+                    {
+                        return false;
+                    }
+
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                throw;
+            }
+
+            return false;
+        }
+        /// <summary>
         /// 存RedisDB資料
         /// </summary>
         public static void SetRedisDB(RedisClient conndb, string hashid, string key, object data)
@@ -75,6 +120,29 @@ namespace CommonLibrary
             //    SymbolTseDictionary = SymbolTseList.AllSymbolTseList;
             //}
         }
+
+        public static bool GetTSERedisDB(RedisClient conndb, string hashid)
+        {
+            if (conndb.GetHashKeys(hashid).Count == 0)
+                return false;
+            SymbolTseList.SetSymbolTseDataList(conndb.GetAll<SymbolTse>(conndb.GetHashKeys(hashid)));
+            return true;
+        }
+        public static bool GetTPEXRedisDB(RedisClient conndb, string hashid)
+        {
+            if (conndb.GetHashKeys(hashid).Count == 0)
+                return false;
+            SymbolTpexList.SetSymbolTseDataList(conndb.GetAll<SymbolTpex>(conndb.GetHashKeys(hashid)));
+            return true;
+        }
+        public static bool GetTAIFEXRedisDB(RedisClient conndb, string hashid)
+        {
+            if (conndb.GetHashKeys(hashid).Count ==0)
+                return false;
+            SymbolTaifexList.SetSymbolTseDataList(conndb.GetAll<SymbolTaifex>(conndb.GetHashKeys(hashid)));
+            return true;
+        }
+
     }
     //--------------------------------------------------------------------
     public static class Extension

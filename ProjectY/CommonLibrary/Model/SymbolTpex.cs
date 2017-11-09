@@ -671,6 +671,11 @@ namespace CommonLibrary.Model
             internal set;
         }
 
+        public static ObservableCollection<SymbolTpex> GetAllSymbolTpexCollection()
+        {
+            return new ObservableCollection<SymbolTpex>(AllSymbolTpexList.Values);
+        }
+
         public static void AddSymbolTpexData(SymbolTpex data)
         {
             AllSymbolTpexList.TryAdd(data.SymbolNo, data);
@@ -693,8 +698,12 @@ namespace CommonLibrary.Model
 
         public static ObservableCollection<SymbolTpex> GetFilterSymbolTpexList(string symbolno, string symbolName)
         {
-            IEnumerable<SymbolTpex> data = AllSymbolTpexList.Values.Where(x => x.SymbolNo == symbolno & (string.IsNullOrEmpty(symbolName) ? true : x.SymbolNo == symbolName));
-            return new ObservableCollection<SymbolTpex>(data);
+            return new ObservableCollection<SymbolTpex>(AllSymbolTpexList.Values.Where(x => (string.IsNullOrEmpty(symbolno) ? true : x.SymbolNo.Contains(symbolno) & (string.IsNullOrEmpty(symbolName) ? true : x.SymbolName.Contains(symbolName)))));
+        }
+
+        public static ObservableCollection<SymbolTpex> GetFilterSymbolNo(string symbolno)
+        {
+            return new ObservableCollection<SymbolTpex>(AllSymbolTpexList.Values.Where(x => (string.IsNullOrEmpty(symbolno) ? true : x.SymbolNo.Contains(symbolno))));
         }
     }
 }

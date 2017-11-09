@@ -19,6 +19,7 @@ namespace CommonLibrary.Model
         public SymbolTaifex(PacketTAIFEX.I010 data)
         {
             _symbolNo = data.B_ProdId;
+            _typeNo = (data.H_TransmissionCode == "1") ? "期貨" : "選擇權";
             _riseLimitPrice1 = data.B_RiseLimitPrice1;//第一漲停價
             _referencePrice = data.B_ReferencePrice;//參考價
             _fallLimitPrice1 = data.B_FallLimitPrice1;//第一跌停價
@@ -383,6 +384,11 @@ namespace CommonLibrary.Model
             internal set;
         }
 
+        public static ObservableCollection<SymbolTaifex> GetAllSymbolTpexCollection()
+        {
+            return new ObservableCollection<SymbolTaifex>(AllSymbolTaifexList.Values);
+        }
+
         public static void AddSymbolTalfexData(SymbolTaifex data)
         {
             AllSymbolTaifexList.TryAdd(data.SymbolNo , data);
@@ -403,10 +409,14 @@ namespace CommonLibrary.Model
             AllSymbolTaifexList.TryAdd(data.B_ProdId, temp);
         }
 
-        public static ObservableCollection<SymbolTaifex> FilterSymbolTalfexList(string symbolno, string symbolName)
+        public static ObservableCollection<SymbolTaifex> GetFilterSymbolTalfexList(string symbolno, string symbolName)
         {
-            IEnumerable<SymbolTaifex> data = AllSymbolTaifexList.Values.Where(x => x.SymbolNo == symbolno & (string.IsNullOrEmpty(symbolName) ? true : x.SymbolNo == symbolName));
-            return new ObservableCollection<SymbolTaifex>(data);
+            return new ObservableCollection<SymbolTaifex>(AllSymbolTaifexList.Values.Where(x => (string.IsNullOrEmpty(symbolno) ? true : x.SymbolNo.Contains(symbolno) & (string.IsNullOrEmpty(symbolName) ? true : x.SymbolName.Contains(symbolName)))));
+        }
+
+        public static ObservableCollection<SymbolTaifex> GetFilterSymbolNo(string symbolno)
+        {
+            return new ObservableCollection<SymbolTaifex>(AllSymbolTaifexList.Values.Where(x => (string.IsNullOrEmpty(symbolno) ? true : x.SymbolNo.Contains(symbolno))));
         }
     }
 }

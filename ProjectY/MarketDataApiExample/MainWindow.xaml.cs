@@ -23,6 +23,7 @@ namespace MarketDataApiExample
     {
         public MainWindow()
         {
+            AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
             InitializeComponent();
             this.DataContext = MainViewModel.Instance;
         }
@@ -37,6 +38,12 @@ namespace MarketDataApiExample
         private void DataGrid_LoadingRow(object sender, DataGridRowEventArgs e)
         {
             e.Row.Header = (e.Row.GetIndex()+1).ToString();
+        }
+
+        private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
+            _logger.Debug(e.ExceptionObject.ToString());
         }
     }
 }

@@ -43,6 +43,8 @@ namespace Service.Redis.CleanMD
 
             RedisClient client = new RedisClient(DefaultSettings.Instance.REDIS_DB_IP, DefaultSettings.Instance.REDIS_DB_PORT);
             client.FlushAll();
+            MessageBox.Show("已清空Redis資料", "注意", MessageBoxButton.OK);
+            Environment.Exit(0);
         }
     }
 }

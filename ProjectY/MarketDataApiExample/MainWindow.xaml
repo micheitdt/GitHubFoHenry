@@ -7,10 +7,9 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:view="clr-namespace:MarketDataApiExample.ViewModels"
     Title="MainWindow"
-    Width="600"
-    Height="400"
+    Width="800"
+    Height="600"
     FontSize="16"
-    WindowStartupLocation="CenterScreen"
     mc:Ignorable="d">
     <Grid>
         <Grid>
@@ -38,19 +37,19 @@
                         VerticalAlignment="Center"
                         Click="BtnIPConnect_Click"
                         Command="{Binding ConncetCommand}"
-                        Content="连接" />
+                        Content="連接" />
                 </StackPanel>
                 <StackPanel
                     Name="MarketControlAry"
                     Margin="0,5"
                     IsEnabled="False"
                     Orientation="Horizontal">
-                    <Label Content="市场:" />
+                    <Label Content="市場:" />
                     <ComboBox
                         ItemsSource="{x:Static view:MainViewModel.MarketList}"
                         SelectedItem="{Binding SelectMarket, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                         Text="2-期貨AM盤" />
-                    <Label Content="类型:" />
+                    <Label Content="類型:" />
                     <ComboBox
                         ItemsSource="{x:Static view:MainViewModel.TypeList}"
                         SelectedItem="{Binding SelectType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
@@ -66,12 +65,12 @@
                         Margin="10,0"
                         VerticalAlignment="Center"
                         Command="{Binding SupscribeCommand}"
-                        Content="订阅" />
+                        Content="訂閱" />
                     <Button
                         Name="BtnSymbolUnSubscribe"
                         VerticalAlignment="Center"
                         Command="{Binding UnsupscribeCommand}"
-                        Content="取消订阅" />
+                        Content="取消訂閱" />
                 </StackPanel>
             </StackPanel>
             <GridSplitter
@@ -107,21 +106,25 @@
                                 AutoGenerateColumns="False"
                                 CanUserAddRows="False"
                                 IsReadOnly="True"
-                                ItemsSource="{Binding QuotesList, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}">
+                                ItemsSource="{Binding QuotesList, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                                SelectedItem="{Binding SelectQuotes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
                                 <DataGrid.Columns>
-                                    <DataGridTextColumn Binding="{Binding Seq}" Header="序号" />
-                                    <DataGridTextColumn Binding="{Binding Market}" Header="市场别" />
-                                    <DataGridTextColumn Binding="{Binding TypeNo}" Header="类型" />
-                                    <DataGridTextColumn Binding="{Binding SymbolNo}" Header="商品代码" />
-                                    <DataGridTextColumn Binding="{Binding MatchPrice}" Header="撮合价" />
+                                    <DataGridTextColumn Binding="{Binding Seq}" Header="序號" />
+                                    <DataGridTextColumn Binding="{Binding Market}" Header="市場別" />
+                                    <DataGridTextColumn Binding="{Binding TypeNo}" Header="類型" />
+                                    <DataGridTextColumn Binding="{Binding SymbolNo}" Header="商品代碼" />
+                                    <DataGridTextColumn Binding="{Binding MatchPrice}" Header="撮合價" />
                                     <DataGridTextColumn Binding="{Binding MatchQty}" Header="撮合量" />
-                                    <DataGridTextColumn Binding="{Binding MatchTotalQty}" Header="总量" />
-                                    <DataGridTextColumn Binding="{Binding Time}" Header="时间" />
-                                    <DataGridTextColumn Binding="{Binding Bid1Qty}" Header="买一量" />
-                                    <DataGridTextColumn Binding="{Binding Bid1Price}" Header="买一价" />
-                                    <DataGridTextColumn Binding="{Binding Ask1Qty}" Header="卖一量" />
-                                    <DataGridTextColumn Binding="{Binding Ask1Price}" Header="卖一价" />
+                                    <DataGridTextColumn Binding="{Binding MatchTotalQty}" Header="總量" />
+                                    <DataGridTextColumn Binding="{Binding Time}" Header="時間" />
+                                    <DataGridTextColumn Binding="{Binding Bid1Qty}" Header="買一量" />
+                                    <DataGridTextColumn Binding="{Binding Bid1Price}" Header="買一價" />
+                                    <DataGridTextColumn Binding="{Binding Ask1Qty}" Header="賣一量" />
+                                    <DataGridTextColumn Binding="{Binding Ask1Price}" Header="賣一價" />
                                 </DataGrid.Columns>
+                                <DataGrid.InputBindings>
+                                    <MouseBinding Command="{Binding GridDoubleClickCommand}" Gesture="LeftDoubleClick" />
+                                </DataGrid.InputBindings>
                             </DataGrid>
                             <!--<ListBox IsSynchronizedWithCurrentItem="True" Grid.Column="2" x:Name="MarketDataGrid"  ItemsSource="{Binding MarketDataList, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" Margin="5" >-->
                             <!--<ListBox.ItemTemplate>
@@ -158,7 +161,7 @@
                                 Grid.Row="0"
                                 Margin="0,5"
                                 Orientation="Horizontal">
-                                <Label Content="商品代码:" />
+                                <Label Content="商品代碼:" />
                                 <TextBox
                                     Width="100"
                                     Margin="5,0"
@@ -170,8 +173,13 @@
                                 Grid.Row="1"
                                 CanUserAddRows="False"
                                 IsReadOnly="True"
-                                ItemsSource="{Binding SymbolTseDictionary.Values, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
-                                LoadingRow="DataGrid_LoadingRow" />
+                                ItemsSource="{Binding SymbolTseDictionary, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                                LoadingRow="DataGrid_LoadingRow"
+                                SelectedItem="{Binding SelectTse, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                                <DataGrid.InputBindings>
+                                    <MouseBinding Command="{Binding GridTseDoubleClickCommand}" Gesture="LeftDoubleClick" />
+                                </DataGrid.InputBindings>
+                            </DataGrid>
                         </Grid>
                     </TabItem>
                     <TabItem Header="現貨_上櫃商品">
@@ -184,7 +192,7 @@
                                 Grid.Row="0"
                                 Margin="0,5"
                                 Orientation="Horizontal">
-                                <Label Content="商品代码:" />
+                                <Label Content="商品代碼:" />
                                 <TextBox
                                     Width="100"
                                     Margin="5,0"
@@ -196,8 +204,13 @@
                                 Grid.Row="1"
                                 CanUserAddRows="False"
                                 IsReadOnly="True"
-                                ItemsSource="{Binding SymbolTpexDictionary.Values, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
-                                LoadingRow="DataGrid_LoadingRow" />
+                                ItemsSource="{Binding SymbolTpexDictionary, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                                LoadingRow="DataGrid_LoadingRow"
+                                SelectedItem="{Binding SelectTpex, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                                <DataGrid.InputBindings>
+                                    <MouseBinding Command="{Binding GridTpexDoubleClickCommand}" Gesture="LeftDoubleClick" />
+                                </DataGrid.InputBindings>
+                            </DataGrid>
                         </Grid>
                     </TabItem>
                     <TabItem Header="期貨商品">
@@ -210,7 +223,7 @@
                                 Grid.Row="0"
                                 Margin="0,5"
                                 Orientation="Horizontal">
-                                <Label Content="商品代码:" />
+                                <Label Content="商品代碼:" />
                                 <TextBox
                                     Width="100"
                                     Margin="5,0"
@@ -222,8 +235,13 @@
                                 Grid.Row="1"
                                 CanUserAddRows="False"
                                 IsReadOnly="True"
-                                ItemsSource="{Binding SymbolTaifexDictionary.Values, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
-                                LoadingRow="DataGrid_LoadingRow" />
+                                ItemsSource="{Binding SymbolTaifexDictionary, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                                LoadingRow="DataGrid_LoadingRow"
+                                SelectedItem="{Binding SelectTaifex, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                                <DataGrid.InputBindings>
+                                    <MouseBinding Command="{Binding GridTaifexDoubleClickCommand}" Gesture="LeftDoubleClick" />
+                                </DataGrid.InputBindings>
+                            </DataGrid>
                         </Grid>
                     </TabItem>
                     <TabItem Header="外期PATS" Visibility="Collapsed">
