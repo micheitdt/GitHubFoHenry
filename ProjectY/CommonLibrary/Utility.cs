@@ -14,6 +14,9 @@ namespace CommonLibrary
 {
     public partial class Utility
     {
+        /// <summary>
+        /// 存檔
+        /// </summary>
         public static bool SaveData(string FileName, byte[] Data)
         {
             using (FileStream FS = new FileStream(FileName, File.Exists(FileName) ? FileMode.Append : FileMode.OpenOrCreate, FileAccess.Write))
@@ -26,9 +29,6 @@ namespace CommonLibrary
         /// <summary>
         /// 測試連接
         /// </summary>
-        /// <param name="ip"></param>
-        /// <param name="port"></param>
-        /// <returns></returns>
         public static bool TestConn(string ip, int port)
         {
             try
@@ -68,6 +68,8 @@ namespace CommonLibrary
 
             return false;
         }
+
+        #region Redis
         /// <summary>
         /// 存RedisDB資料
         /// </summary>
@@ -142,7 +144,7 @@ namespace CommonLibrary
             SymbolTaifexList.SetSymbolTseDataList(conndb.GetAll<SymbolTaifex>(conndb.GetHashKeys(hashid)));
             return true;
         }
-
+        #endregion
     }
     //--------------------------------------------------------------------
     public static class Extension

@@ -63,7 +63,7 @@ namespace Adapter.Tse2
                             bytes = client.Receive(ref localEp);
                             if (bytes[0] == 27)
                             {
-                                formatCode = PacketFunction.ConvertToFormat9(bytes, 4, 1);
+                                formatCode = Functions.ConvertToFormat9(bytes, 4, 1);
                                 switch (formatCode)
                                 {
                                     case 17:

@@ -17,6 +17,7 @@ using System.Collections.Concurrent;
 using System.Data;
 using ServiceStack.Redis;
 using System.Windows.Data;
+using NPOI.HSSF.UserModel;
 
 namespace MarketDataApiExample.ViewModels
 {
@@ -59,21 +60,13 @@ namespace MarketDataApiExample.ViewModels
         private ObservableCollection<CommonLibrary.Model.PacketPATS.Format0> _patsFormat0List = new ObservableCollection<CommonLibrary.Model.PacketPATS.Format0>();
         private ObservableCollection<CommonLibrary.Model.PacketPATS.Format1> _patsFormat1List = new ObservableCollection<CommonLibrary.Model.PacketPATS.Format1>();
         private ObservableCollection<string> _statusMessageList = new ObservableCollection<string>();
-
-        //行情資料
-        private static DataTable _quotesDT;
-        public static DataTable QuotesDT
-        {
-            get { return _quotesDT; }
-            set { _quotesDT = value; }
-        }
         #endregion
+
         public MainViewModel()
         {
             try
             {
-                //讀設定檔
-                DefaultSettings.Instance.Initialize();
+                DefaultSettings.Instance.Initialize();//讀設定檔
 
                 if (Utility.TestConn(DefaultSettings.Instance.REDIS_DB_IP, DefaultSettings.Instance.REDIS_DB_PORT))
                 {
@@ -565,6 +558,21 @@ namespace MarketDataApiExample.ViewModels
             }
         }
 
+        private ICommand _outputExcelCommand;
+        public ICommand OutputExcelCommand
+        {
+            get
+            {
+                if (_outputExcelCommand == null)
+                {
+                    _outputExcelCommand = new RelayCommand(
+                        OutputExcel
+                    );
+                }
+                return _outputExcelCommand;
+            }
+        }
+
         /// <summary>
         /// 連接行情伺服器
         /// </summary>
@@ -585,7 +593,7 @@ namespace MarketDataApiExample.ViewModels
                 api.PatsFormat0Received += api_PatsFormat0Received; ; /// <- pats(盤前)格式0回呼事件
                 api.PatsFormat1Received += api_PatsFormat1Received; ; /// <- pats(行情)格式1回呼事件
 
-                StatusMessageList.Insert(0, DateTime.Now.ToString("HH:mm:ss:ttt") + "    " + "连接" + IPAddress + ":" + IPPort);
+                StatusMessageList.Insert(0, DateTime.Now.ToString("HH:mm:ss:ttt") + "    " + "連接" + IPAddress + ":" + IPPort);
             }
             catch (Exception err)
             {
@@ -593,7 +601,6 @@ namespace MarketDataApiExample.ViewModels
                 StatusMessageList.Insert(0, DateTime.Now.ToString("HH:mm:ss:ttt") + "    " + string.Format("ConncetMarketData(): ErrMsg = {0}.", err.Message));
             }
         }
-
         //------------------------------------------------------------------------------------------------------------------------------------------
         /// <summary>
         /// 註冊報價
@@ -619,11 +626,11 @@ namespace MarketDataApiExample.ViewModels
                     {
                         api.Sub(Rtn_adapterCode(SelectMarket), SelectType, SymbolNo);
                         SubscribeList.Insert(0, subSymbol);
-                        StatusMessageList.Insert(0, string.Format("{0}    订阅成功:   {1}", DateTime.Now.ToString("HH:mm:ss:ttt"), subSymbol));
+                        StatusMessageList.Insert(0, string.Format("{0}    訂閱成功:   {1}", DateTime.Now.ToString("HH:mm:ss:ttt"), subSymbol));
                     }
                     else
                     {
-                        StatusMessageList.Insert(0, string.Format("{0}    订阅失败:   {1}", DateTime.Now.ToString("HH:mm:ss:ttt"), subSymbol));
+                        StatusMessageList.Insert(0, string.Format("{0}    訂閱失敗:   {1}", DateTime.Now.ToString("HH:mm:ss:ttt"), subSymbol));
                     }
                     //顯示轉換PATS2易盛
                     //if (PATSConverterToESunny(subSymbolAry[0], subSymbolAry[1], subSymbolAry[2], ref exchangeNo, ref commondityNo, ref contractNo))
@@ -641,91 +648,6 @@ namespace MarketDataApiExample.ViewModels
                 GeneralSupscribeSymbol(SelectMarket, SelectType, SymbolNo);
             }
         }
-        /// <summary>
-        /// 一般訂閱
-        /// </summary>
-        private void GeneralSupscribeSymbol(string market, string type, string symbolno)
-        {
-            if (api == null)
-            {
-                MessageBox.Show("未連接或連接錯誤");
-                return;
-            }
-            string subSymbol = market + ";" + type + ";" + symbolno;
-            if (string.IsNullOrEmpty(symbolno))
-            {
-                api.Sub(Rtn_adapterCode(market), type);
-                SubscribeList.Insert(0, market + ";" + type);
-            }
-            else
-            {
-                api.Sub(Rtn_adapterCode(market), type, symbolno);
-                SubscribeList.Insert(0, subSymbol);
-            }
-            StatusMessageList.Insert(0, DateTime.Now.ToString("HH:mm:ss:ttt") + "    " + "订阅:" + subSymbol);
-        }
-        /// <summary>
-        /// PATS轉易盛訂閱資料
-        /// </summary>
-        private bool PATSConverterToESunny(string exchange, string commondity, string contract, ref string exchangeNo, ref string commondityNo, ref string contractNo)
-        {
-            string orgData = exchange + "." + commondity + "." + contract;
-            exchangeNo = string.Empty;
-            commondityNo = string.Empty;
-            bool isConverter = ESunnyPATSMapConverter.Instance.GetESExchangeNoCommondityNo(exchange, commondity, ref exchangeNo, ref commondityNo);
-            if (isConverter)
-            {
-                contractNo = string.Empty;
-                bool isContract = ESunnyPATSMapConverter.Instance.GetESContract((exchange == "LME"), contract, ref contractNo);
-                if (isContract)
-                {
-                    string esummySymbol = exchangeNo + "." + commondityNo + "." + contractNo;
-                    StatusMessageList.Insert(0, string.Format("{0}    PATS转换易盛成功:    PATS: 「{1}」,  ESunny:  「{2}」", DateTime.Now.ToString("HH:mm:ss:ttt"), orgData, esummySymbol));
-                    return true;
-                }
-                else
-                {
-                    StatusMessageList.Insert(0, string.Format("{0}    PATS转换易盛失败:    PATS: 「{1}」,  ESunny:  「{2}」", DateTime.Now.ToString("HH:mm:ss:ttt"), orgData, exchangeNo + "." + commondityNo + "." + contractNo));
-                    return false;
-                }
-            }
-            else
-            {
-                StatusMessageList.Insert(0, string.Format("{0}    PATS转换易盛失败:    PATS: 「{1}」", DateTime.Now.ToString("HH:mm:ss:ttt"), orgData, exchangeNo + "." + commondityNo));
-                return true;
-            }
-        }
-        /// <summary>
-        /// 易盛轉PATS訂閱資料
-        /// </summary>
-        private bool ESunnyConverterToPATS(string exchange, string commondity, string contract, ref string exchangeNo, ref string commondityNo, ref string contractNo)
-        {
-            string orgData = exchange + "." + commondity + "." + contract;
-            exchangeNo = string.Empty;
-            commondityNo = string.Empty;
-            bool isConverter = ESunnyPATSMapConverter.Instance.GetPATSExchangeNoCommondityNo(exchange, commondity, ref exchangeNo, ref commondityNo);
-            if (isConverter)
-            {
-                contractNo = string.Empty;
-                bool isContract = ESunnyPATSMapConverter.Instance.GetPATSContract((exchange == "LME"), contract, ref contractNo);
-                if (isContract)
-                {
-                    string patsSymbol = exchangeNo + "." + commondityNo + "." + contractNo;
-                    StatusMessageList.Insert(0, string.Format("{0}    易盛转换PATS成功:    ESunny:  「{1}」,  PATS: 「{2}」", DateTime.Now.ToString("HH:mm:ss:ttt"), orgData, patsSymbol));
-                    return true;
-                }
-                else
-                {
-                    StatusMessageList.Insert(0, string.Format("{0}    易盛转换PATS失败:    ESunny:  「{1}」,  PATS: 「{2}」", DateTime.Now.ToString("HH:mm:ss:ttt"), orgData, exchange + "." + commondityNo + "." + contract));
-                    return false;
-                }
-            }
-            else
-            {
-                StatusMessageList.Insert(0, string.Format("{0}    易盛转换PATS失败:    ESunny:  「{1}」,  PATS: 「{2}」", DateTime.Now.ToString("HH:mm:ss:ttt"), orgData, exchangeNo + "." + commondityNo));
-                return false;
-            }
-        }
         //------------------------------------------------------------------------------------------------------------------------------------------
         /// <summary>
         /// 取消註冊報價
@@ -741,7 +663,7 @@ namespace MarketDataApiExample.ViewModels
                 api.UnSub(Rtn_adapterCode(SelectMarket), SelectType);
 
                 SubscribeList.Remove(SelectSubscribe);
-                StatusMessageList.Insert(0, DateTime.Now.ToString("HH:mm:ss:ttt") + "    " + "取消订阅:" + SelectMarket + ";" + SelectType);
+                StatusMessageList.Insert(0, DateTime.Now.ToString("HH:mm:ss:ttt") + "    " + "取消訂閱:" + SelectMarket + ";" + SelectType);
                 SelectType = string.Empty;
                 SelectMarket = string.Empty;
             }
@@ -750,7 +672,7 @@ namespace MarketDataApiExample.ViewModels
                 api.UnSub(Rtn_adapterCode(SelectMarket), SelectType, SymbolNo);
 
                 SubscribeList.Remove(SelectSubscribe);
-                StatusMessageList.Insert(0, DateTime.Now.ToString("HH:mm:ss:ttt") + "    " + "取消订阅:" + SelectMarket + ";" + SelectType + ";" + SymbolNo);
+                StatusMessageList.Insert(0, DateTime.Now.ToString("HH:mm:ss:ttt") + "    " + "取消訂閱:" + SelectMarket + ";" + SelectType + ";" + SymbolNo);
                 SymbolNo = string.Empty;
                 SelectType = string.Empty;
                 SelectMarket = string.Empty;
@@ -1191,6 +1113,220 @@ namespace MarketDataApiExample.ViewModels
 
             SymbolTaifexList.AddSymbolTalfexData(new SymbolTaifex(data));
             SymbolTaifexDictionary = SymbolTaifexList.GetAllSymbolTpexCollection();
+        }
+        
+        #region PATS
+        /// <summary>
+        /// PATS轉易盛訂閱資料
+        /// </summary>
+        private bool PATSConverterToESunny(string exchange, string commondity, string contract, ref string exchangeNo, ref string commondityNo, ref string contractNo)
+        {
+            string orgData = exchange + "." + commondity + "." + contract;
+            exchangeNo = string.Empty;
+            commondityNo = string.Empty;
+            bool isConverter = ESunnyPATSMapConverter.Instance.GetESExchangeNoCommondityNo(exchange, commondity, ref exchangeNo, ref commondityNo);
+            if (isConverter)
+            {
+                contractNo = string.Empty;
+                bool isContract = ESunnyPATSMapConverter.Instance.GetESContract((exchange == "LME"), contract, ref contractNo);
+                if (isContract)
+                {
+                    string esummySymbol = exchangeNo + "." + commondityNo + "." + contractNo;
+                    StatusMessageList.Insert(0, string.Format("{0}    PATS转换易盛成功:    PATS: 「{1}」,  ESunny:  「{2}」", DateTime.Now.ToString("HH:mm:ss:ttt"), orgData, esummySymbol));
+                    return true;
+                }
+                else
+                {
+                    StatusMessageList.Insert(0, string.Format("{0}    PATS转换易盛失败:    PATS: 「{1}」,  ESunny:  「{2}」", DateTime.Now.ToString("HH:mm:ss:ttt"), orgData, exchangeNo + "." + commondityNo + "." + contractNo));
+                    return false;
+                }
+            }
+            else
+            {
+                StatusMessageList.Insert(0, string.Format("{0}    PATS转换易盛失败:    PATS: 「{1}」", DateTime.Now.ToString("HH:mm:ss:ttt"), orgData, exchangeNo + "." + commondityNo));
+                return true;
+            }
+        }
+        /// <summary>
+        /// 易盛轉PATS訂閱資料
+        /// </summary>
+        private bool ESunnyConverterToPATS(string exchange, string commondity, string contract, ref string exchangeNo, ref string commondityNo, ref string contractNo)
+        {
+            string orgData = exchange + "." + commondity + "." + contract;
+            exchangeNo = string.Empty;
+            commondityNo = string.Empty;
+            bool isConverter = ESunnyPATSMapConverter.Instance.GetPATSExchangeNoCommondityNo(exchange, commondity, ref exchangeNo, ref commondityNo);
+            if (isConverter)
+            {
+                contractNo = string.Empty;
+                bool isContract = ESunnyPATSMapConverter.Instance.GetPATSContract((exchange == "LME"), contract, ref contractNo);
+                if (isContract)
+                {
+                    string patsSymbol = exchangeNo + "." + commondityNo + "." + contractNo;
+                    StatusMessageList.Insert(0, string.Format("{0}    易盛转换PATS成功:    ESunny:  「{1}」,  PATS: 「{2}」", DateTime.Now.ToString("HH:mm:ss:ttt"), orgData, patsSymbol));
+                    return true;
+                }
+                else
+                {
+                    StatusMessageList.Insert(0, string.Format("{0}    易盛转换PATS失败:    ESunny:  「{1}」,  PATS: 「{2}」", DateTime.Now.ToString("HH:mm:ss:ttt"), orgData, exchange + "." + commondityNo + "." + contract));
+                    return false;
+                }
+            }
+            else
+            {
+                StatusMessageList.Insert(0, string.Format("{0}    易盛转换PATS失败:    ESunny:  「{1}」,  PATS: 「{2}」", DateTime.Now.ToString("HH:mm:ss:ttt"), orgData, exchangeNo + "." + commondityNo));
+                return false;
+            }
+        }
+        #endregion
+
+        /// <summary>
+        /// 一般訂閱
+        /// </summary>
+        private void GeneralSupscribeSymbol(string market, string type, string symbolno)
+        {
+            if (api == null)
+            {
+                MessageBox.Show("未連接或連接錯誤");
+                return;
+            }
+            string subSymbol = market + ";" + type + ";" + symbolno;
+            if (string.IsNullOrEmpty(symbolno))
+            {
+                api.Sub(Rtn_adapterCode(market), type);
+                SubscribeList.Insert(0, market + ";" + type);
+            }
+            else
+            {
+                api.Sub(Rtn_adapterCode(market), type, symbolno);
+                SubscribeList.Insert(0, subSymbol);
+            }
+            StatusMessageList.Insert(0, DateTime.Now.ToString("HH:mm:ss:ttt") + "    " + "訂閱:" + subSymbol);
+        }
+        /// <summary>
+        /// 寫資料至excel
+        /// </summary>
+        private void OutputExcel()
+        {
+            string sFilePath = Environment.CurrentDirectory + "\\" + DefaultSettings.Instance.SAVE_FILE_NAME;//本機路徑
+            // 建立新的 Excel 工作簿
+            HSSFWorkbook hssfworkbook = new HSSFWorkbook();
+            
+            HSSFSheet sheet = (HSSFSheet)hssfworkbook.CreateSheet("行情");
+
+            //創建單元格設置對象
+            HSSFCellStyle cellStyle = (HSSFCellStyle)hssfworkbook.CreateCellStyle();
+            //創建設置字體對象
+            HSSFFont font = (HSSFFont)hssfworkbook.CreateFont();
+            font.FontHeightInPoints = 16;//設置字體大小
+            font.Boldweight = short.MaxValue; //加粗
+            cellStyle.SetFont(font);
+
+            #region  寫入資料到工作表中
+            //創建Excel行和單元格
+            for (int k = 0; k < _quotesList.Count + 2; k++)
+            {
+                HSSFRow newRow = (HSSFRow)sheet.CreateRow(k);
+                for (int j = 0; j < 28 + 1; j++)
+                {
+                    newRow.CreateCell(j);
+                }
+            }
+            sheet.GetRow(1).GetCell(0).SetCellValue("序號");
+            sheet.GetRow(1).GetCell(1).SetCellValue("商品代號");
+            sheet.GetRow(1).GetCell(2).SetCellValue("市場");
+            sheet.GetRow(1).GetCell(3).SetCellValue("類別");
+            sheet.GetRow(1).GetCell(4).SetCellValue("撮合價");
+            sheet.GetRow(1).GetCell(5).SetCellValue("撮合量");
+            sheet.GetRow(1).GetCell(6).SetCellValue("總量");
+            sheet.GetRow(1).GetCell(7).SetCellValue("時間");
+            sheet.GetRow(1).GetCell(8).SetCellValue("賣一價");
+            sheet.GetRow(1).GetCell(9).SetCellValue("賣一量");
+            sheet.GetRow(1).GetCell(10).SetCellValue("賣二價");
+            sheet.GetRow(1).GetCell(11).SetCellValue("賣二量");
+            sheet.GetRow(1).GetCell(12).SetCellValue("賣三價");
+            sheet.GetRow(1).GetCell(13).SetCellValue("賣三量");
+            sheet.GetRow(1).GetCell(14).SetCellValue("賣四價");
+            sheet.GetRow(1).GetCell(15).SetCellValue("賣四量");
+            sheet.GetRow(1).GetCell(16).SetCellValue("賣五價");
+            sheet.GetRow(1).GetCell(17).SetCellValue("賣五量");
+            sheet.GetRow(1).GetCell(18).SetCellValue("買一價");
+            sheet.GetRow(1).GetCell(19).SetCellValue("買一量");
+            sheet.GetRow(1).GetCell(20).SetCellValue("買二價");
+            sheet.GetRow(1).GetCell(21).SetCellValue("買二量");
+            sheet.GetRow(1).GetCell(22).SetCellValue("買三價");
+            sheet.GetRow(1).GetCell(23).SetCellValue("買三量");
+            sheet.GetRow(1).GetCell(24).SetCellValue("買四價");
+            sheet.GetRow(1).GetCell(25).SetCellValue("買四量");
+            sheet.GetRow(1).GetCell(26).SetCellValue("買五價");
+            sheet.GetRow(1).GetCell(27).SetCellValue("買五量");
+            sheet.GetRow(1).GetCell(0).CellStyle = cellStyle;
+            sheet.GetRow(1).GetCell(1).CellStyle = cellStyle;
+            sheet.GetRow(1).GetCell(2).CellStyle = cellStyle;
+            sheet.GetRow(1).GetCell(3).CellStyle = cellStyle;
+            sheet.GetRow(1).GetCell(4).CellStyle = cellStyle;
+            sheet.GetRow(1).GetCell(5).CellStyle = cellStyle;
+            sheet.GetRow(1).GetCell(6).CellStyle = cellStyle;
+            sheet.GetRow(1).GetCell(7).CellStyle = cellStyle;
+            sheet.GetRow(1).GetCell(8).CellStyle = cellStyle;
+            sheet.GetRow(1).GetCell(9).CellStyle = cellStyle;
+            sheet.GetRow(1).GetCell(10).CellStyle = cellStyle;
+            sheet.GetRow(1).GetCell(11).CellStyle = cellStyle;
+            sheet.GetRow(1).GetCell(12).CellStyle = cellStyle;
+            sheet.GetRow(1).GetCell(13).CellStyle = cellStyle;
+            sheet.GetRow(1).GetCell(14).CellStyle = cellStyle;
+            sheet.GetRow(1).GetCell(15).CellStyle = cellStyle;
+            sheet.GetRow(1).GetCell(16).CellStyle = cellStyle;
+            sheet.GetRow(1).GetCell(17).CellStyle = cellStyle;
+            sheet.GetRow(1).GetCell(18).CellStyle = cellStyle;
+            sheet.GetRow(1).GetCell(19).CellStyle = cellStyle;
+            sheet.GetRow(1).GetCell(20).CellStyle = cellStyle;
+            sheet.GetRow(1).GetCell(21).CellStyle = cellStyle;
+            sheet.GetRow(1).GetCell(22).CellStyle = cellStyle;
+            sheet.GetRow(1).GetCell(23).CellStyle = cellStyle;
+            sheet.GetRow(1).GetCell(24).CellStyle = cellStyle;
+            sheet.GetRow(1).GetCell(25).CellStyle = cellStyle;
+            sheet.GetRow(1).GetCell(26).CellStyle = cellStyle;
+            sheet.GetRow(1).GetCell(27).CellStyle = cellStyle;
+            int i = 1;
+            foreach (Quotes quote in _quotesList)
+            {
+                i = i + 1;
+                sheet.GetRow(i).GetCell(0).SetCellValue(quote.Seq);
+                sheet.GetRow(i).GetCell(1).SetCellValue(quote.SymbolNo);
+                sheet.GetRow(i).GetCell(2).SetCellValue(quote.Market);
+                sheet.GetRow(i).GetCell(3).SetCellValue(quote.TypeNo);
+                sheet.GetRow(i).GetCell(4).SetCellValue(quote.MatchPrice);
+                sheet.GetRow(i).GetCell(5).SetCellValue(quote.MatchQty);
+                sheet.GetRow(i).GetCell(6).SetCellValue(quote.MatchTotalQty);
+                sheet.GetRow(i).GetCell(7).SetCellValue(quote.Time);
+                sheet.GetRow(i).GetCell(8).SetCellValue(quote.Bid1Price);
+                sheet.GetRow(i).GetCell(9).SetCellValue(quote.Bid1Qty);
+                sheet.GetRow(i).GetCell(10).SetCellValue(quote.Bid2Price);
+                sheet.GetRow(i).GetCell(11).SetCellValue(quote.Bid2Qty);
+                sheet.GetRow(i).GetCell(12).SetCellValue(quote.Bid3Price);
+                sheet.GetRow(i).GetCell(13).SetCellValue(quote.Bid3Qty);
+                sheet.GetRow(i).GetCell(14).SetCellValue(quote.Bid4Price);
+                sheet.GetRow(i).GetCell(15).SetCellValue(quote.Bid4Qty);
+                sheet.GetRow(i).GetCell(16).SetCellValue(quote.Bid5Price);
+                sheet.GetRow(i).GetCell(17).SetCellValue(quote.Bid5Qty);
+                sheet.GetRow(i).GetCell(18).SetCellValue(quote.Ask1Price);
+                sheet.GetRow(i).GetCell(19).SetCellValue(quote.Ask1Qty);
+                sheet.GetRow(i).GetCell(20).SetCellValue(quote.Ask2Price);
+                sheet.GetRow(i).GetCell(21).SetCellValue(quote.Ask2Qty);
+                sheet.GetRow(i).GetCell(22).SetCellValue(quote.Ask3Price);
+                sheet.GetRow(i).GetCell(23).SetCellValue(quote.Ask3Qty);
+                sheet.GetRow(i).GetCell(24).SetCellValue(quote.Ask4Price);
+                sheet.GetRow(i).GetCell(25).SetCellValue(quote.Ask4Qty);
+                sheet.GetRow(i).GetCell(26).SetCellValue(quote.Ask5Price);
+                sheet.GetRow(i).GetCell(27).SetCellValue(quote.Ask5Qty);
+            }
+            #endregion
+
+            // 儲存檔案
+            FileStream file = new FileStream(sFilePath, FileMode.OpenOrCreate);
+            hssfworkbook.Write(file);
+            file.Close();
         }
         #endregion
 

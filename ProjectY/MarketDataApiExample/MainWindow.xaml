@@ -146,8 +146,13 @@
                                 <Button
                                     Margin="5,0"
                                     VerticalAlignment="Center"
+                                    Command="{Binding OutputExcelCommand}"
+                                    Content="匯出Excel" />
+                                <Button
+                                    Margin="5,0"
+                                    VerticalAlignment="Center"
                                     Command="{Binding ClearContentCommand}"
-                                    Content="Clear Content" />
+                                    Content="清空行情" />
                             </StackPanel>
                         </Grid>
                     </TabItem>
