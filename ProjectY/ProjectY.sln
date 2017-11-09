@@ -25,10 +25,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Adapter.ESGlobalMD", "Adapt
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MarketDataApiExample", "MarketDataApiExample\MarketDataApiExample.csproj", "{0BCACC2D-F194-4C16-830C-20E4BC29E739}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MarketDataApiTestForm", "MarketDataApiTestForm\MarketDataApiTestForm.csproj", "{6DE1D1BA-4D6E-4A88-B4EF-C025577D0648}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MarketDataApiTest", "MarketDataApiTest\MarketDataApiTest.csproj", "{03BABAB0-19E6-4516-91AA-2355A2B6AE4E}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Adapter.TaifexGlobalPATS", "Adapter.TaifexGlobalPATS\Adapter.TaifexGlobalPATS.csproj", "{7DDDB182-E823-43C9-9D4D-621E66C35803}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Service.Redis.GlobalMD", "Service.Redis.GlobalMD\Service.Redis.GlobalMD.csproj", "{3C6EDEA0-60AE-40C2-926B-AB4106E83DE3}"
@@ -90,14 +86,6 @@ Global
 		{0BCACC2D-F194-4C16-830C-20E4BC29E739}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0BCACC2D-F194-4C16-830C-20E4BC29E739}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0BCACC2D-F194-4C16-830C-20E4BC29E739}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6DE1D1BA-4D6E-4A88-B4EF-C025577D0648}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6DE1D1BA-4D6E-4A88-B4EF-C025577D0648}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6DE1D1BA-4D6E-4A88-B4EF-C025577D0648}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6DE1D1BA-4D6E-4A88-B4EF-C025577D0648}.Release|Any CPU.Build.0 = Release|Any CPU
-		{03BABAB0-19E6-4516-91AA-2355A2B6AE4E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{03BABAB0-19E6-4516-91AA-2355A2B6AE4E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{03BABAB0-19E6-4516-91AA-2355A2B6AE4E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{03BABAB0-19E6-4516-91AA-2355A2B6AE4E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{7DDDB182-E823-43C9-9D4D-621E66C35803}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{7DDDB182-E823-43C9-9D4D-621E66C35803}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7DDDB182-E823-43C9-9D4D-621E66C35803}.Release|Any CPU.ActiveCfg = Release|Any CPU
