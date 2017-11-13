@@ -18,6 +18,7 @@ using System.Data;
 using ServiceStack.Redis;
 using System.Windows.Data;
 using NPOI.HSSF.UserModel;
+using ESunnyPATSConverterApi;
 
 namespace MarketDataApiExample.ViewModels
 {
@@ -35,7 +36,7 @@ namespace MarketDataApiExample.ViewModels
         public static readonly List<string> TypeList = new List<string>() { "I010", "I020", "I080", "1", "6", "17", "0" };
 
         private static MainViewModel _instance;
-        private string _ipAddress = "10.214.19.51";//"10.214.19.51";"203.66.93.83";"127.0.0.1";
+        private string _ipAddress = "127.0.0.1";//"10.214.19.51";"203.66.93.83";"127.0.0.1";
         private string _ipPort = "6688";
         private string _selectMarket = "2-期貨AM盤";//"6-PATS";
         private string _selectType = "I020";
@@ -59,6 +60,7 @@ namespace MarketDataApiExample.ViewModels
 
         private ObservableCollection<CommonLibrary.Model.PacketPATS.Format0> _patsFormat0List = new ObservableCollection<CommonLibrary.Model.PacketPATS.Format0>();
         private ObservableCollection<CommonLibrary.Model.PacketPATS.Format1> _patsFormat1List = new ObservableCollection<CommonLibrary.Model.PacketPATS.Format1>();
+        private CommonLibrary.Model.PacketPATS.Format0 _selectPats;
         private ObservableCollection<string> _statusMessageList = new ObservableCollection<string>();
         #endregion
 
@@ -435,6 +437,20 @@ namespace MarketDataApiExample.ViewModels
                 _selectTaifex = value;
             }
         }
+        /// <summary>
+        /// 所選盤前PATS
+        /// </summary>
+        public CommonLibrary.Model.PacketPATS.Format0 SelectPats
+        {
+            get
+            {
+                return _selectPats;
+            }
+            set
+            {
+                _selectPats = value;
+            }
+        }        
 
         #endregion
 
@@ -573,6 +589,21 @@ namespace MarketDataApiExample.ViewModels
             }
         }
 
+        private ICommand _gridPatsDoubleClickCommand;
+        public ICommand GridPatsDoubleClickCommand
+        {
+            get
+            {
+                if (_gridPatsDoubleClickCommand == null)
+                {
+                    _gridPatsDoubleClickCommand = new RelayCommand(
+                        PATSGridDoubleClick
+                    );
+                }
+                return _gridPatsDoubleClickCommand;
+            }
+        }
+
         /// <summary>
         /// 連接行情伺服器
         /// </summary>
@@ -621,24 +652,30 @@ namespace MarketDataApiExample.ViewModels
                     string exchangeNo = string.Empty;
                     string commondityNo = string.Empty;
                     string contractNo = string.Empty;
+                    string msg = string.Empty;
                     //顯示轉換易盛2PATS
-                    if (ESunnyConverterToPATS(subSymbolAry[0], subSymbolAry[1], subSymbolAry[2], ref exchangeNo, ref commondityNo, ref contractNo))
+                    if (ESunnyPATSMapConverter.Instance.ESunnyConverterToPATS(subSymbolAry[0], subSymbolAry[1], subSymbolAry[2], ref exchangeNo, ref commondityNo, ref contractNo, ref msg))
                     {
-                        api.Sub(Rtn_adapterCode(SelectMarket), SelectType, SymbolNo);
+                        api.Sub(Rtn_adapterCode(SelectMarket), SelectType, string.Format("{0}.{1}.{2}", exchangeNo, commondityNo, contractNo));
                         SubscribeList.Insert(0, subSymbol);
+                        StatusMessageList.Insert(0, msg);
                         StatusMessageList.Insert(0, string.Format("{0}    訂閱成功:   {1}", DateTime.Now.ToString("HH:mm:ss:ttt"), subSymbol));
                     }
                     else
                     {
+                        StatusMessageList.Insert(0, msg);
                         StatusMessageList.Insert(0, string.Format("{0}    訂閱失敗:   {1}", DateTime.Now.ToString("HH:mm:ss:ttt"), subSymbol));
                     }
                     //顯示轉換PATS2易盛
-                    //if (PATSConverterToESunny(subSymbolAry[0], subSymbolAry[1], subSymbolAry[2], ref exchangeNo, ref commondityNo, ref contractNo))
+                    //if (ESunnyPATSMapConverter.Instance.PATSConverterToESunny(subSymbolAry[0], subSymbolAry[1], subSymbolAry[2], ref exchangeNo, ref commondityNo, ref contractNo, ref msg))
                     //{
+                    //    GeneralSupscribeSymbol(SelectMarket, SelectType, SymbolNo);
+                    //    StatusMessageList.Insert(0, msg);
                     //    StatusMessageList.Insert(0, string.Format("{0}    订阅成功:   {1}", DateTime.Now.ToString("HH:mm:ss:ttt"), subSymbol));
                     //}
                     //else
                     //{
+                    //    StatusMessageList.Insert(0, msg);
                     //    StatusMessageList.Insert(0, string.Format("{0}    订阅失败:   {1}", DateTime.Now.ToString("HH:mm:ss:ttt"), subSymbol));
                     //}
                 }
@@ -751,6 +788,14 @@ namespace MarketDataApiExample.ViewModels
                 GeneralSupscribeSymbol("5-選擇權PM盤", "I020", _selectTaifex.SymbolNo);
                 GeneralSupscribeSymbol("5-選擇權PM盤", "I080", _selectTaifex.SymbolNo);
             }
+        }
+        //------------------------------------------------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// PATS滑鼠左鍵點2下
+        /// </summary>
+        private void PATSGridDoubleClick()
+        {
+            GeneralSupscribeSymbol("6-PATS", "1", string.Format("{0}.{1}.{2}", SelectPats.Exchange , SelectPats.Commodity , SelectPats.Contract));
         }
         #endregion
 
@@ -1114,71 +1159,6 @@ namespace MarketDataApiExample.ViewModels
             SymbolTaifexList.AddSymbolTalfexData(new SymbolTaifex(data));
             SymbolTaifexDictionary = SymbolTaifexList.GetAllSymbolTpexCollection();
         }
-        
-        #region PATS
-        /// <summary>
-        /// PATS轉易盛訂閱資料
-        /// </summary>
-        private bool PATSConverterToESunny(string exchange, string commondity, string contract, ref string exchangeNo, ref string commondityNo, ref string contractNo)
-        {
-            string orgData = exchange + "." + commondity + "." + contract;
-            exchangeNo = string.Empty;
-            commondityNo = string.Empty;
-            bool isConverter = ESunnyPATSMapConverter.Instance.GetESExchangeNoCommondityNo(exchange, commondity, ref exchangeNo, ref commondityNo);
-            if (isConverter)
-            {
-                contractNo = string.Empty;
-                bool isContract = ESunnyPATSMapConverter.Instance.GetESContract((exchange == "LME"), contract, ref contractNo);
-                if (isContract)
-                {
-                    string esummySymbol = exchangeNo + "." + commondityNo + "." + contractNo;
-                    StatusMessageList.Insert(0, string.Format("{0}    PATS转换易盛成功:    PATS: 「{1}」,  ESunny:  「{2}」", DateTime.Now.ToString("HH:mm:ss:ttt"), orgData, esummySymbol));
-                    return true;
-                }
-                else
-                {
-                    StatusMessageList.Insert(0, string.Format("{0}    PATS转换易盛失败:    PATS: 「{1}」,  ESunny:  「{2}」", DateTime.Now.ToString("HH:mm:ss:ttt"), orgData, exchangeNo + "." + commondityNo + "." + contractNo));
-                    return false;
-                }
-            }
-            else
-            {
-                StatusMessageList.Insert(0, string.Format("{0}    PATS转换易盛失败:    PATS: 「{1}」", DateTime.Now.ToString("HH:mm:ss:ttt"), orgData, exchangeNo + "." + commondityNo));
-                return true;
-            }
-        }
-        /// <summary>
-        /// 易盛轉PATS訂閱資料
-        /// </summary>
-        private bool ESunnyConverterToPATS(string exchange, string commondity, string contract, ref string exchangeNo, ref string commondityNo, ref string contractNo)
-        {
-            string orgData = exchange + "." + commondity + "." + contract;
-            exchangeNo = string.Empty;
-            commondityNo = string.Empty;
-            bool isConverter = ESunnyPATSMapConverter.Instance.GetPATSExchangeNoCommondityNo(exchange, commondity, ref exchangeNo, ref commondityNo);
-            if (isConverter)
-            {
-                contractNo = string.Empty;
-                bool isContract = ESunnyPATSMapConverter.Instance.GetPATSContract((exchange == "LME"), contract, ref contractNo);
-                if (isContract)
-                {
-                    string patsSymbol = exchangeNo + "." + commondityNo + "." + contractNo;
-                    StatusMessageList.Insert(0, string.Format("{0}    易盛转换PATS成功:    ESunny:  「{1}」,  PATS: 「{2}」", DateTime.Now.ToString("HH:mm:ss:ttt"), orgData, patsSymbol));
-                    return true;
-                }
-                else
-                {
-                    StatusMessageList.Insert(0, string.Format("{0}    易盛转换PATS失败:    ESunny:  「{1}」,  PATS: 「{2}」", DateTime.Now.ToString("HH:mm:ss:ttt"), orgData, exchange + "." + commondityNo + "." + contract));
-                    return false;
-                }
-            }
-            else
-            {
-                StatusMessageList.Insert(0, string.Format("{0}    易盛转换PATS失败:    ESunny:  「{1}」,  PATS: 「{2}」", DateTime.Now.ToString("HH:mm:ss:ttt"), orgData, exchangeNo + "." + commondityNo));
-                return false;
-            }
-        }
-        #endregion
 
         /// <summary>
         /// 一般訂閱

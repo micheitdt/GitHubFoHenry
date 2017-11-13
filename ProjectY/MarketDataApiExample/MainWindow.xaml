@@ -251,7 +251,7 @@
                             </DataGrid>
                         </Grid>
                     </TabItem>
-                    <TabItem Header="外期PATS" Visibility="Collapsed">
+                    <TabItem Header="外期PATS">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="350" />
@@ -262,7 +262,12 @@
                                 CanUserAddRows="False"
                                 IsReadOnly="True"
                                 ItemsSource="{Binding PatsFormat0List, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
-                                LoadingRow="DataGrid_LoadingRow" />
+                                LoadingRow="DataGrid_LoadingRow"
+                                SelectedItem="{Binding SelectPats, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                                <DataGrid.InputBindings>
+                                    <MouseBinding Command="{Binding GridPatsDoubleClickCommand}" Gesture="LeftDoubleClick" />
+                                </DataGrid.InputBindings>
+                            </DataGrid>
                             <GridSplitter
                                 Width="5"
                                 HorizontalAlignment="Right"

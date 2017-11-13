@@ -1,7 +1,7 @@
 ﻿using CommonLibrary;
 using System;
 
-namespace MarketDataApiExample
+namespace ESunnyPATSConverterApi
 {
     public class ESunnyPATSMapConverter
     {
@@ -153,6 +153,69 @@ namespace MarketDataApiExample
             }
             catch (Exception)
             {
+                return false;
+            }
+        }
+        
+        /// <summary>
+        /// PATS轉易盛訂閱資料
+        /// </summary>
+        public bool PATSConverterToESunny(string exchange, string commondity, string contract, ref string exchangeNo, ref string commondityNo, ref string contractNo, ref string msg)
+        {
+            string orgData = exchange + "." + commondity + "." + contract;
+            exchangeNo = string.Empty;
+            commondityNo = string.Empty;
+            bool isConverter = GetESExchangeNoCommondityNo(exchange, commondity, ref exchangeNo, ref commondityNo);
+            if (isConverter)
+            {
+                contractNo = string.Empty;
+                bool isContract = GetESContract((exchange == "LME"), contract, ref contractNo);
+                if (isContract)
+                {
+                    string esummySymbol = exchangeNo + "." + commondityNo + "." + contractNo;
+                    msg = string.Format("{0}    PATS转换易盛成功:    PATS: 「{1}」,  ESunny:  「{2}」", DateTime.Now.ToString("HH:mm:ss:ttt"), orgData, esummySymbol);
+                    return true;
+                }
+                else
+                {
+                    msg = string.Format("{0}    PATS转换易盛失败:    PATS: 「{1}」,  ESunny:  「{2}」", DateTime.Now.ToString("HH:mm:ss:ttt"), orgData, exchangeNo + "." + commondityNo + "." + contractNo);
+                    return false;
+                }
+            }
+            else
+            {
+                msg = string.Format("{0}    PATS转换易盛失败:    PATS: 「{1}」", DateTime.Now.ToString("HH:mm:ss:ttt"), orgData, exchangeNo + "." + commondityNo);
+                return true;
+            }
+        }
+        /// <summary>
+        /// 易盛轉PATS訂閱資料
+        /// </summary>
+        public bool ESunnyConverterToPATS(string exchange, string commondity, string contract, ref string exchangeNo, ref string commondityNo, ref string contractNo, ref string msg)
+        {
+            string orgData = exchange + "." + commondity + "." + contract;
+            exchangeNo = string.Empty;
+            commondityNo = string.Empty;
+            bool isConverter = GetPATSExchangeNoCommondityNo(exchange, commondity, ref exchangeNo, ref commondityNo);
+            if (isConverter)
+            {
+                contractNo = string.Empty;
+                bool isContract = GetPATSContract((exchange == "LME"), contract, ref contractNo);
+                if (isContract)
+                {
+                    string patsSymbol = exchangeNo + "." + commondityNo + "." + contractNo;
+                    msg = string.Format("{0}    易盛转换PATS成功:    ESunny:  「{1}」,  PATS: 「{2}」", DateTime.Now.ToString("HH:mm:ss:ttt"), orgData, patsSymbol);
+                    return true;
+                }
+                else
+                {
+                    msg = string.Format("{0}    易盛转换PATS失败:    ESunny:  「{1}」,  PATS: 「{2}」", DateTime.Now.ToString("HH:mm:ss:ttt"), orgData, exchange + "." + commondityNo + "." + contract);
+                    return false;
+                }
+            }
+            else
+            {
+                msg = string.Format("{0}    易盛转换PATS失败:    ESunny:  「{1}」,  PATS: 「{2}」", DateTime.Now.ToString("HH:mm:ss:ttt"), orgData, exchangeNo + "." + commondityNo);
                 return false;
             }
         }

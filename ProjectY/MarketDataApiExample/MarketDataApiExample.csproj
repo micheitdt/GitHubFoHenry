@@ -97,7 +97,6 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="DefaultSettings.cs" />
-    <Compile Include="ESunnyPATSMapConverter.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -136,12 +135,6 @@
     <None Include="DefaultSettings.ini">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="PATSToESunnyMap.ini">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="ESunnyToPATSMap.ini">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Include="NLog.xsd">
       <SubType>Designer</SubType>
     </None>
@@ -159,6 +152,10 @@
     <ProjectReference Include="..\CommonLibrary\CommonLibrary.csproj">
       <Project>{9d37d39e-bb99-4b75-9f25-cd9d2c993915}</Project>
       <Name>CommonLibrary</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ESunnyPATSConverterApi\ESunnyPATSConverterApi.csproj">
+      <Project>{832cd4d1-34b9-443a-a04c-6dad52c64595}</Project>
+      <Name>ESunnyPATSConverterApi</Name>
     </ProjectReference>
     <ProjectReference Include="..\MarketDataApi\MarketDataApi.csproj">
       <Project>{4e233e12-b86b-46ef-9525-2922796d28df}</Project>
