@@ -46,6 +46,24 @@ namespace MarketDataApi
             UnSub(string.Format("{0}#{1}#", ((int)adapterCode).ToString(), GetPacketType(adapterCode, packetType)));
         }
 
+        //public bool GetTaifexSymbolInfo(string redisip,int redisport, ref Dictionary<string, CommonLibrary.Model.PacketTAIFEX.I010> retdata )
+        //{
+        //    if (Utility.TestConn(redisip, redisport))
+        //    {
+        //        ServiceStack.Redis.RedisClient _redisClient = new ServiceStack.Redis.RedisClient(redisip, redisport);
+                
+        //        if (_redisClient.GetHashKeys(Parameter.TAIFEX_HASH_KEY).Count == 0)
+        //            return false;
+        //        retdata = new Dictionary<string, CommonLibrary.Model.PacketTAIFEX.I010>(_redisClient.GetAll<CommonLibrary.Model.PacketTAIFEX.I010>(_redisClient.GetHashKeys(Parameter.TAIFEX_HASH_KEY)));
+        //        return true;
+        //    }
+        //    else
+        //    {
+        //        _logger.Debug(string.Format("GetTaifexSymbolInfo(): Redis連接失敗:(0):{1} Data = {2}.", redisip, redisport));
+        //        return false;
+        //    }
+        //}
+
         private void Sub(string prefix)
         {
             _socketSub.Subscribe(Encoding.UTF8.GetBytes(prefix));

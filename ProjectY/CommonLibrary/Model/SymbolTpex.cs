@@ -681,12 +681,12 @@ namespace CommonLibrary.Model
             AllSymbolTpexList.TryAdd(data.SymbolNo, data);
         }
 
-        public static void SetSymbolTseDataList(IDictionary<string, SymbolTpex> data)
+        public static void SetSymbolTpexDataList(IDictionary<string, PacketTPEX.Format1> data)
         {
             AllSymbolTpexList = new SymbolTpexList();
             foreach (var obj in data)
             {
-                AllSymbolTpexList.TryAdd(obj.Key, obj.Value);
+                AllSymbolTpexList.TryAdd(obj.Key, new SymbolTpex(obj.Value));
             }
         }
 

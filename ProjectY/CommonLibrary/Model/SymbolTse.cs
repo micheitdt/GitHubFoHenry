@@ -682,12 +682,12 @@ namespace CommonLibrary.Model
             AllSymbolTseList.TryAdd(data.SymbolNo, data);
         }
 
-        public static void SetSymbolTseDataList(IDictionary<string, SymbolTse> data)
+        public static void SetSymbolTseDataList(IDictionary<string, PacketTSE.Format1> data)
         {
             AllSymbolTseList = new SymbolTseList();
             foreach (var obj in data)
             {
-                AllSymbolTseList.TryAdd(obj.Key, obj.Value);
+                AllSymbolTseList.TryAdd(obj.Key, new SymbolTse(obj.Value));
             }
         }
 

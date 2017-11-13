@@ -394,12 +394,12 @@ namespace CommonLibrary.Model
             AllSymbolTaifexList.TryAdd(data.SymbolNo , data);
         }
 
-        public static void SetSymbolTseDataList(IDictionary<string, SymbolTaifex> data)
+        public static void SetSymbolTaifexDataList(IDictionary<string, Model.PacketTAIFEX.I010> data)
         {
             AllSymbolTaifexList = new SymbolTaifexList();
             foreach (var obj in data)
             {
-                AllSymbolTaifexList.TryAdd(obj.Key, obj.Value);
+                AllSymbolTaifexList.TryAdd(obj.Key, new SymbolTaifex(obj.Value));
             }
         }
 

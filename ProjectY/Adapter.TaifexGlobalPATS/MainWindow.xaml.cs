@@ -58,7 +58,7 @@ namespace Adapter.TaifexGlobalPATS
             DefaultSettings.Instance.Initialize();
             tbMessage.Text = string.Format("PATS_HOST_IP={0}", DefaultSettings.Instance.PATS_HOST_IP) + Environment.NewLine;
             tbMessage.Text += string.Format("PATS_HOST_PORT={0}", DefaultSettings.Instance.PATS_HOST_PORT) + Environment.NewLine;
-            tbMessage.Text = string.Format("PATS_PRICE_IP={0}", DefaultSettings.Instance.PATS_PRICE_IP) + Environment.NewLine;
+            tbMessage.Text += string.Format("PATS_PRICE_IP={0}", DefaultSettings.Instance.PATS_PRICE_IP) + Environment.NewLine;
             tbMessage.Text += string.Format("PATS_PRICE_PORT={0}", DefaultSettings.Instance.PATS_PRICE_PORT) + Environment.NewLine;
             tbMessage.Text += string.Format("PATS_ID={0}", DefaultSettings.Instance.PATS_ID) + Environment.NewLine;
             tbMessage.Text += string.Format("PATS_APPID={0}", DefaultSettings.Instance.PATS_APPID) + Environment.NewLine;

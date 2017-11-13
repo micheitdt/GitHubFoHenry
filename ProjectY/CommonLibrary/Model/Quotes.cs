@@ -506,6 +506,7 @@ namespace CommonLibrary.Model
             _symbolNo = data.B_ProdId;
             _typeNo = "I080";
             _market = (data.H_TransmissionCode == "2") ? "期貨" : "選擇權";
+            _time = data.H_InformationTime.ToString();
             _bid1Price = data.B_BuyOrderBook[0].MatchPrice;
             _bid1Qty = data.B_BuyOrderBook[0].MatchQuantity;
             _bid2Price = data.B_BuyOrderBook[1].MatchPrice;
@@ -549,7 +550,9 @@ namespace CommonLibrary.Model
             _typeNo = "6";
             _market = "上櫃";
             _matchPrice = data.LastPrice;
+            _matchQty = data.LastVolume;
             _matchTotalQty = data.TotalVolume;
+            _time = data.MatchTime.ToString();
             _bid1Price = (data.BidData.Count == 0) ? 0 : data.BidData[0].Price;
             _bid1Qty = (data.BidData.Count == 0) ? 0 : data.BidData[0].Volume;
             _ask1Price = (data.AskData.Count == 0) ? 0 : data.AskData[0].Price;
@@ -564,7 +567,9 @@ namespace CommonLibrary.Model
             _typeNo = "6";
             _market = "上市";
             _matchPrice = data.LastPrice;
+            _matchQty = data.LastVolume;
             _matchTotalQty = data.TotalVolume;
+            _time = data.MatchTime.ToString();
             _bid1Price = (data.BidData.Count == 0) ? 0 : data.BidData[0].Price;
             _bid1Qty = (data.BidData.Count == 0) ? 0 : data.BidData[0].Volume;
             _ask1Price = (data.AskData.Count == 0) ? 0 : data.AskData[0].Price;
@@ -579,7 +584,9 @@ namespace CommonLibrary.Model
             _typeNo = "17";
             _market = "上櫃";
             _matchPrice = data.LastPrice;
+            _matchQty = data.LastVolume;
             _matchTotalQty = data.TotalVolume;
+            _time = data.MatchTime.ToString();
             _bid1Price = (data.BidData.Count == 0) ? 0 : data.BidData[0].Price;
             _bid1Qty = (data.BidData.Count == 0) ? 0 : data.BidData[0].Volume;
             _ask1Price = (data.AskData.Count == 0) ? 0 : data.AskData[0].Price;
@@ -594,7 +601,9 @@ namespace CommonLibrary.Model
             _typeNo = "17";
             _market = "上市";
             _matchPrice = data.LastPrice;
+            _matchQty = data.LastVolume;
             _matchTotalQty = data.TotalVolume;
+            _time = data.MatchTime.ToString();
             _bid1Price = (data.BidData.Count == 0) ? 0 : data.BidData[0].Price;
             _bid1Qty = (data.BidData.Count == 0) ? 0 : data.BidData[0].Volume;
             _ask1Price = (data.AskData.Count == 0) ? 0 : data.AskData[0].Price;

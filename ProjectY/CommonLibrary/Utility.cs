@@ -78,9 +78,9 @@ namespace CommonLibrary
             //方法1
             var switchTypeAction = new Dictionary<Type, Action>
             {
-                { typeof(SymbolTse), () => { conndb.Set<SymbolTse>(key, data as SymbolTse); conndb.SetEntryInHashIfNotExists(hashid, key, ""); } },
-                { typeof(SymbolTpex), () => {  conndb.Set<SymbolTpex>(key, data as SymbolTpex); conndb.SetEntryInHashIfNotExists(hashid, key, ""); }  },
-                { typeof(SymbolTaifex), () => { conndb.Set<SymbolTaifex>(key, data as SymbolTaifex); conndb.SetEntryInHashIfNotExists(hashid, key, ""); }},
+                { typeof(Model.PacketTSE.Format1), () => { conndb.Set<Model.PacketTSE.Format1>(key, data as Model.PacketTSE.Format1); conndb.SetEntryInHashIfNotExists(hashid, key, ""); } },
+                { typeof(Model.PacketTPEX.Format1), () => {  conndb.Set<Model.PacketTPEX.Format1>(key, data as Model.PacketTPEX.Format1); conndb.SetEntryInHashIfNotExists(hashid, key, ""); }  },
+                { typeof(Model.PacketTAIFEX.I010), () => { conndb.Set<Model.PacketTAIFEX.I010>(key, data as Model.PacketTAIFEX.I010); conndb.SetEntryInHashIfNotExists(hashid, key, ""); }},
             };
             switchTypeAction[data.GetType()]();
 
@@ -102,9 +102,9 @@ namespace CommonLibrary
             //方法1
             var switchTypeAction = new Dictionary<string, Action>
             {
-                { Parameter.TSE_HASH_KEY, () => { SymbolTseList.SetSymbolTseDataList(conndb.GetAll<SymbolTse>(conndb.GetHashKeys(hashid))); } },
-                { Parameter.TPEX_HASH_KEY, () => { SymbolTpexList.SetSymbolTseDataList(conndb.GetAll<SymbolTpex>(conndb.GetHashKeys(hashid))); } },
-                { Parameter.TAIFEX_HASH_KEY, () => { SymbolTaifexList.SetSymbolTseDataList(conndb.GetAll<SymbolTaifex>(conndb.GetHashKeys(hashid))); }},
+                { Parameter.TSE_HASH_KEY, () => { SymbolTseList.SetSymbolTseDataList(conndb.GetAll<Model.PacketTSE.Format1>(conndb.GetHashKeys(hashid))); } },
+                { Parameter.TPEX_HASH_KEY, () => { SymbolTpexList.SetSymbolTpexDataList(conndb.GetAll<Model.PacketTPEX.Format1>(conndb.GetHashKeys(hashid))); } },
+                { Parameter.TAIFEX_HASH_KEY, () => { SymbolTaifexList.SetSymbolTaifexDataList(conndb.GetAll<Model.PacketTAIFEX.I010>(conndb.GetHashKeys(hashid))); }},
             };
             switchTypeAction[hashid]();
             //方法2-string to int error
@@ -127,21 +127,21 @@ namespace CommonLibrary
         {
             if (conndb.GetHashKeys(hashid).Count == 0)
                 return false;
-            SymbolTseList.SetSymbolTseDataList(conndb.GetAll<SymbolTse>(conndb.GetHashKeys(hashid)));
+            SymbolTseList.SetSymbolTseDataList(conndb.GetAll<Model.PacketTSE.Format1>(conndb.GetHashKeys(hashid)));
             return true;
         }
         public static bool GetTPEXRedisDB(RedisClient conndb, string hashid)
         {
             if (conndb.GetHashKeys(hashid).Count == 0)
                 return false;
-            SymbolTpexList.SetSymbolTseDataList(conndb.GetAll<SymbolTpex>(conndb.GetHashKeys(hashid)));
+            SymbolTpexList.SetSymbolTpexDataList(conndb.GetAll<Model.PacketTPEX.Format1>(conndb.GetHashKeys(hashid)));
             return true;
         }
         public static bool GetTAIFEXRedisDB(RedisClient conndb, string hashid)
         {
-            if (conndb.GetHashKeys(hashid).Count ==0)
+            if (conndb.GetHashKeys(hashid).Count == 0)
                 return false;
-            SymbolTaifexList.SetSymbolTseDataList(conndb.GetAll<SymbolTaifex>(conndb.GetHashKeys(hashid)));
+            SymbolTaifexList.SetSymbolTaifexDataList(conndb.GetAll<Model.PacketTAIFEX.I010>(conndb.GetHashKeys(hashid)));
             return true;
         }
         #endregion

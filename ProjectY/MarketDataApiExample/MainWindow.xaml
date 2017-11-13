@@ -46,11 +46,13 @@
                     Orientation="Horizontal">
                     <Label Content="市場:" />
                     <ComboBox
+                        VerticalAlignment="Center"
                         ItemsSource="{x:Static view:MainViewModel.MarketList}"
                         SelectedItem="{Binding SelectMarket, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                         Text="2-期貨AM盤" />
                     <Label Content="類型:" />
                     <ComboBox
+                        VerticalAlignment="Center"
                         ItemsSource="{x:Static view:MainViewModel.TypeList}"
                         SelectedItem="{Binding SelectType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                         Text="I020" />

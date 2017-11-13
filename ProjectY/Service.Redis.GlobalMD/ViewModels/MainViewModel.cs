@@ -143,7 +143,7 @@ namespace Service.Redis.GlobalMD.ViewModels
             else
             {
                 SymbolTseList.AddSymbolTseData(temp);
-                Utility.SetRedisDB(_client, Parameter.TSE_HASH_KEY, data.StockID, temp);
+                Utility.SetRedisDB(_client, Parameter.TSE_HASH_KEY, data.StockID, data);
                 _logger.Debug(string.Format("Redis新增TSE：{0}    {1}", data.StockID, data.StockName));
             }
         }
@@ -192,7 +192,7 @@ namespace Service.Redis.GlobalMD.ViewModels
             else
             {
                 SymbolTpexList.AddSymbolTpexData(temp);
-                Utility.SetRedisDB(_client, Parameter.TPEX_HASH_KEY, data.StockID, temp);
+                Utility.SetRedisDB(_client, Parameter.TPEX_HASH_KEY, data.StockID, data);
                 _logger.Debug(string.Format("Redis新增TPEX：{0}    {1}", data.StockID, data.StockName));
             }
         }
@@ -237,7 +237,7 @@ namespace Service.Redis.GlobalMD.ViewModels
             SymbolTaifex temp = new SymbolTaifex(data);
             SymbolTaifexList.AddSymbolTalfexData(temp);
             
-            Utility.SetRedisDB(_client, Parameter.TAIFEX_HASH_KEY, data.B_ProdId, temp);
+            Utility.SetRedisDB(_client, Parameter.TAIFEX_HASH_KEY, data.B_ProdId, data);
             string typeName = (data.H_TransmissionCode == "1") ? "期貨" : "選擇權";//4:選擇權
             _logger.Debug(string.Format("Redis新增{0}：{1}", typeName, data.B_ProdId));
         }
