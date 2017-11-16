@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CommonLibrary;
+using System;
 
 namespace Adapter.TaifexGlobalPATS.ApiPATS
 {

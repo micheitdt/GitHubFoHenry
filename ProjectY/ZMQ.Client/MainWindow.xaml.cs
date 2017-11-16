@@ -97,13 +97,13 @@ namespace ZMQ.Client
         private void sub_Click(object sender, RoutedEventArgs e)
         {
             _socketSub1.Subscribe(Encoding.UTF8.GetBytes(""));
-            //_socketSub2.Subscribe(Encoding.UTF8.GetBytes(""));
-            //_socketSub3.Subscribe(Encoding.UTF8.GetBytes(""));
-            //_socketSub4.Subscribe(Encoding.UTF8.GetBytes(""));
+            _socketSub2.Subscribe(Encoding.UTF8.GetBytes(""));
+            _socketSub3.Subscribe(Encoding.UTF8.GetBytes(""));
+            _socketSub4.Subscribe(Encoding.UTF8.GetBytes(""));
             _socketSub1.Subscribe(Encoding.UTF8.GetBytes("1#1#1#"));
-            //_socketSub2.Subscribe(Encoding.UTF8.GetBytes("1#1#2#"));
-            //_socketSub3.Subscribe(Encoding.UTF8.GetBytes("1#1#3#"));
-            //_socketSub4.Subscribe(Encoding.UTF8.GetBytes("1#1#4#"));
+            _socketSub2.Subscribe(Encoding.UTF8.GetBytes("1#1#2#"));
+            _socketSub3.Subscribe(Encoding.UTF8.GetBytes("1#1#3#"));
+            _socketSub4.Subscribe(Encoding.UTF8.GetBytes("1#1#4#"));
         }
     }
 }

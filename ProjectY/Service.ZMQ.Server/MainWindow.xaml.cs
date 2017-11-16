@@ -37,9 +37,9 @@ namespace Service.ZMQ.Server
             tbMessage.Text += string.Format("DEALER_ADDRESS={0}", DefaultSettings.Instance.DEALER_ADDRESS);
             
             SendSubMessage(DefaultSettings.Instance.PUB_ADDRESS);
-            //SendXSubMessage(DefaultSettings.Instance.XPUB_ADDRESS);
-            //SendPushMessage(DefaultSettings.Instance.PUSH_ADDRESS);
-            //SendDealerMessage(DefaultSettings.Instance.DEALER_ADDRESS);
+            SendXSubMessage(DefaultSettings.Instance.XPUB_ADDRESS);
+            SendPushMessage(DefaultSettings.Instance.PUSH_ADDRESS);
+            SendDealerMessage(DefaultSettings.Instance.DEALER_ADDRESS);
         }
         /// <summary>
         /// 單一發送者
@@ -84,7 +84,7 @@ namespace Service.ZMQ.Server
             {
                 try
             {
-                using (var pubSocket = new PublisherSocket(XPUB_ADDRESS))
+                using (var pubSocket = new XPublisherSocket(XPUB_ADDRESS))
                 {
                     pubSocket.Options.SendHighWatermark = 1000;
                     //pubSocket.Bind(XPUB_ADDRESS);
@@ -114,7 +114,7 @@ namespace Service.ZMQ.Server
             {
                 try
             {
-                using (var pubSocket = new PublisherSocket(PUSH_ADDRESS))
+                using (var pubSocket = new PushSocket(PUSH_ADDRESS))
                 {
                     pubSocket.Options.SendHighWatermark = 1000;
                    // pubSocket.Bind(PUSH_ADDRESS);
@@ -143,7 +143,7 @@ namespace Service.ZMQ.Server
             {
                 try
             {
-                using (var pubSocket = new PublisherSocket(DEALER_ADDRESS))
+                using (var pubSocket = new RouterSocket(DEALER_ADDRESS))
                 {
                     pubSocket.Options.SendHighWatermark = 1000;
                     //pubSocket.Bind(DEALER_ADDRESS);

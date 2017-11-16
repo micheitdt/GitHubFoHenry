@@ -28,10 +28,10 @@ namespace CommonLibrary.Model.PacketPATS
         {
             try
             {
-                PriceUpdateStruct priceData = PriceUpdateStructFromBytes(stream);
-                Exchange = priceData.ExchangeName;
-                Commodity = priceData.CommodityName;
-                Contract = priceData.ContractDate;
+                //PriceUpdateStruct priceData = PriceUpdateStructFromBytes(stream);
+                Exchange = Encoding.UTF8.GetString(stream, 0, 11).TrimStart();
+                Commodity = Encoding.UTF8.GetString(stream, 11, 11).TrimStart();
+                Contract = Encoding.UTF8.GetString(stream, 22, 51).TrimStart();
             }
             catch (Exception err)
             {

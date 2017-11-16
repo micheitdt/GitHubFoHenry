@@ -219,5 +219,10 @@ namespace ESunnyPATSConverterApi
                 return false;
             }
         }
+
+        public bool ContainESunnyCommondityNo(string commondityno)
+        {
+            return _patsToESunny.ParamMap.ContainsKey(commondityno);
+        }
     }
 }

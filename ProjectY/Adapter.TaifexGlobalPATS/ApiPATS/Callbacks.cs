@@ -1,4 +1,5 @@
 using Adapter.TaifexGlobalPATS.Properties;
+using CommonLibrary;
 using System;
 using System.Threading;
 using System.Threading.Tasks;

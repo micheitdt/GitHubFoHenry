@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Runtime.InteropServices;
+using CommonLibrary;
 
 namespace Adapter.TaifexGlobalPATS.ApiPATS
 {
@@ -704,65 +705,6 @@ namespace Adapter.TaifexGlobalPATS.ApiPATS
         public int PriceStatus;
 
     }
-    
-    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi, Pack = 1)]
-    public struct PATStoProxyFormat
-    {
-        [MarshalAs(UnmanagedType.Struct, SizeConst = 73)]
-        public PriceUpdateStruct SymbolInfo;
-        [MarshalAs(UnmanagedType.Struct, SizeConst = 30)]
-        public PriceDetailStruct Bid;
-        [MarshalAs(UnmanagedType.Struct, SizeConst = 30)]
-        public PriceDetailStruct Offer;
-        [MarshalAs(UnmanagedType.Struct, SizeConst = 30)]
-        public PriceDetailStruct Last;
-        [MarshalAs(UnmanagedType.Struct, SizeConst = 30)]
-        public PriceDetailStruct Total;
-        [MarshalAs(UnmanagedType.Struct, SizeConst = 30)]
-        public PriceDetailStruct High;
-        [MarshalAs(UnmanagedType.Struct, SizeConst = 30)]
-        public PriceDetailStruct Low;
-        [MarshalAs(UnmanagedType.Struct, SizeConst = 30)]
-        public PriceDetailStruct BidDOM0;
-        [MarshalAs(UnmanagedType.Struct, SizeConst = 30)]
-        public PriceDetailStruct BidDOM1;
-        [MarshalAs(UnmanagedType.Struct, SizeConst = 30)]
-        public PriceDetailStruct BidDOM2;
-        [MarshalAs(UnmanagedType.Struct, SizeConst = 30)]
-        public PriceDetailStruct BidDOM3;
-        [MarshalAs(UnmanagedType.Struct, SizeConst = 30)]
-        public PriceDetailStruct BidDOM4;
-        [MarshalAs(UnmanagedType.Struct, SizeConst = 30)]
-        public PriceDetailStruct BidDOM5;
-        [MarshalAs(UnmanagedType.Struct, SizeConst = 30)]
-        public PriceDetailStruct BidDOM6;
-        [MarshalAs(UnmanagedType.Struct, SizeConst = 30)]
-        public PriceDetailStruct BidDOM7;
-        [MarshalAs(UnmanagedType.Struct, SizeConst = 30)]
-        public PriceDetailStruct BidDOM8;
-        [MarshalAs(UnmanagedType.Struct, SizeConst = 30)]
-        public PriceDetailStruct BidDOM9;
-        [MarshalAs(UnmanagedType.Struct, SizeConst = 30)]
-        public PriceDetailStruct OfferDOM0;
-        [MarshalAs(UnmanagedType.Struct, SizeConst = 30)]
-        public PriceDetailStruct OfferDOM1;
-        [MarshalAs(UnmanagedType.Struct, SizeConst = 30)]
-        public PriceDetailStruct OfferDOM2;
-        [MarshalAs(UnmanagedType.Struct, SizeConst = 30)]
-        public PriceDetailStruct OfferDOM3;
-        [MarshalAs(UnmanagedType.Struct, SizeConst = 30)]
-        public PriceDetailStruct OfferDOM4;
-        [MarshalAs(UnmanagedType.Struct, SizeConst = 30)]
-        public PriceDetailStruct OfferDOM5;
-        [MarshalAs(UnmanagedType.Struct, SizeConst = 30)]
-        public PriceDetailStruct OfferDOM6;
-        [MarshalAs(UnmanagedType.Struct, SizeConst = 30)]
-        public PriceDetailStruct OfferDOM7;
-        [MarshalAs(UnmanagedType.Struct, SizeConst = 30)]
-        public PriceDetailStruct OfferDOM8;
-        [MarshalAs(UnmanagedType.Struct, SizeConst = 30)]
-        public PriceDetailStruct OfferDOM9;
-    }
 
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi, Pack = 1)]
     public struct GenericMarginFigure
@@ -927,19 +869,7 @@ namespace Adapter.TaifexGlobalPATS.ApiPATS
         string LastSeller;
 
     }
-    
-    /** struct for price update callback**/
-    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi, Pack = 1)]
-    public struct PriceUpdateStruct
-    {
-        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = Constants.SIZE_OF_EXCHANGE_NAME)]
-        public string ExchangeName;
-        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = Constants.SIZE_OF_COMMODITY_NAME)]
-        public string CommodityName;
-        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = Constants.SIZE_OF_CONTRACT_DATE)]
-        public string ContractDate;
 
-    }
    /** Struct for order amendment **/
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi, Pack = 1)]
     public struct AmendOrderStruct

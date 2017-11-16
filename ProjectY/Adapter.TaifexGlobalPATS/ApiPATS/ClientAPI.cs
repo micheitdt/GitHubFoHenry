@@ -6,7 +6,7 @@ using System.Diagnostics;
 using System.Collections.Generic;
 using System.IO;
 using Adapter.TaifexGlobalPATS.Properties;
-using Adapter.TaifexGlobalPATS.TradingObjects;
+using CommonLibrary;
 
 namespace Adapter.TaifexGlobalPATS.ApiPATS
 {

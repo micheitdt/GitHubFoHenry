@@ -275,7 +275,7 @@ namespace MarketDataApi
                                             case "5":
                                                 ProcessSolvedPacket_TAIFEX(data[1], messages[1]); break;
                                             case "6":
-                                                ProcessSolvedPacket_PATS(data[1], messages[1]); break;
+                                                ProcessSolvedPacket_PATS(data[1], messages[1], data[2]); break;
                                             default:
                                                 break;
                                         }
@@ -383,7 +383,7 @@ namespace MarketDataApi
             }
         }
 
-        private void ProcessSolvedPacket_PATS(string packetType, byte[] packetData)
+        private void ProcessSolvedPacket_PATS(string packetType, byte[] packetData, string symbol)
         {
             try
             {
@@ -392,7 +392,7 @@ namespace MarketDataApi
                     case "0":
                         OnPatsFormat0Received(new CommonLibrary.Model.PacketPATS.Format0(packetData)); break;
                     case "1":
-                        OnPatsFormat1Received(new CommonLibrary.Model.PacketPATS.Format1(packetData)); break;
+                        OnPatsFormat1Received(new CommonLibrary.Model.PacketPATS.Format1(packetData, symbol)); break;
                     default:
                         break;
                 }

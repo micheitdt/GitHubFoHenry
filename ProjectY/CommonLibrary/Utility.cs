@@ -78,9 +78,9 @@ namespace CommonLibrary
             //方法1
             var switchTypeAction = new Dictionary<Type, Action>
             {
-                { typeof(Model.PacketTSE.Format1), () => { conndb.Set<Model.PacketTSE.Format1>(key, data as Model.PacketTSE.Format1); conndb.SetEntryInHashIfNotExists(hashid, key, ""); } },
-                { typeof(Model.PacketTPEX.Format1), () => {  conndb.Set<Model.PacketTPEX.Format1>(key, data as Model.PacketTPEX.Format1); conndb.SetEntryInHashIfNotExists(hashid, key, ""); }  },
-                { typeof(Model.PacketTAIFEX.I010), () => { conndb.Set<Model.PacketTAIFEX.I010>(key, data as Model.PacketTAIFEX.I010); conndb.SetEntryInHashIfNotExists(hashid, key, ""); }},
+                { typeof(Model.PacketTSE.Format1), () => { conndb.Set<Model.PacketTSE.Format1>(key, data as Model.PacketTSE.Format1); conndb.SetEntryInHash(hashid, key, ""); } },
+                { typeof(Model.PacketTPEX.Format1), () => {  conndb.Set<Model.PacketTPEX.Format1>(key, data as Model.PacketTPEX.Format1); conndb.SetEntryInHash(hashid, key, ""); }  },
+                { typeof(Model.PacketTAIFEX.I010), () => { conndb.Set<Model.PacketTAIFEX.I010>(key, data as Model.PacketTAIFEX.I010); conndb.SetEntryInHash(hashid, key, ""); }},
             };
             switchTypeAction[data.GetType()]();
 

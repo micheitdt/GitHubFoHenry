@@ -35,9 +35,9 @@ namespace Service.ZMQ.Gateway
             tbMessage.Text += string.Format("RO_BACKEND_ADDRESS={0}", DefaultSettings.Instance.RO_BACKEND_ADDRESS);//後端_前台
 
             BuildProxy_SubPub(DefaultSettings.Instance.S_FRONTEND_ADDRESS, DefaultSettings.Instance.S_BACKEND_ADDRESS);
-            //BuildProxy_XSubXPub(DefaultSettings.Instance.XS_FRONTEND_ADDRESS, DefaultSettings.Instance.XS_BACKEND_ADDRESS);
-            //BuildProxy_PushPull(DefaultSettings.Instance.PU_FRONTEND_ADDRESS, DefaultSettings.Instance.PU_BACKEND_ADDRESS);
-            //BuildProxy_RouterDealer(DefaultSettings.Instance.RO_FRONTEND_ADDRESS, DefaultSettings.Instance.RO_BACKEND_ADDRESS);
+            BuildProxy_XSubXPub(DefaultSettings.Instance.XS_FRONTEND_ADDRESS, DefaultSettings.Instance.XS_BACKEND_ADDRESS);
+            BuildProxy_PushPull(DefaultSettings.Instance.PU_FRONTEND_ADDRESS, DefaultSettings.Instance.PU_BACKEND_ADDRESS);
+            BuildProxy_RouterDealer(DefaultSettings.Instance.RO_FRONTEND_ADDRESS, DefaultSettings.Instance.RO_BACKEND_ADDRESS);
         }
 
         private void BuildProxy_SubPub(string addressFront, string addressBack)

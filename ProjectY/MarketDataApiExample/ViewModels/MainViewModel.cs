@@ -701,8 +701,6 @@ namespace MarketDataApiExample.ViewModels
 
                 SubscribeList.Remove(SelectSubscribe);
                 StatusMessageList.Insert(0, DateTime.Now.ToString("HH:mm:ss:ttt") + "    " + "取消訂閱:" + SelectMarket + ";" + SelectType);
-                SelectType = string.Empty;
-                SelectMarket = string.Empty;
             }
             else
             {
@@ -711,8 +709,6 @@ namespace MarketDataApiExample.ViewModels
                 SubscribeList.Remove(SelectSubscribe);
                 StatusMessageList.Insert(0, DateTime.Now.ToString("HH:mm:ss:ttt") + "    " + "取消訂閱:" + SelectMarket + ";" + SelectType + ";" + SymbolNo);
                 SymbolNo = string.Empty;
-                SelectType = string.Empty;
-                SelectMarket = string.Empty;
             }
             SelectSubscribe = SubscribeList.FirstOrDefault();
         }
@@ -991,6 +987,9 @@ namespace MarketDataApiExample.ViewModels
                     return;
                 }
                 _patsFormat0List.Add(e.PacketData);
+
+                //測試
+                //api.Sub(AdapterCode.TAIFEX_GLOBAL_PATS, "1", string.Format("{0}.{1}.{2}", e.PacketData.Exchange, e.PacketData.Commodity, e.PacketData.Contract));
             }));
         }
         //------------------------------------------------------------------------------------------------------------------------------------------

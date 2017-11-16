@@ -42,7 +42,7 @@ namespace Service.Redis.CleanMD
             tbMessage.Text += string.Format("REDIS_DB_PORT={0}", DefaultSettings.Instance.REDIS_DB_PORT);
 
             RedisClient client = new RedisClient(DefaultSettings.Instance.REDIS_DB_IP, DefaultSettings.Instance.REDIS_DB_PORT);
-            client.FlushAll();
+            client.FlushDb();
             MessageBox.Show("已清空Redis資料", "注意", MessageBoxButton.OK);
             Environment.Exit(0);
         }
