@@ -52,9 +52,8 @@ namespace Adapter.TaifexGlobalPATS
             // connecting API handlers
             ClientAPI.Instance.LogonComplete += LogonComplete;//登入完成
             ClientAPI.Instance.PriceLinkStatusEvent += PriceLinkStatusEvent;//價格伺服器連接
-            ClientAPI.Instance.PriceDetailEvent += clientAPIPriceDetailEvent;//價格變動
-            //ClientAPI.Instance.TickDetailEvent += Instance_TickDetailEvent;
-            //ClientAPI.Instance.PriceDetailEvent += Instance_PriceDetailEvent;
+            ClientAPI.Instance.PriceDetailEvent += clientAPI_PriceDetailEvent;//價格變動
+            ClientAPI.Instance.TickDetailEvent += clientAPI_TickDetailEvent;
             // -----------------------
         }
 
@@ -134,7 +133,6 @@ namespace Adapter.TaifexGlobalPATS
                 foreach (PriceUpdateStruct pricedata in _symbolList)
                 {
                     //盤前資料
-                    //byte[] toBytes = PriceUpdateStructGetBytes(pricedata);
                     byte[] toBytes = new byte[73];
                     SetBytes(ref toBytes, 0, pricedata.ExchangeName, 11);
                     SetBytes(ref toBytes, 11, pricedata.CommodityName, 11);
@@ -150,7 +148,6 @@ namespace Adapter.TaifexGlobalPATS
                     //訂閱
                     ClientAPIMethods.DoSubscribePrice(pricedata.ExchangeName, pricedata.CommodityName, pricedata.ContractDate);
                 }
-                //byte[] endtoBytes = PriceUpdateStructGetBytes(new PriceUpdateStruct() { ExchangeName="End" });
                 byte[] endtoBytes = new byte[73];
                 SetBytes(ref endtoBytes, 0, "End", 11);
                 _socket.SendMoreFrame(prefix).SendFrame(endtoBytes);
@@ -161,195 +158,137 @@ namespace Adapter.TaifexGlobalPATS
         /// <summary>
         /// 價格資料接收事件
         /// </summary>
-        private void clientAPIPriceDetailEvent(object sender, EventDelegatePriceUpdateArgs e)
+        private void clientAPI_PriceDetailEvent(object sender, EventDelegatePriceUpdateArgs e)
         {
-            //去除無易盛商品訊息
-            //if(ESunnyPATSConverterApi.ESunnyPATSMapConverter.Instance.ContainESunnyCommondityNo(e.ExchangeLookup.ExchangeName + "." + e.ExchangeLookup.CommodityName) == false)
-            //{
-            //    return;
-            //}
-            //PatsDepthMD data = new PatsDepthMD();
-            //bool isTryParse = true;
-            //data.LastHH = e.PriceUpdateObject.Last0.Hour;
-            //data.LastMM = e.PriceUpdateObject.Last0.Minute;
-            //data.LastSS = e.PriceUpdateObject.Last0.Second;
-            //data.BidHH = e.PriceUpdateObject.Bid.Hour;
-            //data.BidMM = e.PriceUpdateObject.Bid.Minute;
-            //data.BidSS = e.PriceUpdateObject.Bid.Second;
-            //isTryParse &= double.TryParse(e.PriceUpdateObject.Last0.Price, out data.LastPrice);
-            //data.TotalVolume = e.PriceUpdateObject.Total.Volume;
-            //isTryParse &= double.TryParse(e.PriceUpdateObject.High.Price, out data.TagHighPrice);
-            //isTryParse &= double.TryParse(e.PriceUpdateObject.Low.Price, out data.TagLowPrice);
-            //isTryParse &= double.TryParse(e.PriceUpdateObject.BidDOM0.Price, out data.BidPrice0);
-            //isTryParse &= double.TryParse(e.PriceUpdateObject.BidDOM1.Price, out data.BidPrice1);
-            //isTryParse &= double.TryParse(e.PriceUpdateObject.BidDOM2.Price, out data.BidPrice2);
-            //isTryParse &= double.TryParse(e.PriceUpdateObject.BidDOM3.Price, out data.BidPrice3);
-            //isTryParse &= double.TryParse(e.PriceUpdateObject.BidDOM4.Price, out data.BidPrice4);
-            //isTryParse &= double.TryParse(e.PriceUpdateObject.BidDOM5.Price, out data.BidPrice5);
-            //isTryParse &= double.TryParse(e.PriceUpdateObject.BidDOM6.Price, out data.BidPrice6);
-            //isTryParse &= double.TryParse(e.PriceUpdateObject.BidDOM7.Price, out data.BidPrice7);
-            //isTryParse &= double.TryParse(e.PriceUpdateObject.BidDOM8.Price, out data.BidPrice8);
-            //isTryParse &= double.TryParse(e.PriceUpdateObject.BidDOM9.Price, out data.BidPrice9);
-            //data.BidVolume0 = e.PriceUpdateObject.BidDOM0.Volume;
-            //data.BidVolume1 = e.PriceUpdateObject.BidDOM0.Volume;
-            //data.BidVolume2 = e.PriceUpdateObject.BidDOM0.Volume;
-            //data.BidVolume3 = e.PriceUpdateObject.BidDOM0.Volume;
-            //data.BidVolume4 = e.PriceUpdateObject.BidDOM0.Volume;
-            //data.BidVolume5 = e.PriceUpdateObject.BidDOM0.Volume;
-            //data.BidVolume6 = e.PriceUpdateObject.BidDOM0.Volume;
-            //data.BidVolume7 = e.PriceUpdateObject.BidDOM0.Volume;
-            //data.BidVolume8 = e.PriceUpdateObject.BidDOM0.Volume;
-            //data.BidVolume9 = e.PriceUpdateObject.BidDOM0.Volume;
-            //isTryParse &= double.TryParse(e.PriceUpdateObject.OfferDOM0.Price, out data.OfferPrice0);
-            //isTryParse &= double.TryParse(e.PriceUpdateObject.OfferDOM1.Price, out data.OfferPrice1);
-            //isTryParse &= double.TryParse(e.PriceUpdateObject.OfferDOM2.Price, out data.OfferPrice2);
-            //isTryParse &= double.TryParse(e.PriceUpdateObject.OfferDOM3.Price, out data.OfferPrice3);
-            //isTryParse &= double.TryParse(e.PriceUpdateObject.OfferDOM4.Price, out data.OfferPrice4);
-            //isTryParse &= double.TryParse(e.PriceUpdateObject.OfferDOM5.Price, out data.OfferPrice5);
-            //isTryParse &= double.TryParse(e.PriceUpdateObject.OfferDOM6.Price, out data.OfferPrice6);
-            //isTryParse &= double.TryParse(e.PriceUpdateObject.OfferDOM7.Price, out data.OfferPrice7);
-            //isTryParse &= double.TryParse(e.PriceUpdateObject.OfferDOM8.Price, out data.OfferPrice8);
-            //isTryParse &= double.TryParse(e.PriceUpdateObject.OfferDOM9.Price, out data.OfferPrice9);
-            //data.OfferVolume0 = e.PriceUpdateObject.OfferDOM0.Volume;
-            //data.OfferVolume1 = e.PriceUpdateObject.OfferDOM0.Volume;
-            //data.OfferVolume2 = e.PriceUpdateObject.OfferDOM0.Volume;
-            //data.OfferVolume3 = e.PriceUpdateObject.OfferDOM0.Volume;
-            //data.OfferVolume4 = e.PriceUpdateObject.OfferDOM0.Volume;
-            //data.OfferVolume5 = e.PriceUpdateObject.OfferDOM0.Volume;
-            //data.OfferVolume6 = e.PriceUpdateObject.OfferDOM0.Volume;
-            //data.OfferVolume7 = e.PriceUpdateObject.OfferDOM0.Volume;
-            //data.OfferVolume8 = e.PriceUpdateObject.OfferDOM0.Volume;
-            //data.OfferVolume9 = e.PriceUpdateObject.OfferDOM0.Volume;
             string HashKey = e.ExchangeLookup.ExchangeName + '.' + e.ExchangeLookup.CommodityName + '.' + e.ExchangeLookup.ContractDate;
 
-            byte[] toBytes = new byte[274];//PatsDepthMDGetBytes(data);
+            byte[] toBytes = new byte[283];
             if (GetBytes(e.PriceUpdateObject, ref toBytes) == false)
             {
-                _logger.Debug(string.Format("clientAPIPriceDetailEvent() TryParse Error {0}", HashKey));
+                _logger.Debug(string.Format("clientAPI_PriceDetailEvent() TryParse Error {0}", HashKey));
                 return;
             }
             string prefix = string.Format("6#1#{0}#", HashKey);
             _socket.SendMoreFrame(prefix).SendFrame(toBytes);
         }
 
-        public bool GetBytes(PriceStruct md, ref byte[] data)
+        private void clientAPI_TickDetailEvent(object sender, EventDelegateTickerArgs e)
+        {
+            string HashKey = e.tickerData.ExchangeName + '.' + e.tickerData.ContractName + '.' + e.tickerData.ContractDate;
+
+            byte[] toBytes = new byte[12];
+            if (GetBytes(e.tickerData, ref toBytes) == false)
+            {
+                _logger.Debug(string.Format("clientAPI_TickDetailEvent() TryParse Error {0}", HashKey));
+                return;
+            }
+            string prefix = string.Format("6#2#{0}#", HashKey);
+            _socket.SendMoreFrame(prefix).SendFrame(toBytes);
+        }
+
+        #region byte control
+        private bool GetBytes(PriceStruct md, ref byte[] data)
         {
             bool isTryParse = true;
             double price = 0;
-            data[0] = md.Last0.Hour;
-            data[1] = md.Last0.Minute;
-            data[2] = md.Last0.Second;
-            data[3] = md.Bid.Hour;
-            data[4] = md.Bid.Minute;
-            data[5] = md.Bid.Second;
-            isTryParse &= DoubleTryParse(md.Last0.Price, out price);
-            SetBytes(ref data, 6, price);
-            SetBytes(ref data, 14, md.Total.Volume);
+            data[0] = md.Offer.Hour;
+            data[1] = md.Offer.Minute;
+            data[2] = md.Offer.Second;
+            SetBytes(ref data, 3, md.Total.Volume);
             isTryParse &= DoubleTryParse(md.High.Price, out price);
-            SetBytes(ref data, 18, price);
+            SetBytes(ref data, 7, price);
             isTryParse &= DoubleTryParse(md.Low.Price, out price);
-            SetBytes(ref data, 26, price);
-            isTryParse &= DoubleTryParse(md.Bid.Price, out price);
-            SetBytes(ref data, 34, price);
-            SetBytes(ref data, 42, md.Bid.Volume);
-            isTryParse &= DoubleTryParse(md.Offer.Price, out price);
-            SetBytes(ref data, 46, price);
-            SetBytes(ref data, 54, md.Offer.Volume);
+            SetBytes(ref data, 15, price);
+            isTryParse &= DoubleTryParse(md.Opening.Price, out price);
+            SetBytes(ref data, 23, price);
+            isTryParse &= DoubleTryParse(md.Closing.Price, out price);
+            SetBytes(ref data, 31, price);
+            isTryParse &= DoubleTryParse(md.BidDOM0.Price, out price);
+            SetBytes(ref data, 39, price);
+            SetBytes(ref data, 47, md.BidDOM0.Volume);
+            isTryParse &= DoubleTryParse(md.OfferDOM0.Price, out price);
+            SetBytes(ref data, 51, price);
+            SetBytes(ref data, 59, md.OfferDOM0.Volume);
             isTryParse &= DoubleTryParse(md.BidDOM1.Price, out price);
-            SetBytes(ref data, 58, price);
-            SetBytes(ref data, 66, md.BidDOM1.Volume);
+            SetBytes(ref data, 63, price);
+            SetBytes(ref data, 71, md.BidDOM1.Volume);
             isTryParse &= DoubleTryParse(md.OfferDOM1.Price, out price);
-            SetBytes(ref data, 70, price);
-            SetBytes(ref data, 78, md.OfferDOM1.Volume);
+            SetBytes(ref data, 75, price);
+            SetBytes(ref data, 83, md.OfferDOM1.Volume);
             isTryParse &= DoubleTryParse(md.BidDOM2.Price, out price);
-            SetBytes(ref data, 82, price);
-            SetBytes(ref data, 90, md.BidDOM2.Volume);
+            SetBytes(ref data, 87, price);
+            SetBytes(ref data, 95, md.BidDOM2.Volume);
             isTryParse &= DoubleTryParse(md.OfferDOM2.Price, out price);
-            SetBytes(ref data, 94, price);
-            SetBytes(ref data, 102, md.OfferDOM2.Volume);
+            SetBytes(ref data, 99, price);
+            SetBytes(ref data, 107, md.OfferDOM2.Volume);
             isTryParse &= DoubleTryParse(md.BidDOM3.Price, out price);
-            SetBytes(ref data, 106, price);
-            SetBytes(ref data, 114, md.BidDOM3.Volume);
+            SetBytes(ref data, 111, price);
+            SetBytes(ref data, 119, md.BidDOM3.Volume);
             isTryParse &= DoubleTryParse(md.OfferDOM3.Price, out price);
-            SetBytes(ref data, 118, price);
-            SetBytes(ref data, 126, md.OfferDOM3.Volume);
+            SetBytes(ref data, 123, price);
+            SetBytes(ref data, 131, md.OfferDOM3.Volume);
             isTryParse &= DoubleTryParse(md.BidDOM4.Price, out price);
-            SetBytes(ref data, 130, price);
-            SetBytes(ref data, 138, md.BidDOM4.Volume);
+            SetBytes(ref data, 135, price);
+            SetBytes(ref data, 143, md.BidDOM4.Volume);
             isTryParse &= DoubleTryParse(md.OfferDOM4.Price, out price);
-            SetBytes(ref data, 142, price);
-            SetBytes(ref data, 150, md.OfferDOM4.Volume);
+            SetBytes(ref data, 147, price);
+            SetBytes(ref data, 155, md.OfferDOM4.Volume);
             isTryParse &= DoubleTryParse(md.BidDOM5.Price, out price);
-            SetBytes(ref data, 154, price);
-            SetBytes(ref data, 162, md.BidDOM5.Volume);
+            SetBytes(ref data, 159, price);
+            SetBytes(ref data, 167, md.BidDOM5.Volume);
             isTryParse &= DoubleTryParse(md.OfferDOM5.Price, out price);
-            SetBytes(ref data, 166, price);
-            SetBytes(ref data, 174, md.OfferDOM5.Volume);
+            SetBytes(ref data, 171, price);
+            SetBytes(ref data, 179, md.OfferDOM5.Volume);
             isTryParse &= DoubleTryParse(md.BidDOM6.Price, out price);
-            SetBytes(ref data, 178, price);
-            SetBytes(ref data, 186, md.BidDOM6.Volume);
+            SetBytes(ref data, 183, price);
+            SetBytes(ref data, 191, md.BidDOM6.Volume);
             isTryParse &= DoubleTryParse(md.OfferDOM6.Price, out price);
-            SetBytes(ref data, 190, price);
-            SetBytes(ref data, 198, md.OfferDOM6.Volume);
+            SetBytes(ref data, 195, price);
+            SetBytes(ref data, 203, md.OfferDOM6.Volume);
             isTryParse &= DoubleTryParse(md.BidDOM7.Price, out price);
-            SetBytes(ref data, 202, price);
-            SetBytes(ref data, 210, md.BidDOM7.Volume);
+            SetBytes(ref data, 207, price);
+            SetBytes(ref data, 215, md.BidDOM7.Volume);
             isTryParse &= DoubleTryParse(md.OfferDOM7.Price, out price);
-            SetBytes(ref data, 214, price);
-            SetBytes(ref data, 222, md.OfferDOM7.Volume);
+            SetBytes(ref data, 219, price);
+            SetBytes(ref data, 227, md.OfferDOM7.Volume);
             isTryParse &= DoubleTryParse(md.BidDOM8.Price, out price);
-            SetBytes(ref data, 226, price);
-            SetBytes(ref data, 234, md.BidDOM8.Volume);
+            SetBytes(ref data, 231, price);
+            SetBytes(ref data, 239, md.BidDOM8.Volume);
             isTryParse &= DoubleTryParse(md.OfferDOM8.Price, out price);
-            SetBytes(ref data, 238, price);
-            SetBytes(ref data, 246, md.OfferDOM8.Volume);
+            SetBytes(ref data, 243, price);
+            SetBytes(ref data, 251, md.OfferDOM8.Volume);
             isTryParse &= DoubleTryParse(md.BidDOM9.Price, out price);
-            SetBytes(ref data, 250, price);
-            SetBytes(ref data, 258, md.BidDOM9.Volume);
+            SetBytes(ref data, 255, price);
+            SetBytes(ref data, 263, md.BidDOM9.Volume);
             isTryParse &= DoubleTryParse(md.OfferDOM9.Price, out price);
-            SetBytes(ref data, 262, price);
-            SetBytes(ref data, 270, md.OfferDOM9.Volume);
+            SetBytes(ref data, 267, price);
+            SetBytes(ref data, 271, md.OfferDOM9.Volume);
+            isTryParse &= DoubleTryParse(md.ReferencePrice.Price, out price);
+            SetBytes(ref data, 275, price);
             return isTryParse;
         }
-        private bool DoubleTryParse(string orgprice ,out double price)
+
+        private bool GetBytes(TickerUpdStruct md, ref byte[] data)
         {
-            if(string.IsNullOrEmpty(orgprice))
+            bool isTryParse = true;
+            double price = 0;
+            isTryParse &= DoubleTryParse(md.LastPrice, out price);
+            SetBytes(ref data, 0, price);
+            SetBytes(ref data, 8, md.LastVolume);
+            return isTryParse;
+        }
+
+        private bool DoubleTryParse(string orgprice, out double price)
+        {
+            if (string.IsNullOrEmpty(orgprice))
             {
                 price = 0;
                 return true;
             }
             return double.TryParse(orgprice, out price);
         }
-        /// <summary>
-        /// 轉成Bytes
-        /// </summary>
-        //private byte[] PatsDepthMDGetBytes(PatsDepthMD data)
-        //{
-        //    int size = Marshal.SizeOf(data);
-        //    byte[] arr = new byte[size];
 
-        //    IntPtr ptr = Marshal.AllocHGlobal(size);
-        //    Marshal.StructureToPtr(data, ptr, true);
-        //    Marshal.Copy(ptr, arr, 0, size);
-        //    Marshal.FreeHGlobal(ptr);
-        //    return arr;
-        //}
-        /// <summary>
-        /// 轉成Bytes
-        /// </summary>
-        //private byte[] PriceUpdateStructGetBytes(PriceUpdateStruct data)
-        //{
-        //    int size = Marshal.SizeOf(data);
-        //    byte[] arr = new byte[size];
-
-        //    IntPtr ptr = Marshal.AllocHGlobal(size);
-        //    Marshal.StructureToPtr(data, ptr, true);
-        //    Marshal.Copy(ptr, arr, 0, size);
-        //    Marshal.FreeHGlobal(ptr);
-        //    return arr;
-        //}
-
-        public static void SetBytes(ref byte[] data, int offset, double value)
+        private static void SetBytes(ref byte[] data, int offset, double value)
         {
             var array = BitConverter.GetBytes(value);
             for (int i = 0; i < array.Length; i++)
@@ -358,7 +297,7 @@ namespace Adapter.TaifexGlobalPATS
             }
         }
 
-        public static void SetBytes(ref byte[] data, int offset, string value, int lengthOfValue)
+        private static void SetBytes(ref byte[] data, int offset, string value, int lengthOfValue)
         {
             var content = value.PadLeft(lengthOfValue);
             var array = Encoding.UTF8.GetBytes(content);
@@ -368,13 +307,14 @@ namespace Adapter.TaifexGlobalPATS
             }
         }
 
-        public static void SetBytes(ref byte[] data, int offset, int value)
+        private static void SetBytes(ref byte[] data, int offset, int value)
         {
             data[offset] = (byte)value;
             data[offset + 1] = (byte)(value >> 8);
             data[offset + 2] = (byte)(value >> 16);
             data[offset + 3] = (byte)(value >> 24);
         }
+        #endregion
 
         #endregion
 

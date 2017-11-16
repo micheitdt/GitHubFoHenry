@@ -138,6 +138,7 @@ namespace MarketDataApi
                     {
                         case "0": return "0";
                         case "1": return "1";
+                        case "2": return "2";
                         default: return "99";
                     }
                 default: return code;
@@ -393,6 +394,8 @@ namespace MarketDataApi
                         OnPatsFormat0Received(new CommonLibrary.Model.PacketPATS.Format0(packetData)); break;
                     case "1":
                         OnPatsFormat1Received(new CommonLibrary.Model.PacketPATS.Format1(packetData, symbol)); break;
+                    case "2":
+                        OnPatsFormat2Received(new CommonLibrary.Model.PacketPATS.Format2(packetData, symbol)); break;
                     default:
                         break;
                 }
@@ -597,6 +600,21 @@ namespace MarketDataApi
         {
             if (PatsFormat1Received != null)
                 PatsFormat1Received(this, new PatsFormat1ReceivedEventArgs(packetData));
+        }
+
+        public event EventHandler<PatsFormat2ReceivedEventArgs> PatsFormat2Received;
+        public class PatsFormat2ReceivedEventArgs : EventArgs
+        {
+            public readonly CommonLibrary.Model.PacketPATS.Format2 PacketData;
+            public PatsFormat2ReceivedEventArgs(CommonLibrary.Model.PacketPATS.Format2 packetData)
+            {
+                PacketData = packetData;
+            }
+        }
+        private void OnPatsFormat2Received(CommonLibrary.Model.PacketPATS.Format2 packetData)
+        {
+            if (PatsFormat2Received != null)
+                PatsFormat2Received(this, new PatsFormat2ReceivedEventArgs(packetData));
         }
 
         public event EventHandler<UnSolvedPacketReceivedEventArgs> UnSolvedPacketReceived;

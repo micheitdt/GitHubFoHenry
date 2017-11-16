@@ -21,53 +21,56 @@ namespace CommonLibrary.Model.PacketPATS
         public string ExchangeNo { get; set; }
         public string CommodityNo { get; set; }
         public string ContractDate { get; set; }
-        public string LastTime { get; set; }
-        public string BidTime { get; set; }
+        public string Time { get; set; }
         public double LastPrice{ get; set; }
+        public int LastVolume { get; set; }
         public int TotalVolume { get; set; }
         public double HighPrice { get; set; }
         public double LowPrice { get; set; }
-        public double BidPrice0 { get; set; }
-        public int BidVolume0 { get; set; }
-        public double OfficePrice0 { get; set; }
-        public int OfficeVolume0 { get; set; }
-        public double BidPrice1 { get; set; }
-        public int BidVolume1 { get; set; }
-        public double OfficePrice1 { get; set; }
-        public int OfficeVolume1 { get; set; }
-        public double BidPrice2 { get; set; }
-        public int BidVolume2 { get; set; }
-        public double OfficePrice2 { get; set; }
-        public int OfficeVolume2 { get; set; }
-        public double BidPrice3 { get; set; }
-        public int BidVolume3 { get; set; }
-        public double OfficePrice3 { get; set; }
-        public int OfficeVolume3 { get; set; }
-        public double BidPrice4 { get; set; }
-        public int BidVolume4 { get; set; }
-        public double OfficePrice4 { get; set; }
-        public int OfficeVolume4 { get; set; }
-        public double BidPrice5 { get; set; }
-        public int BidVolume5 { get; set; }
-        public double OfficePrice5 { get; set; }
-        public int OfficeVolume5 { get; set; }
-        public double BidPrice6 { get; set; }
-        public int BidVolume6 { get; set; }
-        public double OfficePrice6 { get; set; }
-        public int OfficeVolume6 { get; set; }
-        public double BidPrice7 { get; set; }
-        public int BidVolume7 { get; set; }
-        public double OfficePrice7 { get; set; }
-        public int OfficeVolume7 { get; set; }
-        public double BidPrice8 { get; set; }
-        public int BidVolume8 { get; set; }
-        public double OfficePrice8 { get; set; }
-        public int OfficeVolume8 { get; set; }
-        public double BidPrice9 { get; set; }
-        public int BidVolume9 { get; set; }
-        public double OfficePrice9 { get; set; }
-        public int OfficeVolume9 { get; set; }
-        
+        public double OpeningPrice { get; set; }
+        public double CloseingPrice { get; set; }
+        public double BidDOMPrice0 { get; set; }
+        public int BidDOMVolume0 { get; set; }
+        public double OfferDOMPrice0 { get; set; }
+        public int OfferDOMVolume0 { get; set; }
+        public double BidDOMPrice1 { get; set; }
+        public int BidDOMVolume1 { get; set; }
+        public double OfferDOMPrice1 { get; set; }
+        public int OfferDOMVolume1 { get; set; }
+        public double BidDOMPrice2 { get; set; }
+        public int BidDOMVolume2 { get; set; }
+        public double OfferDOMPrice2 { get; set; }
+        public int OfferDOMVolume2 { get; set; }
+        public double BidDOMPrice3 { get; set; }
+        public int BidDOMVolume3 { get; set; }
+        public double OfferDOMPrice3 { get; set; }
+        public int OfferDOMVolume3 { get; set; }
+        public double BidDOMPrice4 { get; set; }
+        public int BidDOMVolume4 { get; set; }
+        public double OfferDOMPrice4 { get; set; }
+        public int OfferDOMVolume4 { get; set; }
+        public double BidDOMPrice5 { get; set; }
+        public int BidDOMVolume5 { get; set; }
+        public double OfferDOMPrice5 { get; set; }
+        public int OfferDOMVolume5 { get; set; }
+        public double BidDOMPrice6 { get; set; }
+        public int BidDOMVolume6 { get; set; }
+        public double OfferDOMPrice6 { get; set; }
+        public int OfferDOMVolume6 { get; set; }
+        public double BidDOMPrice7 { get; set; }
+        public int BidDOMVolume7 { get; set; }
+        public double OfferDOMPrice7 { get; set; }
+        public int OfferDOMVolume7 { get; set; }
+        public double BidDOMPrice8 { get; set; }
+        public int BidDOMVolume8 { get; set; }
+        public double OfferDOMPrice8 { get; set; }
+        public int OfferDOMVolume8 { get; set; }
+        public double BidDOMPrice9 { get; set; }
+        public int BidDOMVolume9 { get; set; }
+        public double OfferDOMPrice9 { get; set; }
+        public int OfferDOMVolume9 { get; set; }
+        public double ReferencePrice { get; set; }
+
         public Format1(byte[] stream, string symbol)
         {
             try
@@ -76,52 +79,55 @@ namespace CommonLibrary.Model.PacketPATS
                 ExchangeNo = data[0];
                 CommodityNo = data[1];
                 ContractDate = data[2];
-                LastTime = string.Format("{0}:{1}:{2}", stream[0], stream[1], stream[2]);
-                BidTime = string.Format("{0}:{1}:{2}", stream[3], stream[4], stream[5]);
-                LastPrice = BitConverter.ToDouble(stream, 6);
-                TotalVolume = BitConverter.ToInt32(stream, 14);
-                HighPrice = BitConverter.ToDouble(stream, 18);
-                LowPrice = BitConverter.ToDouble(stream, 26);
-                BidPrice0 = BitConverter.ToDouble(stream, 34);
-                BidVolume0 = BitConverter.ToInt32(stream, 42);
-                OfficePrice0 = BitConverter.ToDouble(stream, 46);
-                OfficeVolume0 = BitConverter.ToInt32(stream, 54);
-                BidPrice1 = BitConverter.ToDouble(stream, 58);
-                BidVolume1 = BitConverter.ToInt32(stream, 66);
-                OfficePrice1 = BitConverter.ToDouble(stream, 70);
-                OfficeVolume1 = BitConverter.ToInt32(stream, 78);
-                BidPrice2 = BitConverter.ToDouble(stream, 82);
-                BidVolume2 = BitConverter.ToInt32(stream, 90);
-                OfficePrice2 = BitConverter.ToDouble(stream, 94);
-                OfficeVolume2 = BitConverter.ToInt32(stream, 102);
-                BidPrice3 = BitConverter.ToDouble(stream, 106);
-                BidVolume3 = BitConverter.ToInt32(stream, 114);
-                OfficePrice3 = BitConverter.ToDouble(stream, 118);
-                OfficeVolume3 = BitConverter.ToInt32(stream, 126);
-                BidPrice4 = BitConverter.ToDouble(stream, 130);
-                BidVolume4 = BitConverter.ToInt32(stream, 138);
-                OfficePrice4 = BitConverter.ToDouble(stream, 142);
-                OfficeVolume4 = BitConverter.ToInt32(stream, 150);
-                BidPrice5 = BitConverter.ToDouble(stream, 154);
-                BidVolume5 = BitConverter.ToInt32(stream, 162);
-                OfficePrice5 = BitConverter.ToDouble(stream, 166);
-                OfficeVolume5 = BitConverter.ToInt32(stream, 174);
-                BidPrice6 = BitConverter.ToDouble(stream, 178);
-                BidVolume6 = BitConverter.ToInt32(stream, 186);
-                OfficePrice6 = BitConverter.ToDouble(stream, 190);
-                OfficeVolume6 = BitConverter.ToInt32(stream, 198);
-                BidPrice7 = BitConverter.ToDouble(stream, 202);
-                BidVolume7 = BitConverter.ToInt32(stream, 210);
-                OfficePrice7 = BitConverter.ToDouble(stream, 214);
-                OfficeVolume7 = BitConverter.ToInt32(stream, 222);
-                BidPrice8 = BitConverter.ToDouble(stream, 226);
-                BidVolume8 = BitConverter.ToInt32(stream, 234);
-                OfficePrice8 = BitConverter.ToDouble(stream, 238);
-                OfficeVolume8 = BitConverter.ToInt32(stream, 246);
-                BidPrice9 = BitConverter.ToDouble(stream, 250);
-                BidVolume9 = BitConverter.ToInt32(stream, 258);
-                OfficePrice9 = BitConverter.ToDouble(stream, 262);
-                OfficeVolume9 = BitConverter.ToInt32(stream, 270);
+                Time = string.Format("{0}:{1}:{2}", stream[0], stream[1], stream[2]);
+                //LastPrice -format 2
+                //LastVolume - format 2
+                TotalVolume = BitConverter.ToInt32(stream, 3);
+                HighPrice = BitConverter.ToDouble(stream, 7);
+                LowPrice = BitConverter.ToDouble(stream, 15);
+                OpeningPrice = BitConverter.ToDouble(stream, 23);
+                CloseingPrice = BitConverter.ToDouble(stream, 31);
+                BidDOMPrice0 = BitConverter.ToDouble(stream, 39);
+                BidDOMVolume0 = BitConverter.ToInt32(stream, 47);
+                OfferDOMPrice0 = BitConverter.ToDouble(stream, 51);
+                OfferDOMVolume0 = BitConverter.ToInt32(stream, 59);
+                BidDOMPrice1 = BitConverter.ToDouble(stream, 63);
+                BidDOMVolume1 = BitConverter.ToInt32(stream, 71);
+                OfferDOMPrice1 = BitConverter.ToDouble(stream, 75);
+                OfferDOMVolume1 = BitConverter.ToInt32(stream, 83);
+                BidDOMPrice2 = BitConverter.ToDouble(stream, 87);
+                BidDOMVolume2 = BitConverter.ToInt32(stream, 95);
+                OfferDOMPrice2 = BitConverter.ToDouble(stream, 99);
+                OfferDOMVolume2 = BitConverter.ToInt32(stream, 107);
+                BidDOMPrice3 = BitConverter.ToDouble(stream, 111);
+                BidDOMVolume3 = BitConverter.ToInt32(stream, 119);
+                OfferDOMPrice3 = BitConverter.ToDouble(stream, 123);
+                OfferDOMVolume3 = BitConverter.ToInt32(stream, 131);
+                BidDOMPrice4 = BitConverter.ToDouble(stream, 135);
+                BidDOMVolume4 = BitConverter.ToInt32(stream, 143);
+                OfferDOMPrice4 = BitConverter.ToDouble(stream, 147);
+                OfferDOMVolume4 = BitConverter.ToInt32(stream, 155);
+                BidDOMPrice5 = BitConverter.ToDouble(stream, 159);
+                BidDOMVolume5 = BitConverter.ToInt32(stream, 167);
+                OfferDOMPrice5 = BitConverter.ToDouble(stream, 171);
+                OfferDOMVolume5 = BitConverter.ToInt32(stream, 179);
+                BidDOMPrice6 = BitConverter.ToDouble(stream, 183);
+                BidDOMVolume6 = BitConverter.ToInt32(stream, 191);
+                OfferDOMPrice6 = BitConverter.ToDouble(stream, 195);
+                OfferDOMVolume6 = BitConverter.ToInt32(stream, 203);
+                BidDOMPrice7 = BitConverter.ToDouble(stream, 207);
+                BidDOMVolume7 = BitConverter.ToInt32(stream, 215);
+                OfferDOMPrice7 = BitConverter.ToDouble(stream, 219);
+                OfferDOMVolume7 = BitConverter.ToInt32(stream, 227);
+                BidDOMPrice8 = BitConverter.ToDouble(stream, 231);
+                BidDOMVolume8 = BitConverter.ToInt32(stream, 239);
+                OfferDOMPrice8 = BitConverter.ToDouble(stream, 243);
+                OfferDOMVolume8 = BitConverter.ToInt32(stream, 251);
+                BidDOMPrice9 = BitConverter.ToDouble(stream, 255);
+                BidDOMVolume9 = BitConverter.ToInt32(stream, 263);
+                OfferDOMPrice9 = BitConverter.ToDouble(stream, 267);
+                OfferDOMVolume9 = BitConverter.ToInt32(stream, 271);
+                ReferencePrice = BitConverter.ToDouble(stream, 275);
             }
             catch (Exception err)
             {

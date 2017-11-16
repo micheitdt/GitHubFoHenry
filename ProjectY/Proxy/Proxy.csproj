@@ -111,6 +111,10 @@
       <Project>{9d37d39e-bb99-4b75-9f25-cd9d2c993915}</Project>
       <Name>CommonLibrary</Name>
     </ProjectReference>
+    <ProjectReference Include="..\MarketDataApi\MarketDataApi.csproj">
+      <Project>{4e233e12-b86b-46ef-9525-2922796d28df}</Project>
+      <Name>MarketDataApi</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

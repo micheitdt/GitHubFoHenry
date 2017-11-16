@@ -33,14 +33,14 @@ namespace MarketDataApiExample.ViewModels
 
         #region Fields
         public static readonly List<string> MarketList = new List<string>() { "0-上市", "1-上櫃", "2-期貨AM盤", "3-選擇權AM盤", "4-期貨PM盤", "5-選擇權PM盤", "6-PATS" };
-        public static readonly List<string> TypeList = new List<string>() { "I010", "I020", "I080", "1", "6", "17", "0" };
+        public static readonly List<string> TypeList = new List<string>() { "I010", "I020", "I080", "1", "6", "17", "0", "2" };
 
         private static MainViewModel _instance;
         private string _ipAddress = "127.0.0.1";//"10.214.19.51";"203.66.93.83";"127.0.0.1";
         private string _ipPort = "6688";
-        private string _selectMarket = "2-期貨AM盤";//"6-PATS";
-        private string _selectType = "I020";
-        private string _symbolNo = "";//CME_ES.GE0.DEC07//all
+        private string _selectMarket = "6-PATS";//"6-PATS";
+        private string _selectType = "0";
+        private string _symbolNo = "all";//CME_ES.GE0.DEC07//all
         private string _selectSubscribe = string.Empty;
         private ObservableCollection<string> _subscribeList = new ObservableCollection<string>();
         private ObservableCollection<Quotes> _quotesList = new ObservableCollection<Quotes>();
@@ -60,6 +60,7 @@ namespace MarketDataApiExample.ViewModels
 
         private ObservableCollection<CommonLibrary.Model.PacketPATS.Format0> _patsFormat0List = new ObservableCollection<CommonLibrary.Model.PacketPATS.Format0>();
         private ObservableCollection<CommonLibrary.Model.PacketPATS.Format1> _patsFormat1List = new ObservableCollection<CommonLibrary.Model.PacketPATS.Format1>();
+        private ObservableCollection<CommonLibrary.Model.PacketPATS.Format2> _patsFormat2List = new ObservableCollection<CommonLibrary.Model.PacketPATS.Format2>();
         private CommonLibrary.Model.PacketPATS.Format0 _selectPats;
         private ObservableCollection<string> _statusMessageList = new ObservableCollection<string>();
         #endregion
@@ -366,6 +367,18 @@ namespace MarketDataApiExample.ViewModels
                 OnPropertyChanged("PatsFormat1List");
             }
         }
+        public ObservableCollection<CommonLibrary.Model.PacketPATS.Format2> PatsFormat2List
+        {
+            get
+            {
+                return _patsFormat2List;
+            }
+            set
+            {
+                _patsFormat2List = value;
+                OnPropertyChanged("PatsFormat2List");
+            }
+        }
         /// <summary>
         /// 狀態訊息
         /// </summary>
@@ -623,6 +636,7 @@ namespace MarketDataApiExample.ViewModels
                 api.TpexFormat1Received += api_TpexFormat1Received;/// <- 上市現貨格式1(盘前)回呼事件
                 api.PatsFormat0Received += api_PatsFormat0Received; ; /// <- pats(盤前)格式0回呼事件
                 api.PatsFormat1Received += api_PatsFormat1Received; ; /// <- pats(行情)格式1回呼事件
+                api.PatsFormat2Received += api_PatsFormat2Received; ; /// <- pats(行情)格式1回呼事件
 
                 StatusMessageList.Insert(0, DateTime.Now.ToString("HH:mm:ss:ttt") + "    " + "連接" + IPAddress + ":" + IPPort);
             }
@@ -988,8 +1002,9 @@ namespace MarketDataApiExample.ViewModels
                 }
                 _patsFormat0List.Add(e.PacketData);
 
-                //測試
-                //api.Sub(AdapterCode.TAIFEX_GLOBAL_PATS, "1", string.Format("{0}.{1}.{2}", e.PacketData.Exchange, e.PacketData.Commodity, e.PacketData.Contract));
+                //測試-全訂
+                api.Sub(AdapterCode.TAIFEX_GLOBAL_PATS, "1", string.Format("{0}.{1}.{2}", e.PacketData.Exchange, e.PacketData.Commodity, e.PacketData.Contract));
+                api.Sub(AdapterCode.TAIFEX_GLOBAL_PATS, "2", string.Format("{0}.{1}.{2}", e.PacketData.Exchange, e.PacketData.Commodity, e.PacketData.Contract));
             }));
         }
         //------------------------------------------------------------------------------------------------------------------------------------------
@@ -1002,8 +1017,20 @@ namespace MarketDataApiExample.ViewModels
             {
                 _patsFormat1List.Add(e.PacketData);
 
-                int count = _patsFormat1List.GroupBy(x => new { x.ExchangeNo, x.CommodityNo, x.ContractDate }).Count();
-                StatusMessageList.Insert(0, DateTime.Now.ToString("HH:mm:ss:ttt") + "    " + "個數:" + count);
+                //測試-商品更新個數
+                //int count = _patsFormat1List.GroupBy(x => new { x.ExchangeNo, x.CommodityNo, x.ContractDate }).Count();
+                //StatusMessageList.Insert(0, DateTime.Now.ToString("HH:mm:ss:ttt") + "    " + "個數:" + count);
+            }));
+        }
+        //------------------------------------------------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// pats回呼事件
+        /// </summary>
+        private void api_PatsFormat2Received(object sender, MarketDataApi.MarketDataApi.PatsFormat2ReceivedEventArgs e)
+        {
+            App.Current.Dispatcher.Invoke((Action)(() =>
+            {
+                _patsFormat2List.Add(e.PacketData);
             }));
         }
         //------------------------------------------------------------------------------------------------------------------------------------------

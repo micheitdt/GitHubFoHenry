@@ -273,13 +273,25 @@
                                 HorizontalAlignment="Right"
                                 VerticalAlignment="Stretch"
                                 Background="Transparent" />
-                            <DataGrid
-                                x:Name="PATSFormat1DataGrid"
-                                Grid.Column="1"
-                                CanUserAddRows="False"
-                                IsReadOnly="True"
-                                ItemsSource="{Binding PatsFormat1List, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
-                                LoadingRow="DataGrid_LoadingRow" />
+                            <Grid Grid.Column="1">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition />
+                                    <RowDefinition />
+                                </Grid.RowDefinitions>
+                                <DataGrid
+                                    x:Name="PATSFormat1DataGrid"
+                                    CanUserAddRows="False"
+                                    IsReadOnly="True"
+                                    ItemsSource="{Binding PatsFormat1List, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                                    LoadingRow="DataGrid_LoadingRow" />
+                                <DataGrid
+                                    x:Name="PATSFormat2DataGrid"
+                                    Grid.Row="1"
+                                    CanUserAddRows="False"
+                                    IsReadOnly="True"
+                                    ItemsSource="{Binding PatsFormat2List, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                                    LoadingRow="DataGrid_LoadingRow" />
+                            </Grid>
                         </Grid>
                     </TabItem>
                 </TabControl>

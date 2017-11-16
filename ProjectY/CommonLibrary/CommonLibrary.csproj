@@ -61,6 +61,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Enums.cs" />
+    <Compile Include="Model\PacketPATS\Format2.cs" />
     <Compile Include="Model\RelayCommand.cs" />
     <Compile Include="Parameter.cs" />
     <Compile Include="Functions.cs" />

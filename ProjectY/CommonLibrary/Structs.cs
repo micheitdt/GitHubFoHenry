@@ -35,185 +35,115 @@ namespace CommonLibrary
     }
 
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi, Pack = 1)]
-    public struct PriceDetailStruct
+    public struct PatsTickerMD
     {
-        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = Parameter.SIZE_OF_ARRAY20)]
-        public string Price;       // FP number
-        [MarshalAs(UnmanagedType.I4, SizeConst = Parameter.SIZE_OF_INT)]
-        public int Volume;       // does not apply to all price types
-        [MarshalAs(UnmanagedType.U1, SizeConst = Parameter.SIZE_OF_BYTE)]
-        public byte AgeCounter;          // if zero, price is "expired"
-        [MarshalAs(UnmanagedType.U1, SizeConst = Parameter.SIZE_OF_BYTE)]
-        public byte Direction;          // 0=Same, 1=Rise, 2=Fall
-        [MarshalAs(UnmanagedType.U1, SizeConst = Parameter.SIZE_OF_BYTE)]
-        public byte Hour;
-        [MarshalAs(UnmanagedType.U1, SizeConst = Parameter.SIZE_OF_BYTE)]
-        public byte Minute;
-        [MarshalAs(UnmanagedType.U1, SizeConst = Parameter.SIZE_OF_BYTE)]
-        public byte Second;          // Timestamp
-
-    }
-    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi, Pack = 1)]
-    public struct PATStoProxyFormat
-    {
-        [MarshalAs(UnmanagedType.Struct, SizeConst = 73)]
-        public PriceUpdateStruct SymbolInfo;
-        [MarshalAs(UnmanagedType.Struct, SizeConst = 30)]
-        public PriceDetailStruct Last;
-        [MarshalAs(UnmanagedType.Struct, SizeConst = 30)]
-        public PriceDetailStruct Total;
-        [MarshalAs(UnmanagedType.Struct, SizeConst = 30)]
-        public PriceDetailStruct High;
-        [MarshalAs(UnmanagedType.Struct, SizeConst = 30)]
-        public PriceDetailStruct Low;
-        [MarshalAs(UnmanagedType.Struct, SizeConst = 30)]
-        public PriceDetailStruct BidDOM0;
-        [MarshalAs(UnmanagedType.Struct, SizeConst = 30)]
-        public PriceDetailStruct BidDOM1;
-        [MarshalAs(UnmanagedType.Struct, SizeConst = 30)]
-        public PriceDetailStruct BidDOM2;
-        [MarshalAs(UnmanagedType.Struct, SizeConst = 30)]
-        public PriceDetailStruct BidDOM3;
-        [MarshalAs(UnmanagedType.Struct, SizeConst = 30)]
-        public PriceDetailStruct BidDOM4;
-        [MarshalAs(UnmanagedType.Struct, SizeConst = 30)]
-        public PriceDetailStruct BidDOM5;
-        [MarshalAs(UnmanagedType.Struct, SizeConst = 30)]
-        public PriceDetailStruct BidDOM6;
-        [MarshalAs(UnmanagedType.Struct, SizeConst = 30)]
-        public PriceDetailStruct BidDOM7;
-        [MarshalAs(UnmanagedType.Struct, SizeConst = 30)]
-        public PriceDetailStruct BidDOM8;
-        [MarshalAs(UnmanagedType.Struct, SizeConst = 30)]
-        public PriceDetailStruct BidDOM9;
-        [MarshalAs(UnmanagedType.Struct, SizeConst = 30)]
-        public PriceDetailStruct OfferDOM0;
-        [MarshalAs(UnmanagedType.Struct, SizeConst = 30)]
-        public PriceDetailStruct OfferDOM1;
-        [MarshalAs(UnmanagedType.Struct, SizeConst = 30)]
-        public PriceDetailStruct OfferDOM2;
-        [MarshalAs(UnmanagedType.Struct, SizeConst = 30)]
-        public PriceDetailStruct OfferDOM3;
-        [MarshalAs(UnmanagedType.Struct, SizeConst = 30)]
-        public PriceDetailStruct OfferDOM4;
-        [MarshalAs(UnmanagedType.Struct, SizeConst = 30)]
-        public PriceDetailStruct OfferDOM5;
-        [MarshalAs(UnmanagedType.Struct, SizeConst = 30)]
-        public PriceDetailStruct OfferDOM6;
-        [MarshalAs(UnmanagedType.Struct, SizeConst = 30)]
-        public PriceDetailStruct OfferDOM7;
-        [MarshalAs(UnmanagedType.Struct, SizeConst = 30)]
-        public PriceDetailStruct OfferDOM8;
-        [MarshalAs(UnmanagedType.Struct, SizeConst = 30)]
-        public PriceDetailStruct OfferDOM9;
+        [MarshalAs(UnmanagedType.R8, SizeConst = 8)]
+        public string LastPrice;
+         [MarshalAs(UnmanagedType.I4, SizeConst = 4)]
+        public int LastVolume;
     }
 
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi, Pack = 1)]
     public struct PatsDepthMD
     {
         [MarshalAs(UnmanagedType.U1, SizeConst = 1)]
-        public byte LastHH;
+        public byte HH;
         [MarshalAs(UnmanagedType.U1, SizeConst = 1)]
-        public byte LastMM;
+        public byte MM;
         [MarshalAs(UnmanagedType.U1, SizeConst = 1)]
-        public byte LastSS;
-        [MarshalAs(UnmanagedType.U1, SizeConst = 1)]
-        public byte BidHH;
-        [MarshalAs(UnmanagedType.U1, SizeConst = 1)]
-        public byte BidMM;
-        [MarshalAs(UnmanagedType.U1, SizeConst = 1)]
-        public byte BidSS;
-        [MarshalAs(UnmanagedType.R8, SizeConst = 8)]
-        public double LastPrice;
+        public byte SS;
         [MarshalAs(UnmanagedType.I4, SizeConst = 4)]
         public int TotalVolume;
         [MarshalAs(UnmanagedType.R8, SizeConst = 8)]
-        public double TagHighPrice;
+        public double HighPrice;
         [MarshalAs(UnmanagedType.R8, SizeConst = 8)]
-        public double TagLowPrice;
+        public double LowPrice;
         [MarshalAs(UnmanagedType.R8, SizeConst = 8)]
-        public double BidDOM0Price;
+        public double OpeningPrice;
+        [MarshalAs(UnmanagedType.R8, SizeConst = 8)]
+        public double CloseingPrice;
+        [MarshalAs(UnmanagedType.R8, SizeConst = 8)]
+        public double BidDOMPrice0;
         [MarshalAs(UnmanagedType.I4, SizeConst = 4)]
-        public int BidDOM0Volume;
+        public int BidDOMVolume0;
         [MarshalAs(UnmanagedType.R8, SizeConst = 8)]
-        public double BidPrice0;
+        public double OfferDOMPrice0;
         [MarshalAs(UnmanagedType.I4, SizeConst = 4)]
-        public int BidVolume0;
+        public int OfferDOMVolume0;
         [MarshalAs(UnmanagedType.R8, SizeConst = 8)]
-        public double OfferPrice0;
+        public double BidDOMPrice1;
         [MarshalAs(UnmanagedType.I4, SizeConst = 4)]
-        public int OfferVolume0;
+        public int BidDOMVolume1;
         [MarshalAs(UnmanagedType.R8, SizeConst = 8)]
-        public double BidPrice1;
+        public double OfferDOMPrice1;
         [MarshalAs(UnmanagedType.I4, SizeConst = 4)]
-        public int BidVolume1;
+        public int OfferDOMVolume1;
         [MarshalAs(UnmanagedType.R8, SizeConst = 8)]
-        public double OfferPrice1;
+        public double BidDOMPrice2;
         [MarshalAs(UnmanagedType.I4, SizeConst = 4)]
-        public int OfferVolume1;
+        public int BidDOMVolume2;
         [MarshalAs(UnmanagedType.R8, SizeConst = 8)]
-        public double BidPrice2;
+        public double OfferDOMPrice2;
         [MarshalAs(UnmanagedType.I4, SizeConst = 4)]
-        public int BidVolume2;
+        public int OfferDOMVolume2;
         [MarshalAs(UnmanagedType.R8, SizeConst = 8)]
-        public double OfferPrice2;
+        public double BidDOMPrice3;
         [MarshalAs(UnmanagedType.I4, SizeConst = 4)]
-        public int OfferVolume2;
+        public int BidDOMVolume3;
         [MarshalAs(UnmanagedType.R8, SizeConst = 8)]
-        public double BidPrice3;
+        public double OfferDOMPrice3;
         [MarshalAs(UnmanagedType.I4, SizeConst = 4)]
-        public int BidVolume3;
+        public int OfferDOMVolume3;
         [MarshalAs(UnmanagedType.R8, SizeConst = 8)]
-        public double OfferPrice3;
+        public double BidDOMPrice4;
         [MarshalAs(UnmanagedType.I4, SizeConst = 4)]
-        public int OfferVolume3;
+        public int BidDOMVolume4;
         [MarshalAs(UnmanagedType.R8, SizeConst = 8)]
-        public double BidPrice4;
+        public double OfferDOMPrice4;
         [MarshalAs(UnmanagedType.I4, SizeConst = 4)]
-        public int BidVolume4;
+        public int OfferDOMVolume4;
         [MarshalAs(UnmanagedType.R8, SizeConst = 8)]
-        public double OfferPrice4;
+        public double BidDOMPrice5;
         [MarshalAs(UnmanagedType.I4, SizeConst = 4)]
-        public int OfferVolume4;
+        public int BidDOMVolume5;
         [MarshalAs(UnmanagedType.R8, SizeConst = 8)]
-        public double BidPrice5;
+        public double OfferDOMPrice5;
         [MarshalAs(UnmanagedType.I4, SizeConst = 4)]
-        public int BidVolume5;
+        public int OfferDOMVolume5;
         [MarshalAs(UnmanagedType.R8, SizeConst = 8)]
-        public double OfferPrice5;
+        public double BidDOMPrice6;
         [MarshalAs(UnmanagedType.I4, SizeConst = 4)]
-        public int OfferVolume5;
+        public int BidDOMVolume6;
         [MarshalAs(UnmanagedType.R8, SizeConst = 8)]
-        public double BidPrice6;
+        public double OfferDOMPrice6;
         [MarshalAs(UnmanagedType.I4, SizeConst = 4)]
-        public int BidVolume6;
+        public int OfferDOMVolume6;
         [MarshalAs(UnmanagedType.R8, SizeConst = 8)]
-        public double OfferPrice6;
+        public double BidDOMPrice7;
         [MarshalAs(UnmanagedType.I4, SizeConst = 4)]
-        public int OfferVolume6;
+        public int BidDOMVolume7;
         [MarshalAs(UnmanagedType.R8, SizeConst = 8)]
-        public double BidPrice7;
+        public double OfferDOMPrice7;
         [MarshalAs(UnmanagedType.I4, SizeConst = 4)]
-        public int BidVolume7;
+        public int OfferDOMVolume7;
         [MarshalAs(UnmanagedType.R8, SizeConst = 8)]
-        public double OfferPrice7;
+        public double BidDOMPrice8;
         [MarshalAs(UnmanagedType.I4, SizeConst = 4)]
-        public int OfferVolume7;
+        public int BidDOMVolume8;
         [MarshalAs(UnmanagedType.R8, SizeConst = 8)]
-        public double BidPrice8;
+        public double OfferDOMPrice8;
         [MarshalAs(UnmanagedType.I4, SizeConst = 4)]
-        public int BidVolume8;
+        public int OfferDOMVolume8;
         [MarshalAs(UnmanagedType.R8, SizeConst = 8)]
-        public double OfferPrice8;
+        public double BidDOMPrice9;
         [MarshalAs(UnmanagedType.I4, SizeConst = 4)]
-        public int OfferVolume8;
+        public int BidDOMVolume9;
         [MarshalAs(UnmanagedType.R8, SizeConst = 8)]
-        public double BidPrice9;
+        public double OfferDOMPrice9;
         [MarshalAs(UnmanagedType.I4, SizeConst = 4)]
-        public int BidVolume9;
+        public int OfferDOMVolume9;
         [MarshalAs(UnmanagedType.R8, SizeConst = 8)]
-        public double OfferPrice9;
-        [MarshalAs(UnmanagedType.I4, SizeConst = 4)]
-        public int OfferVolume9;
+        public double ReferencePrice;
+        
     }
 }
