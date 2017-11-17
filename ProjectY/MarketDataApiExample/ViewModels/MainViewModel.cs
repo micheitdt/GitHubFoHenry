@@ -639,6 +639,24 @@ namespace MarketDataApiExample.ViewModels
                 api.PatsFormat2Received += api_PatsFormat2Received; ; /// <- pats(行情)格式1回呼事件
 
                 StatusMessageList.Insert(0, DateTime.Now.ToString("HH:mm:ss:ttt") + "    " + "連接" + IPAddress + ":" + IPPort);
+                //測試單一訂閱
+                //foreach (SymbolTaifex data in _symbolTaifexDictionary)
+                //{
+                //    GeneralSupscribeSymbol("2-期貨AM盤", "I020", data.SymbolNo);
+                //    GeneralSupscribeSymbol("2-期貨AM盤", "I080", data.SymbolNo);
+                //    GeneralSupscribeSymbol("3-選擇權AM盤", "I020", data.SymbolNo);
+                //    GeneralSupscribeSymbol("3-選擇權AM盤", "I080", data.SymbolNo);
+                //}
+                //foreach (SymbolTpex data in _symbolTpexDictionary)
+                //{
+                //    GeneralSupscribeSymbol("1-上櫃", "1", data.SymbolNo);
+                //    GeneralSupscribeSymbol("1-上櫃", "17", data.SymbolNo);
+                //}
+                //foreach (SymbolTse data in _symbolTseDictionary)
+                //{
+                //    GeneralSupscribeSymbol("0-上市", "1", data.SymbolNo);
+                //    GeneralSupscribeSymbol("0-上市", "17", data.SymbolNo);
+                //}
             }
             catch (Exception err)
             {
@@ -835,6 +853,9 @@ namespace MarketDataApiExample.ViewModels
                 QuotesList.Insert(0, model);
                 _gridSeq++;
                 //_logger.Debug(fData);
+                //測試-商品更新個數
+                int count = QuotesList.GroupBy(x => x.SymbolNo).Count();
+                StatusMessageList.Insert(0, DateTime.Now.ToString("HH:mm:ss:ttt") + "    " + "個數:" + count);
             }));
         }
         //------------------------------------------------------------------------------------------------------------------------------------------
@@ -856,6 +877,10 @@ namespace MarketDataApiExample.ViewModels
                 QuotesList.Insert(0, model);
                 _gridSeq++;
                 //_logger.Debug(fData);
+
+                //測試-商品更新個數
+                int count = QuotesList.GroupBy(x => x.SymbolNo).Count();
+                StatusMessageList.Insert(0, DateTime.Now.ToString("HH:mm:ss:ttt") + "    " + "個數:" + count);
             }));
         }
         //------------------------------------------------------------------------------------------------------------------------------------------
@@ -880,6 +905,9 @@ namespace MarketDataApiExample.ViewModels
                 QuotesList.Insert(0, model);
                 _gridSeq++;
                 //_logger.Debug(fData);
+                //測試-商品更新個數
+                int count = QuotesList.GroupBy(x => x.SymbolNo).Count();
+                StatusMessageList.Insert(0, DateTime.Now.ToString("HH:mm:ss:ttt") + "    " + "個數:" + count);
             }));
         }
         //------------------------------------------------------------------------------------------------------------------------------------------
@@ -904,6 +932,9 @@ namespace MarketDataApiExample.ViewModels
                 QuotesList.Insert(0,model);
                 _gridSeq++;
                 //_logger.Debug(fData);
+                //測試-商品更新個數
+                int count = QuotesList.GroupBy(x => x.SymbolNo).Count();
+                StatusMessageList.Insert(0, DateTime.Now.ToString("HH:mm:ss:ttt") + "    " + "個數:" + count);
             }));
         }
         //------------------------------------------------------------------------------------------------------------------------------------------
@@ -928,6 +959,9 @@ namespace MarketDataApiExample.ViewModels
                 QuotesList.Insert(0, model);
                 _gridSeq++;
                 //_logger.Debug(fData);
+                //測試-商品更新個數
+                int count = QuotesList.GroupBy(x => x.SymbolNo).Count();
+                StatusMessageList.Insert(0, DateTime.Now.ToString("HH:mm:ss:ttt") + "    " + "個數:" + count);
             }));
         }
         //------------------------------------------------------------------------------------------------------------------------------------------
@@ -952,6 +986,9 @@ namespace MarketDataApiExample.ViewModels
                 QuotesList.Insert(0, model);
                 _gridSeq++;
                 //_logger.Debug(fData);
+                //測試-商品更新個數
+                int count = QuotesList.GroupBy(x => x.SymbolNo).Count();
+                StatusMessageList.Insert(0, DateTime.Now.ToString("HH:mm:ss:ttt") + "    " + "個數:" + count);
             }));
         }        
         //------------------------------------------------------------------------------------------------------------------------------------------

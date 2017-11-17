@@ -22,9 +22,7 @@ using Adapter.TaifexGlobalPATS.ApiPATS;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
-using Newtonsoft.Json;
 using CommonLibrary;
-using NLog;
 
 namespace Adapter.TaifexGlobalPATS
 {
@@ -33,13 +31,6 @@ namespace Adapter.TaifexGlobalPATS
     /// </summary>
     public partial class MainWindow : Window
     {
-        #region Logger
-        /// <summary>
-        /// 記錄器
-        /// </summary>
-        private static Logger _logger = LogManager.GetCurrentClassLogger();
-        #endregion Logger
-
         PublisherSocket _socket;
         private ObservableCollection<PriceUpdateStruct> _symbolList = new ObservableCollection<PriceUpdateStruct>();
         public MainWindow()
@@ -165,7 +156,6 @@ namespace Adapter.TaifexGlobalPATS
             byte[] toBytes = new byte[283];
             if (GetBytes(e.PriceUpdateObject, ref toBytes) == false)
             {
-                _logger.Debug(string.Format("clientAPI_PriceDetailEvent() TryParse Error {0}", HashKey));
                 return;
             }
             string prefix = string.Format("6#1#{0}#", HashKey);
@@ -179,7 +169,6 @@ namespace Adapter.TaifexGlobalPATS
             byte[] toBytes = new byte[12];
             if (GetBytes(e.tickerData, ref toBytes) == false)
             {
-                _logger.Debug(string.Format("clientAPI_TickDetailEvent() TryParse Error {0}", HashKey));
                 return;
             }
             string prefix = string.Format("6#2#{0}#", HashKey);

@@ -1,5 +1,4 @@
-﻿using NLog;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -12,13 +11,6 @@ namespace CommonLibrary.Model.PacketPATS
     [Serializable]
     public class Format0
     {
-        #region Logger
-        /// <summary>
-        /// 記錄器
-        /// </summary>
-        private static Logger _logger = LogManager.GetCurrentClassLogger();
-        #endregion Logger
-        
         public string Exchange { get; set; }
         public string Commodity { get; set; }
         public string Contract { get; set; }
@@ -33,9 +25,8 @@ namespace CommonLibrary.Model.PacketPATS
                 Commodity = Encoding.UTF8.GetString(stream, 11, 11).TrimStart();
                 Contract = Encoding.UTF8.GetString(stream, 22, 51).TrimStart();
             }
-            catch (Exception err)
+            catch (Exception)
             {
-                _logger.Error(err, string.Format("Format0(): ErrMsg = {0}.", err.Message));
             }
         }
 

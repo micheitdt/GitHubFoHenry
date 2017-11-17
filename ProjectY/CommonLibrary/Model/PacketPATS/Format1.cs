@@ -1,5 +1,4 @@
-﻿using NLog;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -13,17 +12,11 @@ namespace CommonLibrary.Model.PacketPATS
     public class Format1
     {
         #region Logger
-        /// <summary>
-        /// 記錄器
-        /// </summary>
-        private static Logger _logger = LogManager.GetCurrentClassLogger();
         #endregion Logger
         public string ExchangeNo { get; set; }
         public string CommodityNo { get; set; }
         public string ContractDate { get; set; }
         public string Time { get; set; }
-        public double LastPrice{ get; set; }
-        public int LastVolume { get; set; }
         public int TotalVolume { get; set; }
         public double HighPrice { get; set; }
         public double LowPrice { get; set; }
@@ -80,8 +73,6 @@ namespace CommonLibrary.Model.PacketPATS
                 CommodityNo = data[1];
                 ContractDate = data[2];
                 Time = string.Format("{0}:{1}:{2}", stream[0], stream[1], stream[2]);
-                //LastPrice -format 2
-                //LastVolume - format 2
                 TotalVolume = BitConverter.ToInt32(stream, 3);
                 HighPrice = BitConverter.ToDouble(stream, 7);
                 LowPrice = BitConverter.ToDouble(stream, 15);
@@ -129,9 +120,8 @@ namespace CommonLibrary.Model.PacketPATS
                 OfferDOMVolume9 = BitConverter.ToInt32(stream, 271);
                 ReferencePrice = BitConverter.ToDouble(stream, 275);
             }
-            catch (Exception err)
+            catch (Exception )
             {
-                _logger.Error(err, string.Format("Format1(): ErrMsg = {0}.", err.Message));
             }
         }
     }

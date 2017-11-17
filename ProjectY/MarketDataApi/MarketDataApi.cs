@@ -1,6 +1,5 @@
 ﻿using NetMQ;
 using NetMQ.Sockets;
-using NLog;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,14 +11,9 @@ namespace MarketDataApi
 {
     public class MarketDataApi
     {
-        #region Logger
-        /// <summary>
-        /// 記錄器
-        /// </summary>
-        private static Logger _logger = LogManager.GetCurrentClassLogger();
-        #endregion Logger
+        //private static Logger _logger = LogManager.GetCurrentClassLogger();
 
-        private SubscriberSocket _socketSub;
+        private XSubscriberSocket _socketSub;
         public MarketDataApi(string subIP, int subPort)
         {
             if (string.IsNullOrEmpty(subIP) == false)
@@ -223,7 +217,7 @@ namespace MarketDataApi
 
         private void BuildSubSocket(string ip, int port)
         {
-            _socketSub = new SubscriberSocket(string.Format(">tcp://{0}:{1}", ip, port));
+            _socketSub = new XSubscriberSocket(string.Format(">tcp://{0}:{1}", ip, port));
             _socketSub.Options.ReceiveHighWatermark = 0;
             //_socketSub.Options.SendHighWatermark = 0;
             Thread.Sleep(100);
@@ -318,9 +312,8 @@ namespace MarketDataApi
                         break;
                 }
             }
-            catch(Exception err)
+            catch(Exception)
             {
-                _logger.Error(err, string.Format("ProcessSolvedPacket_TSE(): packetType:(0) ErrMsg = {1} Data = {2}.", packetType, err.Message, packetData.ToString()));
             }
         }
 
@@ -345,9 +338,8 @@ namespace MarketDataApi
                         break;
                 }
             }
-            catch (Exception err)
+            catch (Exception)
             {
-                _logger.Error(err, string.Format("ProcessSolvedPacket_TPEX(): packetType:(0) ErrMsg = {1} Data = {2}.", packetType, err.Message, packetData.ToString()));
             }
         }
 
@@ -378,9 +370,8 @@ namespace MarketDataApi
                         break;
                 }
             }
-            catch (Exception err)
+            catch (Exception)
             {
-                _logger.Error(err, string.Format("ProcessSolvedPacket_TAIFEX(): packetType:(0) ErrMsg = {1} Data = {2}.", packetType, err.Message, packetData.ToString()));
             }
         }
 
@@ -400,9 +391,8 @@ namespace MarketDataApi
                         break;
                 }
             }
-            catch (Exception err)
+            catch (Exception )
             {
-                _logger.Error(err, string.Format("ProcessSolvedPacket_TAIFEX(): packetType:(0) ErrMsg = {1} Data = {2}.", packetType, err.Message, packetData.ToString()));
             }
         }
 

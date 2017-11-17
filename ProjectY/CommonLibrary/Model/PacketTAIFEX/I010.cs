@@ -1,5 +1,4 @@
-﻿using NLog;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -8,12 +7,6 @@ namespace CommonLibrary.Model.PacketTAIFEX
     [Serializable]
     public class I010
     {
-        #region Logger
-        /// <summary>
-        /// 記錄器
-        /// </summary>
-        private static Logger _logger = LogManager.GetCurrentClassLogger();
-        #endregion Logger
         public string H_EscCode { get; set; }
         public string H_TransmissionCode { get; set; }
         public string H_MessageKind { get; set; }
@@ -53,7 +46,6 @@ namespace CommonLibrary.Model.PacketTAIFEX
                 H_BodyLength = Functions.ConvertToFormat9(stream, startIndex + 12, 2);
                 if (H_BodyLength > stream.Length - 12)
                 {
-                    _logger.Info(string.Format("TAIFEX_I010(): length = {0} headlen = {1} bodylen = {2}  Data={3}.", stream.Length, 12, H_BodyLength, Encoding.Default.GetString(stream)));
                     return;
                 }
 
@@ -75,9 +67,8 @@ namespace CommonLibrary.Model.PacketTAIFEX
                 //T_CheckSum = Functions.ConvertToFormat9(stream, startIndex + 75, 1);
                 //T_TerminalCode = Encoding.ASCII.GetString(stream, startIndex + 76, 2);
             }
-            catch (Exception err)
+            catch (Exception)
             {
-                _logger.Error(err, string.Format("TAIFEX_I010(): ErrMsg = {0} Data={1}.", err.Message, Encoding.Default.GetString(stream)));
             }
         }
     }

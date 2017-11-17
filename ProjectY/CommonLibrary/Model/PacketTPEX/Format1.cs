@@ -1,5 +1,4 @@
-﻿using NLog;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -8,12 +7,6 @@ namespace CommonLibrary.Model.PacketTPEX
     [Serializable]
     public class Format1
     {
-        #region Logger
-        /// <summary>
-        /// 記錄器
-        /// </summary>
-        private static Logger _logger = LogManager.GetCurrentClassLogger();
-        #endregion Logger
         public Header Header;
         public string StockID { get; set; }//股票代號
         public string StockName { get; set; }//股票簡稱
@@ -63,7 +56,6 @@ namespace CommonLibrary.Model.PacketTPEX
                 Header = new Header(data);
                 if (data.Length < Header.Length - 3)//-3 無檢查碼和terminal code
                 {
-                    _logger.Info(string.Format("TPEX_Format1(): datalength = {0} needlength = {1}  Data={2}.", data.Length, Header.Length-3, Encoding.Default.GetString(data)));
                     return;
                 }
                 StockID = Encoding.ASCII.GetString(data, 10, 6).Trim();
@@ -97,9 +89,8 @@ namespace CommonLibrary.Model.PacketTPEX
                 MarkQuotesLine = Functions.ConvertToFormat9(data, 100, 1);
 
             }
-            catch (Exception err)
+            catch (Exception )
             {
-                _logger.Error(err, string.Format("TPEX_Format1(): ErrMsg = {0} Data={1}.", err.Message,Encoding.Default.GetString(data)));
             }
         }
     }
