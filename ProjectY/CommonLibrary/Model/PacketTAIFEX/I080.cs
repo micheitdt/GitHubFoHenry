@@ -1,4 +1,8 @@
-﻿using System.Text;
+﻿using ServiceStack.Net30.Collections.Concurrent;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Text;
 
 namespace CommonLibrary.Model.PacketTAIFEX
 {
@@ -47,6 +51,40 @@ namespace CommonLibrary.Model.PacketTAIFEX
                 output[i] = md;
             }
             return output;
+        }
+    }
+
+    [Serializable]
+    public class TaifexI080List : ConcurrentDictionary<string, I080>
+    {
+        static TaifexI080List()
+        {
+            AllTaifexI080List = new TaifexI080List();
+        }
+
+        public static TaifexI080List AllTaifexI080List
+        {
+            get;
+            internal set;
+        }
+
+        public static ObservableCollection<I080> GetAllTaifexI080Collection()
+        {
+            return new ObservableCollection<I080>(AllTaifexI080List.Values);
+        }
+
+        public static void AddTaifexI080Data(I080 data)
+        {
+            AllTaifexI080List.TryAdd(data.B_ProdId, data);
+        }
+
+        public static void SetTaifexI080List(IDictionary<string, Model.PacketTAIFEX.I080> data)
+        {
+            AllTaifexI080List = new TaifexI080List();
+            foreach (var obj in data)
+            {
+                AllTaifexI080List.TryAdd(obj.Key, obj.Value);
+            }
         }
     }
 }

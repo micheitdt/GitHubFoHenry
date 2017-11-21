@@ -13,7 +13,7 @@ namespace MarketDataApi
     {
         //private static Logger _logger = LogManager.GetCurrentClassLogger();
 
-        private XSubscriberSocket _socketSub;
+        private static SubscriberSocket _socketSub;
         public MarketDataApi(string subIP, int subPort)
         {
             if (string.IsNullOrEmpty(subIP) == false)
@@ -68,7 +68,7 @@ namespace MarketDataApi
             _socketSub.Unsubscribe(Encoding.UTF8.GetBytes(prefix));
         }
 
-        private string GetPacketType(AdapterCode adapterCode, string code)
+        private static string GetPacketType(AdapterCode adapterCode, string code)
         {
             switch (adapterCode)
             {
@@ -217,9 +217,14 @@ namespace MarketDataApi
 
         private void BuildSubSocket(string ip, int port)
         {
-            _socketSub = new XSubscriberSocket(string.Format(">tcp://{0}:{1}", ip, port));
-            _socketSub.Options.ReceiveHighWatermark = 0;
-            //_socketSub.Options.SendHighWatermark = 0;
+            _socketSub = new SubscriberSocket(string.Format(">tcp://{0}:{1}", ip, port));
+            _socketSub.Options.ReceiveHighWatermark = 10000;
+            //_socketSub.Options.ReceiveLowWatermark = 1;
+            //_socketSub.Options.SendHighWatermark = 1;
+            //_socketSub.Options.SendLowWatermark = 1;
+            //_socketSub.Options.DelayAttachOnConnect = false;
+            //_socketSub.Options.XPubBroadcast = false;
+            //_socketSub.Options.XPubVerbose = true;
             Thread.Sleep(100);
             //Sub(string.Format("{0}#{1}", (int)EnumMarketDataChannel.INTERNAL_MARKET_DATA, (int)EnumMarketDataType.HEARTBEAT));
             System.Threading.ThreadPool.QueueUserWorkItem(x =>
@@ -274,6 +279,8 @@ namespace MarketDataApi
                                             default:
                                                 break;
                                         }
+                                        //Test
+                                        OnQuotesByteArrayReceived(messages[0], messages[1]);
                                         break;
                                     default:
                                         break;
@@ -625,6 +632,23 @@ namespace MarketDataApi
         {
             if (UnSolvedPacketReceived != null)
                 UnSolvedPacketReceived(this, new UnSolvedPacketReceivedEventArgs(adapterCode, packetType, packetData));
+        }
+        //行情原始資料
+        public event EventHandler<QuotesByteArrayEventArgs> QuotesByteArrayReceived;
+        public class QuotesByteArrayEventArgs : EventArgs
+        {
+            public readonly byte[] PacketData;
+            public readonly byte[] KeyData;
+            public QuotesByteArrayEventArgs(byte[] key, byte[] packetData)
+            {
+                KeyData = key;
+                PacketData = packetData;
+            }
+        }
+        private void OnQuotesByteArrayReceived(byte[] key, byte[] packetData)
+        {
+            if (QuotesByteArrayReceived != null)
+                QuotesByteArrayReceived(this, new QuotesByteArrayEventArgs(key, packetData));
         }
         #endregion
     }

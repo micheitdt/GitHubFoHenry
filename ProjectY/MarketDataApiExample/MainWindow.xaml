@@ -38,6 +38,10 @@
                         Click="BtnIPConnect_Click"
                         Command="{Binding ConncetCommand}"
                         Content="連接" />
+                    <Button
+                        VerticalAlignment="Center"
+                        Command="{Binding SingleSubCommand}"
+                        Content="單一訂閱測試" />
                 </StackPanel>
                 <StackPanel
                     Name="MarketControlAry"

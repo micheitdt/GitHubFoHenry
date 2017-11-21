@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using ServiceStack.Net30.Collections.Concurrent;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Text;
 
 namespace CommonLibrary.Model.PacketTSE
@@ -52,6 +55,40 @@ namespace CommonLibrary.Model.PacketTSE
                 pv.Volume = Functions.ConvertToFormat9(data, 29 + offset, 4);
                 offset += 4;
                 AskData.Add(pv);
+            }
+        }
+    }
+
+    [Serializable]
+    public class TseFormat6List : ConcurrentDictionary<string, Format6>
+    {
+        static TseFormat6List()
+        {
+            AllTseFormat6List = new TseFormat6List();
+        }
+
+        public static TseFormat6List AllTseFormat6List
+        {
+            get;
+            internal set;
+        }
+
+        public static ObservableCollection<Format6> GetAllTseFormat6ListCollection()
+        {
+            return new ObservableCollection<Format6>(AllTseFormat6List.Values);
+        }
+
+        public static void AddTseFormat6Data(Format6 data)
+        {
+            AllTseFormat6List.TryAdd(data.StockID, data);
+        }
+
+        public static void SetTseFormat6List(IDictionary<string, Format6> data)
+        {
+            AllTseFormat6List = new TseFormat6List();
+            foreach (var obj in data)
+            {
+                AllTseFormat6List.TryAdd(obj.Key, obj.Value);
             }
         }
     }

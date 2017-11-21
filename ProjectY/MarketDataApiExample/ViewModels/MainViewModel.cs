@@ -36,7 +36,7 @@ namespace MarketDataApiExample.ViewModels
         public static readonly List<string> TypeList = new List<string>() { "I010", "I020", "I080", "1", "6", "17", "0", "2" };
 
         private static MainViewModel _instance;
-        private string _ipAddress = "127.0.0.1";//"10.214.19.51";"203.66.93.83";"127.0.0.1";
+        private string _ipAddress = "10.214.19.51";//"10.214.19.51";"203.66.93.83";"127.0.0.1";47.52.229.28;
         private string _ipPort = "6688";
         private string _selectMarket = "6-PATS";//"6-PATS";
         private string _selectType = "0";
@@ -75,9 +75,9 @@ namespace MarketDataApiExample.ViewModels
                 {
                     _redisClient = new RedisClient(DefaultSettings.Instance.REDIS_DB_IP, DefaultSettings.Instance.REDIS_DB_PORT);
 
-                    Utility.GetTAIFEXRedisDB(_redisClient, Parameter.TAIFEX_HASH_KEY);
-                    Utility.GetTPEXRedisDB(_redisClient, Parameter.TPEX_HASH_KEY);
-                    Utility.GetTSERedisDB(_redisClient, Parameter.TSE_HASH_KEY);
+                    Utility.GetTAIFEXRedisDB(_redisClient, Parameter.I010_HASH_KEY);
+                    Utility.GetTPEXRedisDB(_redisClient, Parameter.TPEX_FORMAT1_HASH_KEY);
+                    Utility.GetTSERedisDB(_redisClient, Parameter.TSE_FORMAT1_HASH_KEY);
 
                     SymbolTaifexDictionary = SymbolTaifexList.GetAllSymbolTpexCollection();
                     SymbolTpexDictionary = SymbolTpexList.GetAllSymbolTpexCollection();
@@ -617,6 +617,22 @@ namespace MarketDataApiExample.ViewModels
             }
         }
 
+        private ICommand _singleSubCommand;
+        public ICommand SingleSubCommand
+        {
+            get
+            {
+                if (_singleSubCommand == null)
+                {
+                    _singleSubCommand = new RelayCommand(
+                        SingleSupscribe
+                    );
+                }
+                return _singleSubCommand;
+            }
+        }
+        
+
         /// <summary>
         /// 連接行情伺服器
         /// </summary>
@@ -639,24 +655,6 @@ namespace MarketDataApiExample.ViewModels
                 api.PatsFormat2Received += api_PatsFormat2Received; ; /// <- pats(行情)格式1回呼事件
 
                 StatusMessageList.Insert(0, DateTime.Now.ToString("HH:mm:ss:ttt") + "    " + "連接" + IPAddress + ":" + IPPort);
-                //測試單一訂閱
-                //foreach (SymbolTaifex data in _symbolTaifexDictionary)
-                //{
-                //    GeneralSupscribeSymbol("2-期貨AM盤", "I020", data.SymbolNo);
-                //    GeneralSupscribeSymbol("2-期貨AM盤", "I080", data.SymbolNo);
-                //    GeneralSupscribeSymbol("3-選擇權AM盤", "I020", data.SymbolNo);
-                //    GeneralSupscribeSymbol("3-選擇權AM盤", "I080", data.SymbolNo);
-                //}
-                //foreach (SymbolTpex data in _symbolTpexDictionary)
-                //{
-                //    GeneralSupscribeSymbol("1-上櫃", "1", data.SymbolNo);
-                //    GeneralSupscribeSymbol("1-上櫃", "17", data.SymbolNo);
-                //}
-                //foreach (SymbolTse data in _symbolTseDictionary)
-                //{
-                //    GeneralSupscribeSymbol("0-上市", "1", data.SymbolNo);
-                //    GeneralSupscribeSymbol("0-上市", "17", data.SymbolNo);
-                //}
             }
             catch (Exception err)
             {
@@ -670,6 +668,23 @@ namespace MarketDataApiExample.ViewModels
         /// </summary>
         private void SupscribeSymbol()
         {
+            //TEST類別商品訂閱
+            api.Sub(AdapterCode.TAIFEX_FUTURES_NIGHT, "I020");
+            System.Threading.Thread.Sleep(100);
+            api.Sub(AdapterCode.TAIFEX_FUTURES_NIGHT, "I080");
+            System.Threading.Thread.Sleep(100);
+            api.Sub(AdapterCode.TAIFEX_OPTIONS_NIGHT, "I020");
+            System.Threading.Thread.Sleep(100);
+            api.Sub(AdapterCode.TAIFEX_OPTIONS_NIGHT, "I080");
+            System.Threading.Thread.Sleep(100);
+            api.Sub(AdapterCode.TPEX, "6");
+            System.Threading.Thread.Sleep(100);
+            api.Sub(AdapterCode.TPEX, "17");
+            System.Threading.Thread.Sleep(100);
+            api.Sub(AdapterCode.TSE, "6");
+            System.Threading.Thread.Sleep(100);
+            api.Sub(AdapterCode.TSE, "17");
+            return;
             if (api == null || string.IsNullOrEmpty(SelectMarket) || string.IsNullOrEmpty(SelectType))
             {
                 return;
@@ -825,6 +840,60 @@ namespace MarketDataApiExample.ViewModels
         {
             GeneralSupscribeSymbol("6-PATS", "1", string.Format("{0}.{1}.{2}", SelectPats.Exchange , SelectPats.Commodity , SelectPats.Contract));
         }
+        //------------------------------------------------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// 測試單一訂閱
+        /// </summary>
+        private void SingleSupscribe()
+        {
+            System.Threading.ThreadStart ts = delegate
+            {
+                try
+                {
+                    //單一商品訂閱
+                    foreach (SymbolTaifex data in _symbolTaifexDictionary)
+                    {
+                        api.Sub(AdapterCode.TAIFEX_FUTURES_DAY, "I020", data.SymbolNo);
+                        //System.Threading.Thread.Sleep(1);
+                        api.Sub(AdapterCode.TAIFEX_FUTURES_DAY, "I080", data.SymbolNo);
+                        //System.Threading.Thread.Sleep(1);
+                        api.Sub(AdapterCode.TAIFEX_OPTIONS_DAY, "I020", data.SymbolNo);
+                        //System.Threading.Thread.Sleep(1);
+                        api.Sub(AdapterCode.TAIFEX_OPTIONS_DAY, "I080", data.SymbolNo);
+                        //System.Threading.Thread.Sleep(1);
+                        //GeneralSupscribeSymbol("4-期貨PM盤", "I020", data.SymbolNo);
+                        //GeneralSupscribeSymbol("4-期貨PM盤", "I080", data.SymbolNo);
+                        //GeneralSupscribeSymbol("5-選擇權PM盤", "I020", data.SymbolNo);
+                        //GeneralSupscribeSymbol("6-選擇權PM盤", "I080", data.SymbolNo);
+                    }
+                    foreach (SymbolTpex data in _symbolTpexDictionary)
+                    {
+                        api.Sub(AdapterCode.TPEX, "6", data.SymbolNo);
+                        //System.Threading.Thread.Sleep(1);
+                        api.Sub(AdapterCode.TPEX, "17", data.SymbolNo);
+                        //System.Threading.Thread.Sleep(1);
+                        //GeneralSupscribeSymbol("1-上櫃", "6", data.SymbolNo);
+                        //GeneralSupscribeSymbol("1-上櫃", "17", data.SymbolNo);
+                    }
+                    foreach (SymbolTse data in _symbolTseDictionary)
+                    {
+                        api.Sub(AdapterCode.TSE, "6", data.SymbolNo);
+                        //System.Threading.Thread.Sleep(1);
+                        api.Sub(AdapterCode.TSE, "17", data.SymbolNo);
+                        //System.Threading.Thread.Sleep(1);
+                        //GeneralSupscribeSymbol("0-上市", "6", data.SymbolNo);
+                        //GeneralSupscribeSymbol("0-上市", "17", data.SymbolNo);
+                    }
+                }
+                catch (Exception err)
+                {
+                    _logger.Error(err, string.Format("ConncetMarketData(): ErrMsg = {0}.", err.Message));
+                    StatusMessageList.Insert(0, DateTime.Now.ToString("HH:mm:ss:ttt") + "    " + string.Format("ConncetMarketData(): ErrMsg = {0}.", err.Message));
+                }
+            };
+            new System.Threading.Thread(ts).Start();
+        }
+
         #endregion
 
         #region Event
@@ -1037,11 +1106,11 @@ namespace MarketDataApiExample.ViewModels
                     StatusMessageList.Insert(0, DateTime.Now.ToString("HH:mm:ss:ttt") + "    PATS商品資料傳送完成");
                     return;
                 }
-                _patsFormat0List.Add(e.PacketData);
+                _patsFormat0List.Insert(0,e.PacketData);
 
-                //測試-全訂
-                api.Sub(AdapterCode.TAIFEX_GLOBAL_PATS, "1", string.Format("{0}.{1}.{2}", e.PacketData.Exchange, e.PacketData.Commodity, e.PacketData.Contract));
-                api.Sub(AdapterCode.TAIFEX_GLOBAL_PATS, "2", string.Format("{0}.{1}.{2}", e.PacketData.Exchange, e.PacketData.Commodity, e.PacketData.Contract));
+                //TEST-全訂
+                //api.Sub(AdapterCode.TAIFEX_GLOBAL_PATS, "1", string.Format("{0}.{1}.{2}", e.PacketData.Exchange, e.PacketData.Commodity, e.PacketData.Contract));
+                //api.Sub(AdapterCode.TAIFEX_GLOBAL_PATS, "2", string.Format("{0}.{1}.{2}", e.PacketData.Exchange, e.PacketData.Commodity, e.PacketData.Contract));
             }));
         }
         //------------------------------------------------------------------------------------------------------------------------------------------
@@ -1052,9 +1121,9 @@ namespace MarketDataApiExample.ViewModels
         {
             App.Current.Dispatcher.Invoke((Action)(() =>
             {
-                _patsFormat1List.Add(e.PacketData);
+                _patsFormat1List.Insert(0,e.PacketData);
 
-                //測試-商品更新個數
+                //TEST-商品更新個數
                 //int count = _patsFormat1List.GroupBy(x => new { x.ExchangeNo, x.CommodityNo, x.ContractDate }).Count();
                 //StatusMessageList.Insert(0, DateTime.Now.ToString("HH:mm:ss:ttt") + "    " + "個數:" + count);
             }));
@@ -1067,7 +1136,7 @@ namespace MarketDataApiExample.ViewModels
         {
             App.Current.Dispatcher.Invoke((Action)(() =>
             {
-                _patsFormat2List.Add(e.PacketData);
+                _patsFormat2List.Insert(0,e.PacketData);
             }));
         }
         //------------------------------------------------------------------------------------------------------------------------------------------

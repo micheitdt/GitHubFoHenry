@@ -43,6 +43,8 @@ namespace Proxy
                 using (var backSocket = new XPublisherSocket(addressBack))
                 using (var frontSocket = new XSubscriberSocket(addressFront))
                 {
+                    backSocket.Options.ReceiveHighWatermark = 10000;
+                    frontSocket.Options.ReceiveHighWatermark = 10000;
                     (new NetMQ.Proxy(frontSocket, backSocket)).Start();
                 }
             });

@@ -81,6 +81,12 @@ namespace CommonLibrary
                 { typeof(Model.PacketTSE.Format1), () => { conndb.Set<Model.PacketTSE.Format1>(key, data as Model.PacketTSE.Format1); conndb.SetEntryInHash(hashid, key, ""); } },
                 { typeof(Model.PacketTPEX.Format1), () => {  conndb.Set<Model.PacketTPEX.Format1>(key, data as Model.PacketTPEX.Format1); conndb.SetEntryInHash(hashid, key, ""); }  },
                 { typeof(Model.PacketTAIFEX.I010), () => { conndb.Set<Model.PacketTAIFEX.I010>(key, data as Model.PacketTAIFEX.I010); conndb.SetEntryInHash(hashid, key, ""); }},
+                { typeof(Model.PacketTSE.Format6), () => { conndb.Set<Model.PacketTSE.Format6>(key, data as Model.PacketTSE.Format6); conndb.SetEntryInHash(hashid, key, ""); }},
+                { typeof(Model.PacketTSE.Format17), () => { conndb.Set<Model.PacketTSE.Format17>(key, data as Model.PacketTSE.Format17); conndb.SetEntryInHash(hashid, key, ""); }},
+                { typeof(Model.PacketTPEX.Format6), () => { conndb.Set<Model.PacketTPEX.Format6>(key, data as Model.PacketTPEX.Format6); conndb.SetEntryInHash(hashid, key, ""); }},
+                { typeof(Model.PacketTPEX.Format17), () => { conndb.Set<Model.PacketTPEX.Format17>(key, data as Model.PacketTPEX.Format17); conndb.SetEntryInHash(hashid, key, ""); }},
+                { typeof(Model.PacketTAIFEX.I020), () => { conndb.Set<Model.PacketTAIFEX.I020>(key, data as Model.PacketTAIFEX.I020); conndb.SetEntryInHash(hashid, key, ""); }},
+                { typeof(Model.PacketTAIFEX.I080), () => { conndb.Set<Model.PacketTAIFEX.I080>(key, data as Model.PacketTAIFEX.I080); conndb.SetEntryInHash(hashid, key, ""); }},
             };
             switchTypeAction[data.GetType()]();
 
@@ -102,9 +108,9 @@ namespace CommonLibrary
             //方法1
             var switchTypeAction = new Dictionary<string, Action>
             {
-                { Parameter.TSE_HASH_KEY, () => { SymbolTseList.SetSymbolTseDataList(conndb.GetAll<Model.PacketTSE.Format1>(conndb.GetHashKeys(hashid))); } },
-                { Parameter.TPEX_HASH_KEY, () => { SymbolTpexList.SetSymbolTpexDataList(conndb.GetAll<Model.PacketTPEX.Format1>(conndb.GetHashKeys(hashid))); } },
-                { Parameter.TAIFEX_HASH_KEY, () => { SymbolTaifexList.SetSymbolTaifexDataList(conndb.GetAll<Model.PacketTAIFEX.I010>(conndb.GetHashKeys(hashid))); }},
+                { Parameter.TSE_FORMAT1_HASH_KEY, () => { SymbolTseList.SetSymbolTseDataList(conndb.GetAll<Model.PacketTSE.Format1>(conndb.GetHashKeys(hashid))); } },
+                { Parameter.TPEX_FORMAT1_HASH_KEY, () => { SymbolTpexList.SetSymbolTpexDataList(conndb.GetAll<Model.PacketTPEX.Format1>(conndb.GetHashKeys(hashid))); } },
+                { Parameter.I010_HASH_KEY, () => { SymbolTaifexList.SetSymbolTaifexDataList(conndb.GetAll<Model.PacketTAIFEX.I010>(conndb.GetHashKeys(hashid))); }},
             };
             switchTypeAction[hashid]();
             //方法2-string to int error
@@ -143,6 +149,91 @@ namespace CommonLibrary
                 return false;
             SymbolTaifexList.SetSymbolTaifexDataList(conndb.GetAll<Model.PacketTAIFEX.I010>(conndb.GetHashKeys(hashid)));
             return true;
+        }
+
+        public static bool GetTAIFEXI020RedisDB(RedisClient conndb, string hashid)
+        {
+            if(conndb.GetHashKeys(hashid).Count == 0)
+                return false;
+            Model.PacketTAIFEX.TaifexI020List.SetTaifexI020List( conndb.GetAll<Model.PacketTAIFEX.I020>(conndb.GetHashKeys(hashid)));
+            return true;
+        }
+
+        public static bool GetTAIFEXI080RedisDB(RedisClient conndb, string hashid)
+        {
+            if (conndb.GetHashKeys(hashid).Count == 0)
+                return false;
+            Model.PacketTAIFEX.TaifexI080List.SetTaifexI080List(conndb.GetAll<Model.PacketTAIFEX.I080>(conndb.GetHashKeys(hashid)));
+            return true;
+        }
+
+        public static bool GetTPEXFormat6RedisDB(RedisClient conndb, string hashid)
+        {
+            if (conndb.GetHashKeys(hashid).Count == 0)
+                return false;
+            Model.PacketTPEX.TpexFormat6List.SetTpexFormat6List(conndb.GetAll<Model.PacketTPEX.Format6>(conndb.GetHashKeys(hashid)));
+            return true;
+        }
+
+        public static bool GetTPEXFormat17RedisDB(RedisClient conndb, string hashid)
+        {
+            if (conndb.GetHashKeys(hashid).Count == 0)
+                return false;
+            Model.PacketTPEX.TpexFormat17List.SetTpexFormat17List(conndb.GetAll<Model.PacketTPEX.Format17>(conndb.GetHashKeys(hashid)));
+            return true;
+        }
+
+        public static bool GetTSEFormat6RedisDB(RedisClient conndb, string hashid)
+        {
+            if (conndb.GetHashKeys(hashid).Count == 0)
+                return false;
+            Model.PacketTSE.TseFormat6List.SetTseFormat6List(conndb.GetAll<Model.PacketTSE.Format6>(conndb.GetHashKeys(hashid)));
+            return true;
+        }
+
+        public static bool GetTSEFormat17RedisDB(RedisClient conndb, string hashid)
+        {
+            if (conndb.GetHashKeys(hashid).Count == 0)
+                return false;
+            Model.PacketTSE.TseFormat17List.SetTseFormat17List(conndb.GetAll<Model.PacketTSE.Format17>(conndb.GetHashKeys(hashid)));
+            return true;
+        }
+
+        public static Dictionary<string, byte[]> GetOriginalRedisDB(RedisClient conndb, string hashid)
+        {
+            if (conndb.GetHashKeys(hashid).Count == 0)
+                return null;
+            
+            return new Dictionary<string, byte[]>(conndb.GetAll<byte[]>(conndb.GetHashKeys(hashid)));
+        }
+        #endregion
+
+        #region byte control
+        public static void SetBytes(ref byte[] data, int offset, double value)
+        {
+            var array = BitConverter.GetBytes(value);
+            for (int i = 0; i < array.Length; i++)
+            {
+                data[offset + i] = array[i];
+            }
+        }
+
+        public static void SetBytes(ref byte[] data, int offset, string value, int lengthOfValue)
+        {
+            var content = value.PadLeft(lengthOfValue);
+            var array = Encoding.UTF8.GetBytes(content);
+            for (int i = 0; i < array.Length; i++)
+            {
+                data[offset + i] = array[i];
+            }
+        }
+
+        public static void SetBytes(ref byte[] data, int offset, int value)
+        {
+            data[offset] = (byte)value;
+            data[offset + 1] = (byte)(value >> 8);
+            data[offset + 2] = (byte)(value >> 16);
+            data[offset + 3] = (byte)(value >> 24);
         }
         #endregion
     }

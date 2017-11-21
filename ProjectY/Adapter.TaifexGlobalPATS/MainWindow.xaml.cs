@@ -125,9 +125,9 @@ namespace Adapter.TaifexGlobalPATS
                 {
                     //盤前資料
                     byte[] toBytes = new byte[73];
-                    SetBytes(ref toBytes, 0, pricedata.ExchangeName, 11);
-                    SetBytes(ref toBytes, 11, pricedata.CommodityName, 11);
-                    SetBytes(ref toBytes, 22, pricedata.ContractDate, 51);
+                    Utility.SetBytes(ref toBytes, 0, pricedata.ExchangeName, 11);
+                    Utility.SetBytes(ref toBytes, 11, pricedata.CommodityName, 11);
+                    Utility.SetBytes(ref toBytes, 22, pricedata.ContractDate, 51);
                     _socket.SendMoreFrame(prefix).SendFrame(toBytes);
                     //Thread.Sleep(1);
 
@@ -140,7 +140,7 @@ namespace Adapter.TaifexGlobalPATS
                     ClientAPIMethods.DoSubscribePrice(pricedata.ExchangeName, pricedata.CommodityName, pricedata.ContractDate);
                 }
                 byte[] endtoBytes = new byte[73];
-                SetBytes(ref endtoBytes, 0, "End", 11);
+                Utility.SetBytes(ref endtoBytes, 0, "End", 11);
                 _socket.SendMoreFrame(prefix).SendFrame(endtoBytes);
             }
         }
@@ -176,6 +176,9 @@ namespace Adapter.TaifexGlobalPATS
         }
 
         #region byte control
+        /// <summary>
+        /// 轉換PatsDepthMD結構的byte array
+        /// </summary>
         private bool GetBytes(PriceStruct md, ref byte[] data)
         {
             bool isTryParse = true;
@@ -183,77 +186,77 @@ namespace Adapter.TaifexGlobalPATS
             data[0] = md.Offer.Hour;
             data[1] = md.Offer.Minute;
             data[2] = md.Offer.Second;
-            SetBytes(ref data, 3, md.Total.Volume);
+            Utility.SetBytes(ref data, 3, md.Total.Volume);
             isTryParse &= DoubleTryParse(md.High.Price, out price);
-            SetBytes(ref data, 7, price);
+            Utility.SetBytes(ref data, 7, price);
             isTryParse &= DoubleTryParse(md.Low.Price, out price);
-            SetBytes(ref data, 15, price);
+            Utility.SetBytes(ref data, 15, price);
             isTryParse &= DoubleTryParse(md.Opening.Price, out price);
-            SetBytes(ref data, 23, price);
+            Utility.SetBytes(ref data, 23, price);
             isTryParse &= DoubleTryParse(md.Closing.Price, out price);
-            SetBytes(ref data, 31, price);
+            Utility.SetBytes(ref data, 31, price);
             isTryParse &= DoubleTryParse(md.BidDOM0.Price, out price);
-            SetBytes(ref data, 39, price);
-            SetBytes(ref data, 47, md.BidDOM0.Volume);
+            Utility.SetBytes(ref data, 39, price);
+            Utility.SetBytes(ref data, 47, md.BidDOM0.Volume);
             isTryParse &= DoubleTryParse(md.OfferDOM0.Price, out price);
-            SetBytes(ref data, 51, price);
-            SetBytes(ref data, 59, md.OfferDOM0.Volume);
+            Utility.SetBytes(ref data, 51, price);
+            Utility.SetBytes(ref data, 59, md.OfferDOM0.Volume);
             isTryParse &= DoubleTryParse(md.BidDOM1.Price, out price);
-            SetBytes(ref data, 63, price);
-            SetBytes(ref data, 71, md.BidDOM1.Volume);
+            Utility.SetBytes(ref data, 63, price);
+            Utility.SetBytes(ref data, 71, md.BidDOM1.Volume);
             isTryParse &= DoubleTryParse(md.OfferDOM1.Price, out price);
-            SetBytes(ref data, 75, price);
-            SetBytes(ref data, 83, md.OfferDOM1.Volume);
+            Utility.SetBytes(ref data, 75, price);
+            Utility.SetBytes(ref data, 83, md.OfferDOM1.Volume);
             isTryParse &= DoubleTryParse(md.BidDOM2.Price, out price);
-            SetBytes(ref data, 87, price);
-            SetBytes(ref data, 95, md.BidDOM2.Volume);
+            Utility.SetBytes(ref data, 87, price);
+            Utility.SetBytes(ref data, 95, md.BidDOM2.Volume);
             isTryParse &= DoubleTryParse(md.OfferDOM2.Price, out price);
-            SetBytes(ref data, 99, price);
-            SetBytes(ref data, 107, md.OfferDOM2.Volume);
+            Utility.SetBytes(ref data, 99, price);
+            Utility.SetBytes(ref data, 107, md.OfferDOM2.Volume);
             isTryParse &= DoubleTryParse(md.BidDOM3.Price, out price);
-            SetBytes(ref data, 111, price);
-            SetBytes(ref data, 119, md.BidDOM3.Volume);
+            Utility.SetBytes(ref data, 111, price);
+            Utility.SetBytes(ref data, 119, md.BidDOM3.Volume);
             isTryParse &= DoubleTryParse(md.OfferDOM3.Price, out price);
-            SetBytes(ref data, 123, price);
-            SetBytes(ref data, 131, md.OfferDOM3.Volume);
+            Utility.SetBytes(ref data, 123, price);
+            Utility.SetBytes(ref data, 131, md.OfferDOM3.Volume);
             isTryParse &= DoubleTryParse(md.BidDOM4.Price, out price);
-            SetBytes(ref data, 135, price);
-            SetBytes(ref data, 143, md.BidDOM4.Volume);
+            Utility.SetBytes(ref data, 135, price);
+            Utility.SetBytes(ref data, 143, md.BidDOM4.Volume);
             isTryParse &= DoubleTryParse(md.OfferDOM4.Price, out price);
-            SetBytes(ref data, 147, price);
-            SetBytes(ref data, 155, md.OfferDOM4.Volume);
+            Utility.SetBytes(ref data, 147, price);
+            Utility.SetBytes(ref data, 155, md.OfferDOM4.Volume);
             isTryParse &= DoubleTryParse(md.BidDOM5.Price, out price);
-            SetBytes(ref data, 159, price);
-            SetBytes(ref data, 167, md.BidDOM5.Volume);
+            Utility.SetBytes(ref data, 159, price);
+            Utility.SetBytes(ref data, 167, md.BidDOM5.Volume);
             isTryParse &= DoubleTryParse(md.OfferDOM5.Price, out price);
-            SetBytes(ref data, 171, price);
-            SetBytes(ref data, 179, md.OfferDOM5.Volume);
+            Utility.SetBytes(ref data, 171, price);
+            Utility.SetBytes(ref data, 179, md.OfferDOM5.Volume);
             isTryParse &= DoubleTryParse(md.BidDOM6.Price, out price);
-            SetBytes(ref data, 183, price);
-            SetBytes(ref data, 191, md.BidDOM6.Volume);
+            Utility.SetBytes(ref data, 183, price);
+            Utility.SetBytes(ref data, 191, md.BidDOM6.Volume);
             isTryParse &= DoubleTryParse(md.OfferDOM6.Price, out price);
-            SetBytes(ref data, 195, price);
-            SetBytes(ref data, 203, md.OfferDOM6.Volume);
+            Utility.SetBytes(ref data, 195, price);
+            Utility.SetBytes(ref data, 203, md.OfferDOM6.Volume);
             isTryParse &= DoubleTryParse(md.BidDOM7.Price, out price);
-            SetBytes(ref data, 207, price);
-            SetBytes(ref data, 215, md.BidDOM7.Volume);
+            Utility.SetBytes(ref data, 207, price);
+            Utility.SetBytes(ref data, 215, md.BidDOM7.Volume);
             isTryParse &= DoubleTryParse(md.OfferDOM7.Price, out price);
-            SetBytes(ref data, 219, price);
-            SetBytes(ref data, 227, md.OfferDOM7.Volume);
+            Utility.SetBytes(ref data, 219, price);
+            Utility.SetBytes(ref data, 227, md.OfferDOM7.Volume);
             isTryParse &= DoubleTryParse(md.BidDOM8.Price, out price);
-            SetBytes(ref data, 231, price);
-            SetBytes(ref data, 239, md.BidDOM8.Volume);
+            Utility.SetBytes(ref data, 231, price);
+            Utility.SetBytes(ref data, 239, md.BidDOM8.Volume);
             isTryParse &= DoubleTryParse(md.OfferDOM8.Price, out price);
-            SetBytes(ref data, 243, price);
-            SetBytes(ref data, 251, md.OfferDOM8.Volume);
+            Utility.SetBytes(ref data, 243, price);
+            Utility.SetBytes(ref data, 251, md.OfferDOM8.Volume);
             isTryParse &= DoubleTryParse(md.BidDOM9.Price, out price);
-            SetBytes(ref data, 255, price);
-            SetBytes(ref data, 263, md.BidDOM9.Volume);
+            Utility.SetBytes(ref data, 255, price);
+            Utility.SetBytes(ref data, 263, md.BidDOM9.Volume);
             isTryParse &= DoubleTryParse(md.OfferDOM9.Price, out price);
-            SetBytes(ref data, 267, price);
-            SetBytes(ref data, 271, md.OfferDOM9.Volume);
+            Utility.SetBytes(ref data, 267, price);
+            Utility.SetBytes(ref data, 271, md.OfferDOM9.Volume);
             isTryParse &= DoubleTryParse(md.ReferencePrice.Price, out price);
-            SetBytes(ref data, 275, price);
+            Utility.SetBytes(ref data, 275, price);
             return isTryParse;
         }
 
@@ -262,8 +265,8 @@ namespace Adapter.TaifexGlobalPATS
             bool isTryParse = true;
             double price = 0;
             isTryParse &= DoubleTryParse(md.LastPrice, out price);
-            SetBytes(ref data, 0, price);
-            SetBytes(ref data, 8, md.LastVolume);
+            Utility.SetBytes(ref data, 0, price);
+            Utility.SetBytes(ref data, 8, md.LastVolume);
             return isTryParse;
         }
 
@@ -275,33 +278,6 @@ namespace Adapter.TaifexGlobalPATS
                 return true;
             }
             return double.TryParse(orgprice, out price);
-        }
-
-        private static void SetBytes(ref byte[] data, int offset, double value)
-        {
-            var array = BitConverter.GetBytes(value);
-            for (int i = 0; i < array.Length; i++)
-            {
-                data[offset + i] = array[i];
-            }
-        }
-
-        private static void SetBytes(ref byte[] data, int offset, string value, int lengthOfValue)
-        {
-            var content = value.PadLeft(lengthOfValue);
-            var array = Encoding.UTF8.GetBytes(content);
-            for (int i = 0; i < array.Length; i++)
-            {
-                data[offset + i] = array[i];
-            }
-        }
-
-        private static void SetBytes(ref byte[] data, int offset, int value)
-        {
-            data[offset] = (byte)value;
-            data[offset + 1] = (byte)(value >> 8);
-            data[offset + 2] = (byte)(value >> 16);
-            data[offset + 3] = (byte)(value >> 24);
         }
         #endregion
 
