@@ -56,39 +56,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Enums.cs" />
-    <Compile Include="Model\PacketPATS\Format2.cs" />
     <Compile Include="Model\RelayCommand.cs" />
-    <Compile Include="Parameter.cs" />
     <Compile Include="Functions.cs" />
     <Compile Include="IniReader.cs" />
-    <Compile Include="Model\PacketPATS\Format0.cs" />
-    <Compile Include="Model\PacketPATS\Format1.cs" />
-    <Compile Include="Model\PacketTAIFEX\I010.cs" />
-    <Compile Include="Model\PacketTAIFEX\I020.cs" />
-    <Compile Include="Model\PacketTAIFEX\I022.cs" />
-    <Compile Include="Model\PacketTAIFEX\I080.cs" />
-    <Compile Include="Model\PacketTAIFEX\I082.cs" />
-    <Compile Include="Model\PacketTPEX\Format1.cs" />
-    <Compile Include="Model\PacketTPEX\Format17.cs" />
-    <Compile Include="Model\PacketTPEX\Format6.cs" />
-    <Compile Include="Model\PacketTPEX\Header.cs" />
-    <Compile Include="Model\PacketTPEX\LimitInfo.cs" />
-    <Compile Include="Model\PacketTPEX\MatchInfo.cs" />
-    <Compile Include="Model\PacketTPEX\StatusInfo.cs" />
-    <Compile Include="Model\PacketTSE\Format1.cs" />
-    <Compile Include="Model\PacketTSE\Format17.cs" />
-    <Compile Include="Model\PacketTSE\Format6.cs" />
-    <Compile Include="Model\PacketTSE\Header.cs" />
-    <Compile Include="Model\PacketTSE\LimitInfo.cs" />
-    <Compile Include="Model\PacketTSE\MatchInfo.cs" />
-    <Compile Include="Model\PacketTSE\StatusInfo.cs" />
     <Compile Include="Model\Quotes.cs" />
     <Compile Include="Model\SymbolTaifex.cs" />
     <Compile Include="Model\SymbolTpex.cs" />
     <Compile Include="Model\SymbolTse.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Structs.cs" />
     <Compile Include="Utility.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -99,6 +74,12 @@
     <Content Include="Resources\ServiceStack.Interfaces.dll" />
     <Content Include="Resources\ServiceStack.Redis.dll" />
     <Content Include="Resources\ServiceStack.Text.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MarketDataApi\MarketDataApi.csproj">
+      <Project>{4e233e12-b86b-46ef-9525-2922796d28df}</Project>
+      <Name>MarketDataApi</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

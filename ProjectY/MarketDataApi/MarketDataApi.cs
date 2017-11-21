@@ -5,14 +5,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading;
-using CommonLibrary;
 
 namespace MarketDataApi
 {
     public class MarketDataApi
     {
-        //private static Logger _logger = LogManager.GetCurrentClassLogger();
-
         private static SubscriberSocket _socketSub;
         public MarketDataApi(string subIP, int subPort)
         {
@@ -39,24 +36,6 @@ namespace MarketDataApi
         {
             UnSub(string.Format("{0}#{1}#", ((int)adapterCode).ToString(), GetPacketType(adapterCode, packetType)));
         }
-
-        //public bool GetTaifexSymbolInfo(string redisip,int redisport, ref Dictionary<string, CommonLibrary.Model.PacketTAIFEX.I010> retdata )
-        //{
-        //    if (Utility.TestConn(redisip, redisport))
-        //    {
-        //        ServiceStack.Redis.RedisClient _redisClient = new ServiceStack.Redis.RedisClient(redisip, redisport);
-                
-        //        if (_redisClient.GetHashKeys(Parameter.TAIFEX_HASH_KEY).Count == 0)
-        //            return false;
-        //        retdata = new Dictionary<string, CommonLibrary.Model.PacketTAIFEX.I010>(_redisClient.GetAll<CommonLibrary.Model.PacketTAIFEX.I010>(_redisClient.GetHashKeys(Parameter.TAIFEX_HASH_KEY)));
-        //        return true;
-        //    }
-        //    else
-        //    {
-        //        _logger.Debug(string.Format("GetTaifexSymbolInfo(): Redis連接失敗:(0):{1} Data = {2}.", redisip, redisport));
-        //        return false;
-        //    }
-        //}
 
         private void Sub(string prefix)
         {
@@ -226,7 +205,6 @@ namespace MarketDataApi
             //_socketSub.Options.XPubBroadcast = false;
             //_socketSub.Options.XPubVerbose = true;
             Thread.Sleep(100);
-            //Sub(string.Format("{0}#{1}", (int)EnumMarketDataChannel.INTERNAL_MARKET_DATA, (int)EnumMarketDataType.HEARTBEAT));
             System.Threading.ThreadPool.QueueUserWorkItem(x =>
             {
                 try
@@ -280,7 +258,7 @@ namespace MarketDataApi
                                                 break;
                                         }
                                         //Test
-                                        OnQuotesByteArrayReceived(messages[0], messages[1]);
+                                        //OnQuotesByteArrayReceived(messages[0], messages[1]);
                                         break;
                                     default:
                                         break;
@@ -305,15 +283,13 @@ namespace MarketDataApi
                 switch (packetType)
                 {
                     case "1":
-                        OnTseFormat1Received(new CommonLibrary.Model.PacketTSE.Format1(packetData));
-                        //string str = System.Environment.CurrentDirectory;
-                        //Utility.SaveData(str + "\\TSE_1", packetData);
+                        OnTseFormat1Received(new Model.PacketTSE.Format1(packetData));
                         break;
                     case "6":
-                        OnTseFormat6Received(new CommonLibrary.Model.PacketTSE.Format6(packetData));
+                        OnTseFormat6Received(new Model.PacketTSE.Format6(packetData));
                         break;
                     case "17":
-                        OnTseFormat17Received(new CommonLibrary.Model.PacketTSE.Format17(packetData));
+                        OnTseFormat17Received(new Model.PacketTSE.Format17(packetData));
                         break;
                     default:
                         break;
@@ -331,15 +307,13 @@ namespace MarketDataApi
                 switch (packetType)
                 {
                     case "1":
-                        OnTpexFormat1Received(new CommonLibrary.Model.PacketTPEX.Format1(packetData));
-                        //string str = System.Environment.CurrentDirectory;
-                        //Utility.SaveData(str + "\\TPEX_1", packetData);
+                        OnTpexFormat1Received(new Model.PacketTPEX.Format1(packetData));
                         break;
                     case "6":
-                        OnTpexFormat6Received(new CommonLibrary.Model.PacketTPEX.Format6(packetData));
+                        OnTpexFormat6Received(new Model.PacketTPEX.Format6(packetData));
                         break;
                     case "17":
-                        OnTpexFormat17Received(new CommonLibrary.Model.PacketTPEX.Format17(packetData));
+                        OnTpexFormat17Received(new Model.PacketTPEX.Format17(packetData));
                         break;
                     default:
                         break;
@@ -357,21 +331,19 @@ namespace MarketDataApi
                 switch (ConvertToPacketType_TAIFEX(packetType))
                 {
                     case "I010":
-                        OnTaifexI010Received(new CommonLibrary.Model.PacketTAIFEX.I010(packetData, 0));
-                        //string str = System.Environment.CurrentDirectory;
-                        //Utility.SaveData(str + "\\TAIFEX_I010", packetData);
+                        OnTaifexI010Received(new Model.PacketTAIFEX.I010(packetData, 0));
                         break;
                     case "I020":
-                        OnTaifexI020Received(new CommonLibrary.Model.PacketTAIFEX.I020(packetData, 0));
+                        OnTaifexI020Received(new Model.PacketTAIFEX.I020(packetData, 0));
                         break;
                     case "I080":
-                        OnTaifexI080Received(new CommonLibrary.Model.PacketTAIFEX.I080(packetData, 0));
+                        OnTaifexI080Received(new Model.PacketTAIFEX.I080(packetData, 0));
                         break;
                     case "I022":
-                        OnTaifexI022Received(new CommonLibrary.Model.PacketTAIFEX.I022(packetData, 0));
+                        OnTaifexI022Received(new Model.PacketTAIFEX.I022(packetData, 0));
                         break;
                     case "I082":
-                        OnTaifexI082Received(new CommonLibrary.Model.PacketTAIFEX.I082(packetData, 0));
+                        OnTaifexI082Received(new Model.PacketTAIFEX.I082(packetData, 0));
                         break;
                     default:
                         break;
@@ -389,11 +361,11 @@ namespace MarketDataApi
                 switch (packetType)
                 {
                     case "0":
-                        OnPatsFormat0Received(new CommonLibrary.Model.PacketPATS.Format0(packetData)); break;
+                        OnPatsFormat0Received(new Model.PacketPATS.Format0(packetData)); break;
                     case "1":
-                        OnPatsFormat1Received(new CommonLibrary.Model.PacketPATS.Format1(packetData, symbol)); break;
+                        OnPatsFormat1Received(new Model.PacketPATS.Format1(packetData, symbol)); break;
                     case "2":
-                        OnPatsFormat2Received(new CommonLibrary.Model.PacketPATS.Format2(packetData, symbol)); break;
+                        OnPatsFormat2Received(new Model.PacketPATS.Format2(packetData, symbol)); break;
                     default:
                         break;
                 }
@@ -407,13 +379,13 @@ namespace MarketDataApi
         public event EventHandler<TaifexI082ReceivedEventArgs> TaifexI082Received;
         public class TaifexI082ReceivedEventArgs : EventArgs
         {
-            public readonly CommonLibrary.Model.PacketTAIFEX.I082 PacketData;
-            public TaifexI082ReceivedEventArgs(CommonLibrary.Model.PacketTAIFEX.I082 packetData)
+            public readonly Model.PacketTAIFEX.I082 PacketData;
+            public TaifexI082ReceivedEventArgs(Model.PacketTAIFEX.I082 packetData)
             {
                 PacketData = packetData;
             }
         }
-        private void OnTaifexI082Received(CommonLibrary.Model.PacketTAIFEX.I082 packetData)
+        private void OnTaifexI082Received(Model.PacketTAIFEX.I082 packetData)
         {
             if (TaifexI082Received != null)
                 TaifexI082Received(this, new TaifexI082ReceivedEventArgs(packetData));
@@ -422,13 +394,13 @@ namespace MarketDataApi
         public event EventHandler<TaifexI080ReceivedEventArgs> TaifexI080Received;
         public class TaifexI080ReceivedEventArgs : EventArgs
         {
-            public readonly CommonLibrary.Model.PacketTAIFEX.I080 PacketData;
-            public TaifexI080ReceivedEventArgs(CommonLibrary.Model.PacketTAIFEX.I080 packetData)
+            public readonly Model.PacketTAIFEX.I080 PacketData;
+            public TaifexI080ReceivedEventArgs(Model.PacketTAIFEX.I080 packetData)
             {
                 PacketData = packetData;
             }
         }
-        private void OnTaifexI080Received(CommonLibrary.Model.PacketTAIFEX.I080 packetData)
+        private void OnTaifexI080Received(Model.PacketTAIFEX.I080 packetData)
         {
             if (TaifexI080Received != null)
                 TaifexI080Received(this, new TaifexI080ReceivedEventArgs(packetData));
@@ -437,13 +409,13 @@ namespace MarketDataApi
         public event EventHandler<TaifexI022ReceivedEventArgs> TaifexI022Received;
         public class TaifexI022ReceivedEventArgs : EventArgs
         {
-            public readonly CommonLibrary.Model.PacketTAIFEX.I022 PacketData;
-            public TaifexI022ReceivedEventArgs(CommonLibrary.Model.PacketTAIFEX.I022 packetData)
+            public readonly Model.PacketTAIFEX.I022 PacketData;
+            public TaifexI022ReceivedEventArgs(Model.PacketTAIFEX.I022 packetData)
             {
                 PacketData = packetData;
             }
         }
-        private void OnTaifexI022Received(CommonLibrary.Model.PacketTAIFEX.I022 packetData)
+        private void OnTaifexI022Received(Model.PacketTAIFEX.I022 packetData)
         {
             if (TaifexI022Received != null)
                 TaifexI022Received(this, new TaifexI022ReceivedEventArgs(packetData));
@@ -452,13 +424,13 @@ namespace MarketDataApi
         public event EventHandler<TaifexI010ReceivedEventArgs> TaifexI010Received;
         public class TaifexI010ReceivedEventArgs : EventArgs
         {
-            public readonly CommonLibrary.Model.PacketTAIFEX.I010 PacketData;
-            public TaifexI010ReceivedEventArgs(CommonLibrary.Model.PacketTAIFEX.I010 packetData)
+            public readonly Model.PacketTAIFEX.I010 PacketData;
+            public TaifexI010ReceivedEventArgs(Model.PacketTAIFEX.I010 packetData)
             {
                 PacketData = packetData;
             }
         }
-        private void OnTaifexI010Received(CommonLibrary.Model.PacketTAIFEX.I010 packetData)
+        private void OnTaifexI010Received(Model.PacketTAIFEX.I010 packetData)
         {
             if (TaifexI010Received != null)
                 TaifexI010Received(this, new TaifexI010ReceivedEventArgs(packetData));
@@ -467,13 +439,13 @@ namespace MarketDataApi
         public event EventHandler<TseFormat1ReceivedEventArgs> TseFormat1Received;
         public class TseFormat1ReceivedEventArgs : EventArgs
         {
-            public readonly CommonLibrary.Model.PacketTSE.Format1 PacketData;
-            public TseFormat1ReceivedEventArgs(CommonLibrary.Model.PacketTSE.Format1 packetData)
+            public readonly Model.PacketTSE.Format1 PacketData;
+            public TseFormat1ReceivedEventArgs(Model.PacketTSE.Format1 packetData)
             {
                 PacketData = packetData;
             }
         }
-        private void OnTseFormat1Received(CommonLibrary.Model.PacketTSE.Format1 packetData)
+        private void OnTseFormat1Received(Model.PacketTSE.Format1 packetData)
         {
             if (TseFormat1Received != null)
                 TseFormat1Received(this, new TseFormat1ReceivedEventArgs(packetData));
@@ -482,13 +454,13 @@ namespace MarketDataApi
         public event EventHandler<TpexFormat1ReceivedEventArgs> TpexFormat1Received;
         public class TpexFormat1ReceivedEventArgs : EventArgs
         {
-            public readonly CommonLibrary.Model.PacketTPEX.Format1 PacketData;
-            public TpexFormat1ReceivedEventArgs(CommonLibrary.Model.PacketTPEX.Format1 packetData)
+            public readonly Model.PacketTPEX.Format1 PacketData;
+            public TpexFormat1ReceivedEventArgs(Model.PacketTPEX.Format1 packetData)
             {
                 PacketData = packetData;
             }
         }
-        private void OnTpexFormat1Received(CommonLibrary.Model.PacketTPEX.Format1 packetData)
+        private void OnTpexFormat1Received(Model.PacketTPEX.Format1 packetData)
         {
             if (TpexFormat1Received != null)
                 TpexFormat1Received(this, new TpexFormat1ReceivedEventArgs(packetData));
@@ -497,13 +469,13 @@ namespace MarketDataApi
         public event EventHandler<TaifexI020ReceivedEventArgs> TaifexI020Received;
         public class TaifexI020ReceivedEventArgs : EventArgs
         {
-            public readonly CommonLibrary.Model.PacketTAIFEX.I020 PacketData;
-            public TaifexI020ReceivedEventArgs(CommonLibrary.Model.PacketTAIFEX.I020 packetData)
+            public readonly Model.PacketTAIFEX.I020 PacketData;
+            public TaifexI020ReceivedEventArgs(Model.PacketTAIFEX.I020 packetData)
             {
                 PacketData = packetData;
             }
         }
-        private void OnTaifexI020Received(CommonLibrary.Model.PacketTAIFEX.I020 packetData)
+        private void OnTaifexI020Received(Model.PacketTAIFEX.I020 packetData)
         {
             if (TaifexI020Received != null)
                 TaifexI020Received(this, new TaifexI020ReceivedEventArgs(packetData));
@@ -512,13 +484,13 @@ namespace MarketDataApi
         public event EventHandler<TseFormat6ReceivedEventArgs> TseFormat6Received;
         public class TseFormat6ReceivedEventArgs : EventArgs
         {
-            public readonly CommonLibrary.Model.PacketTSE.Format6 PacketData;
-            public TseFormat6ReceivedEventArgs(CommonLibrary.Model.PacketTSE.Format6 packetData)
+            public readonly Model.PacketTSE.Format6 PacketData;
+            public TseFormat6ReceivedEventArgs(Model.PacketTSE.Format6 packetData)
             {
                 PacketData = packetData;
             }
         }
-        private void OnTseFormat6Received(CommonLibrary.Model.PacketTSE.Format6 packetData)
+        private void OnTseFormat6Received(Model.PacketTSE.Format6 packetData)
         {
             if (TseFormat6Received != null)
                 TseFormat6Received(this, new TseFormat6ReceivedEventArgs(packetData));
@@ -527,13 +499,13 @@ namespace MarketDataApi
         public event EventHandler<TpexFormat6ReceivedEventArgs> TpexFormat6Received;
         public class TpexFormat6ReceivedEventArgs : EventArgs
         {
-            public readonly CommonLibrary.Model.PacketTPEX.Format6 PacketData;
-            public TpexFormat6ReceivedEventArgs(CommonLibrary.Model.PacketTPEX.Format6 packetData)
+            public readonly Model.PacketTPEX.Format6 PacketData;
+            public TpexFormat6ReceivedEventArgs(Model.PacketTPEX.Format6 packetData)
             {
                 PacketData = packetData;
             }
         }
-        private void OnTpexFormat6Received(CommonLibrary.Model.PacketTPEX.Format6 packetData)
+        private void OnTpexFormat6Received(Model.PacketTPEX.Format6 packetData)
         {
             if (TpexFormat6Received != null)
                 TpexFormat6Received(this, new TpexFormat6ReceivedEventArgs(packetData));
@@ -542,13 +514,13 @@ namespace MarketDataApi
         public event EventHandler<TseFormat17ReceivedEventArgs> TseFormat17Received;
         public class TseFormat17ReceivedEventArgs : EventArgs
         {
-            public readonly CommonLibrary.Model.PacketTSE.Format17 PacketData;
-            public TseFormat17ReceivedEventArgs(CommonLibrary.Model.PacketTSE.Format17 packetData)
+            public readonly Model.PacketTSE.Format17 PacketData;
+            public TseFormat17ReceivedEventArgs(Model.PacketTSE.Format17 packetData)
             {
                 PacketData = packetData;
             }
         }
-        private void OnTseFormat17Received(CommonLibrary.Model.PacketTSE.Format17 packetData)
+        private void OnTseFormat17Received(Model.PacketTSE.Format17 packetData)
         {
             if (TseFormat17Received != null)
                 TseFormat17Received(this, new TseFormat17ReceivedEventArgs(packetData));
@@ -557,13 +529,13 @@ namespace MarketDataApi
         public event EventHandler<TpexFormat17ReceivedEventArgs> TpexFormat17Received;
         public class TpexFormat17ReceivedEventArgs : EventArgs
         {
-            public readonly CommonLibrary.Model.PacketTPEX.Format17 PacketData;
-            public TpexFormat17ReceivedEventArgs(CommonLibrary.Model.PacketTPEX.Format17 packetData)
+            public readonly Model.PacketTPEX.Format17 PacketData;
+            public TpexFormat17ReceivedEventArgs(Model.PacketTPEX.Format17 packetData)
             {
                 PacketData = packetData;
             }
         }
-        private void OnTpexFormat17Received(CommonLibrary.Model.PacketTPEX.Format17 packetData)
+        private void OnTpexFormat17Received(Model.PacketTPEX.Format17 packetData)
         {
             if (TpexFormat17Received != null)
                 TpexFormat17Received(this, new TpexFormat17ReceivedEventArgs(packetData));
@@ -572,13 +544,13 @@ namespace MarketDataApi
         public event EventHandler<PatsFormat0ReceivedEventArgs> PatsFormat0Received;
         public class PatsFormat0ReceivedEventArgs : EventArgs
         {
-            public readonly CommonLibrary.Model.PacketPATS.Format0 PacketData;
-            public PatsFormat0ReceivedEventArgs(CommonLibrary.Model.PacketPATS.Format0 packetData)
+            public readonly Model.PacketPATS.Format0 PacketData;
+            public PatsFormat0ReceivedEventArgs(Model.PacketPATS.Format0 packetData)
             {
                 PacketData = packetData;
             }
         }
-        private void OnPatsFormat0Received(CommonLibrary.Model.PacketPATS.Format0 packetData)
+        private void OnPatsFormat0Received(Model.PacketPATS.Format0 packetData)
         {
             if (PatsFormat0Received != null)
                 PatsFormat0Received(this, new PatsFormat0ReceivedEventArgs(packetData));
@@ -587,13 +559,13 @@ namespace MarketDataApi
         public event EventHandler<PatsFormat1ReceivedEventArgs> PatsFormat1Received;
         public class PatsFormat1ReceivedEventArgs : EventArgs
         {
-            public readonly CommonLibrary.Model.PacketPATS.Format1 PacketData;
-            public PatsFormat1ReceivedEventArgs(CommonLibrary.Model.PacketPATS.Format1 packetData)
+            public readonly Model.PacketPATS.Format1 PacketData;
+            public PatsFormat1ReceivedEventArgs(Model.PacketPATS.Format1 packetData)
             {
                 PacketData = packetData;
             }
         }
-        private void OnPatsFormat1Received(CommonLibrary.Model.PacketPATS.Format1 packetData)
+        private void OnPatsFormat1Received(Model.PacketPATS.Format1 packetData)
         {
             if (PatsFormat1Received != null)
                 PatsFormat1Received(this, new PatsFormat1ReceivedEventArgs(packetData));
@@ -602,13 +574,13 @@ namespace MarketDataApi
         public event EventHandler<PatsFormat2ReceivedEventArgs> PatsFormat2Received;
         public class PatsFormat2ReceivedEventArgs : EventArgs
         {
-            public readonly CommonLibrary.Model.PacketPATS.Format2 PacketData;
-            public PatsFormat2ReceivedEventArgs(CommonLibrary.Model.PacketPATS.Format2 packetData)
+            public readonly Model.PacketPATS.Format2 PacketData;
+            public PatsFormat2ReceivedEventArgs(Model.PacketPATS.Format2 packetData)
             {
                 PacketData = packetData;
             }
         }
-        private void OnPatsFormat2Received(CommonLibrary.Model.PacketPATS.Format2 packetData)
+        private void OnPatsFormat2Received(Model.PacketPATS.Format2 packetData)
         {
             if (PatsFormat2Received != null)
                 PatsFormat2Received(this, new PatsFormat2ReceivedEventArgs(packetData));

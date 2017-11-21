@@ -150,7 +150,7 @@ namespace Service.Redis.GlobalMD.ViewModels
                         {
                             continue;
                         }
-                        CommonLibrary.Model.PacketTSE.Format1 data = new CommonLibrary.Model.PacketTSE.Format1(Encoding.Default.GetBytes(line));
+                        MarketDataApi.Model.PacketTSE.Format1 data = new MarketDataApi.Model.PacketTSE.Format1(Encoding.Default.GetBytes(line));
                         AddSymbolTseDictionary(data);
                     }
                 }
@@ -160,7 +160,7 @@ namespace Service.Redis.GlobalMD.ViewModels
                 _logger.Error(err, string.Format("LoadTSEData(): ErrMsg = {0}.", err.Message));
             }
         }
-        private void AddSymbolTseDictionary(CommonLibrary.Model.PacketTSE.Format1 data)
+        private void AddSymbolTseDictionary(MarketDataApi.Model.PacketTSE.Format1 data)
         {
             if (string.IsNullOrEmpty(data.StockID) || SymbolTseList.AllSymbolTseList.ContainsKey(data.StockID))
             {
@@ -199,7 +199,7 @@ namespace Service.Redis.GlobalMD.ViewModels
                         {
                             continue;
                         }
-                        CommonLibrary.Model.PacketTPEX.Format1 data = new CommonLibrary.Model.PacketTPEX.Format1(Encoding.Default.GetBytes(line));
+                        MarketDataApi.Model.PacketTPEX.Format1 data = new MarketDataApi.Model.PacketTPEX.Format1(Encoding.Default.GetBytes(line));
                         AddSymbolTpexDictionary(data);
                     }
                 }
@@ -209,7 +209,7 @@ namespace Service.Redis.GlobalMD.ViewModels
                 _logger.Error(err, string.Format("LoadData(): ErrMsg = {0}.", err.Message));
             }
         }
-        private void AddSymbolTpexDictionary(CommonLibrary.Model.PacketTPEX.Format1 data)
+        private void AddSymbolTpexDictionary(MarketDataApi.Model.PacketTPEX.Format1 data)
         {
             if (string.IsNullOrEmpty(data.StockID) || SymbolTpexList.AllSymbolTpexList.ContainsKey(data.StockID))
             {
@@ -248,7 +248,7 @@ namespace Service.Redis.GlobalMD.ViewModels
                         {
                             continue;
                         }
-                        CommonLibrary.Model.PacketTAIFEX.I010 data = new CommonLibrary.Model.PacketTAIFEX.I010(Encoding.Default.GetBytes(line), 0);
+                        MarketDataApi.Model.PacketTAIFEX.I010 data = new MarketDataApi.Model.PacketTAIFEX.I010(Encoding.Default.GetBytes(line), 0);
                         AddSymbolTaifexDictionary(data);
                     }
                 }
@@ -258,7 +258,7 @@ namespace Service.Redis.GlobalMD.ViewModels
                 _logger.Error(err, string.Format("LoadData(): ErrMsg = {0}.", err.Message));
             }
         }
-        private void AddSymbolTaifexDictionary(CommonLibrary.Model.PacketTAIFEX.I010 data)
+        private void AddSymbolTaifexDictionary(MarketDataApi.Model.PacketTAIFEX.I010 data)
         {
             if (string.IsNullOrEmpty(data.B_ProdId) || SymbolTaifexList.AllSymbolTaifexList.ContainsKey(data.B_ProdId))
             {

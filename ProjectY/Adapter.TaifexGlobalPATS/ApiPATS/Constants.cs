@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Runtime.InteropServices;
 using CommonLibrary;
+using Adapter.TaifexGlobalPATS.TradingObjects;
 
 namespace Adapter.TaifexGlobalPATS.ApiPATS
 {

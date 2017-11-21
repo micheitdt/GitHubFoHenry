@@ -1,27 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using NetMQ;
 using NetMQ.Sockets;
-using System.Threading;
-using System.Net.Sockets;
-using System.Net;
-using System.Runtime.InteropServices;
 using System.Collections;
 using Adapter.TaifexGlobalPATS.ApiPATS;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.IO;
 using CommonLibrary;
 
 namespace Adapter.TaifexGlobalPATS
@@ -32,7 +17,7 @@ namespace Adapter.TaifexGlobalPATS
     public partial class MainWindow : Window
     {
         PublisherSocket _socket;
-        private ObservableCollection<PriceUpdateStruct> _symbolList = new ObservableCollection<PriceUpdateStruct>();
+        private ObservableCollection<TradingObjects.PriceUpdateStruct> _symbolList = new ObservableCollection<TradingObjects.PriceUpdateStruct>();
         public MainWindow()
         {
             InitializeComponent();
@@ -99,7 +84,7 @@ namespace Adapter.TaifexGlobalPATS
                     {
                         var contract = (Contract)contractIterator.Value;
 
-                        var priceUpdateStruct = new PriceUpdateStruct
+                        var priceUpdateStruct = new TradingObjects.PriceUpdateStruct
                         {
                             ExchangeName = exchange.GetKey(),
                             CommodityName = commodity.GetKey(),
@@ -121,7 +106,7 @@ namespace Adapter.TaifexGlobalPATS
             if (Convert.ToInt32(sender) == Constants.LinkStatusConnected)
             {
                 string prefix = "6#0#all#";
-                foreach (PriceUpdateStruct pricedata in _symbolList)
+                foreach (TradingObjects.PriceUpdateStruct pricedata in _symbolList)
                 {
                     //盤前資料
                     byte[] toBytes = new byte[73];

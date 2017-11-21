@@ -1,3 +1,4 @@
+using Adapter.TaifexGlobalPATS.TradingObjects;
 using CommonLibrary;
 using System;
 using System.Runtime.InteropServices;

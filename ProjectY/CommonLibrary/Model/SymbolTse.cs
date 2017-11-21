@@ -16,7 +16,7 @@ namespace CommonLibrary.Model
         public SymbolTse()
         { }
 
-        public SymbolTse(PacketTSE.Format1 data)
+        public SymbolTse(MarketDataApi.Model.PacketTSE.Format1 data)
         {
             _symbolNo = data.StockID;
             _symbolName = data.StockName;
@@ -682,7 +682,7 @@ namespace CommonLibrary.Model
             AllSymbolTseList.TryAdd(data.SymbolNo, data);
         }
 
-        public static void SetSymbolTseDataList(IDictionary<string, PacketTSE.Format1> data)
+        public static void SetSymbolTseDataList(IDictionary<string, MarketDataApi.Model.PacketTSE.Format1> data)
         {
             AllSymbolTseList = new SymbolTseList();
             foreach (var obj in data)
@@ -691,7 +691,7 @@ namespace CommonLibrary.Model
             }
         }
 
-        public static void AddTseData(PacketTSE.Format1 data)
+        public static void AddTseData(MarketDataApi.Model.PacketTSE.Format1 data)
         {
             SymbolTse temp = new SymbolTse(data);
             AllSymbolTseList.TryAdd(data.StockID, temp);

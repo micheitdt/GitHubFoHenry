@@ -1,4 +1,5 @@
-﻿using CommonLibrary;
+﻿using Adapter.TaifexGlobalPATS.TradingObjects;
+using CommonLibrary;
 using System;
 
 namespace Adapter.TaifexGlobalPATS.ApiPATS

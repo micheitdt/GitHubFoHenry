@@ -500,7 +500,7 @@ namespace CommonLibrary.Model
         #endregion
 
         #region func
-        public void SetI080Data(long seq, CommonLibrary.Model.PacketTAIFEX.I080 data)
+        public void SetI080Data(long seq, MarketDataApi.Model.PacketTAIFEX.I080 data)
         {
             _seq = seq;
             _symbolNo = data.B_ProdId;
@@ -530,7 +530,7 @@ namespace CommonLibrary.Model
             OnPropertyChanged();
         }
 
-        public void SetI020Data(long seq, CommonLibrary.Model.PacketTAIFEX.I020 data)
+        public void SetI020Data(long seq, MarketDataApi.Model.PacketTAIFEX.I020 data)
         {
             _seq = seq;
             _symbolNo = data.B_ProdId;
@@ -543,7 +543,7 @@ namespace CommonLibrary.Model
             OnPropertyChanged();
         }
 
-        public void SetTpexData(long seq, CommonLibrary.Model.PacketTPEX.Format6 data)
+        public void SetTpexData(long seq, MarketDataApi.Model.PacketTPEX.Format6 data)
         {
             _seq = seq;
             _symbolNo = data.StockID;
@@ -560,7 +560,7 @@ namespace CommonLibrary.Model
             OnPropertyChanged();
         }
 
-        public void SetTseData(long seq, CommonLibrary.Model.PacketTSE.Format6 data)
+        public void SetTseData(long seq, MarketDataApi.Model.PacketTSE.Format6 data)
         {
             _seq = seq;
             _symbolNo = data.StockID;
@@ -577,7 +577,7 @@ namespace CommonLibrary.Model
             OnPropertyChanged();
         }
 
-        public void SetTpexData(long seq, CommonLibrary.Model.PacketTPEX.Format17 data)
+        public void SetTpexData(long seq, MarketDataApi.Model.PacketTPEX.Format17 data)
         {
             _seq = seq;
             _symbolNo = data.StockID;
@@ -594,7 +594,7 @@ namespace CommonLibrary.Model
             OnPropertyChanged();
         }
 
-        public void SetTseData(long seq, CommonLibrary.Model.PacketTSE.Format17 data)
+        public void SetTseData(long seq, MarketDataApi.Model.PacketTSE.Format17 data)
         {
             _seq = seq;
             _symbolNo = data.StockID;

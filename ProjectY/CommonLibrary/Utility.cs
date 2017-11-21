@@ -9,6 +9,7 @@ using System.Runtime.InteropServices;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading.Tasks;
+using MarketDataApi;
 
 namespace CommonLibrary
 {
@@ -78,15 +79,15 @@ namespace CommonLibrary
             //方法1
             var switchTypeAction = new Dictionary<Type, Action>
             {
-                { typeof(Model.PacketTSE.Format1), () => { conndb.Set<Model.PacketTSE.Format1>(key, data as Model.PacketTSE.Format1); conndb.SetEntryInHash(hashid, key, ""); } },
-                { typeof(Model.PacketTPEX.Format1), () => {  conndb.Set<Model.PacketTPEX.Format1>(key, data as Model.PacketTPEX.Format1); conndb.SetEntryInHash(hashid, key, ""); }  },
-                { typeof(Model.PacketTAIFEX.I010), () => { conndb.Set<Model.PacketTAIFEX.I010>(key, data as Model.PacketTAIFEX.I010); conndb.SetEntryInHash(hashid, key, ""); }},
-                { typeof(Model.PacketTSE.Format6), () => { conndb.Set<Model.PacketTSE.Format6>(key, data as Model.PacketTSE.Format6); conndb.SetEntryInHash(hashid, key, ""); }},
-                { typeof(Model.PacketTSE.Format17), () => { conndb.Set<Model.PacketTSE.Format17>(key, data as Model.PacketTSE.Format17); conndb.SetEntryInHash(hashid, key, ""); }},
-                { typeof(Model.PacketTPEX.Format6), () => { conndb.Set<Model.PacketTPEX.Format6>(key, data as Model.PacketTPEX.Format6); conndb.SetEntryInHash(hashid, key, ""); }},
-                { typeof(Model.PacketTPEX.Format17), () => { conndb.Set<Model.PacketTPEX.Format17>(key, data as Model.PacketTPEX.Format17); conndb.SetEntryInHash(hashid, key, ""); }},
-                { typeof(Model.PacketTAIFEX.I020), () => { conndb.Set<Model.PacketTAIFEX.I020>(key, data as Model.PacketTAIFEX.I020); conndb.SetEntryInHash(hashid, key, ""); }},
-                { typeof(Model.PacketTAIFEX.I080), () => { conndb.Set<Model.PacketTAIFEX.I080>(key, data as Model.PacketTAIFEX.I080); conndb.SetEntryInHash(hashid, key, ""); }},
+                { typeof(MarketDataApi.Model.PacketTSE.Format1), () => { conndb.Set<MarketDataApi.Model.PacketTSE.Format1>(key, data as MarketDataApi.Model.PacketTSE.Format1); conndb.SetEntryInHash(hashid, key, ""); } },
+                { typeof(MarketDataApi.Model.PacketTPEX.Format1), () => {  conndb.Set<MarketDataApi.Model.PacketTPEX.Format1>(key, data as MarketDataApi.Model.PacketTPEX.Format1); conndb.SetEntryInHash(hashid, key, ""); }  },
+                { typeof(MarketDataApi.Model.PacketTAIFEX.I010), () => { conndb.Set<MarketDataApi.Model.PacketTAIFEX.I010>(key, data as MarketDataApi.Model.PacketTAIFEX.I010); conndb.SetEntryInHash(hashid, key, ""); }},
+                { typeof(MarketDataApi.Model.PacketTSE.Format6), () => { conndb.Set<MarketDataApi.Model.PacketTSE.Format6>(key, data as MarketDataApi.Model.PacketTSE.Format6); conndb.SetEntryInHash(hashid, key, ""); }},
+                { typeof(MarketDataApi.Model.PacketTSE.Format17), () => { conndb.Set<MarketDataApi.Model.PacketTSE.Format17>(key, data as MarketDataApi.Model.PacketTSE.Format17); conndb.SetEntryInHash(hashid, key, ""); }},
+                { typeof(MarketDataApi.Model.PacketTPEX.Format6), () => { conndb.Set<MarketDataApi.Model.PacketTPEX.Format6>(key, data as MarketDataApi.Model.PacketTPEX.Format6); conndb.SetEntryInHash(hashid, key, ""); }},
+                { typeof(MarketDataApi.Model.PacketTPEX.Format17), () => { conndb.Set<MarketDataApi.Model.PacketTPEX.Format17>(key, data as MarketDataApi.Model.PacketTPEX.Format17); conndb.SetEntryInHash(hashid, key, ""); }},
+                { typeof(MarketDataApi.Model.PacketTAIFEX.I020), () => { conndb.Set<MarketDataApi.Model.PacketTAIFEX.I020>(key, data as MarketDataApi.Model.PacketTAIFEX.I020); conndb.SetEntryInHash(hashid, key, ""); }},
+                { typeof(MarketDataApi.Model.PacketTAIFEX.I080), () => { conndb.Set<MarketDataApi.Model.PacketTAIFEX.I080>(key, data as MarketDataApi.Model.PacketTAIFEX.I080); conndb.SetEntryInHash(hashid, key, ""); }},
             };
             switchTypeAction[data.GetType()]();
 
@@ -108,9 +109,9 @@ namespace CommonLibrary
             //方法1
             var switchTypeAction = new Dictionary<string, Action>
             {
-                { Parameter.TSE_FORMAT1_HASH_KEY, () => { SymbolTseList.SetSymbolTseDataList(conndb.GetAll<Model.PacketTSE.Format1>(conndb.GetHashKeys(hashid))); } },
-                { Parameter.TPEX_FORMAT1_HASH_KEY, () => { SymbolTpexList.SetSymbolTpexDataList(conndb.GetAll<Model.PacketTPEX.Format1>(conndb.GetHashKeys(hashid))); } },
-                { Parameter.I010_HASH_KEY, () => { SymbolTaifexList.SetSymbolTaifexDataList(conndb.GetAll<Model.PacketTAIFEX.I010>(conndb.GetHashKeys(hashid))); }},
+                { Parameter.TSE_FORMAT1_HASH_KEY, () => { SymbolTseList.SetSymbolTseDataList(conndb.GetAll<MarketDataApi.Model.PacketTSE.Format1>(conndb.GetHashKeys(hashid))); } },
+                { Parameter.TPEX_FORMAT1_HASH_KEY, () => { SymbolTpexList.SetSymbolTpexDataList(conndb.GetAll<MarketDataApi.Model.PacketTPEX.Format1>(conndb.GetHashKeys(hashid))); } },
+                { Parameter.I010_HASH_KEY, () => { SymbolTaifexList.SetSymbolTaifexDataList(conndb.GetAll<MarketDataApi.Model.PacketTAIFEX.I010>(conndb.GetHashKeys(hashid))); }},
             };
             switchTypeAction[hashid]();
             //方法2-string to int error
@@ -133,69 +134,21 @@ namespace CommonLibrary
         {
             if (conndb.GetHashKeys(hashid).Count == 0)
                 return false;
-            SymbolTseList.SetSymbolTseDataList(conndb.GetAll<Model.PacketTSE.Format1>(conndb.GetHashKeys(hashid)));
+            SymbolTseList.SetSymbolTseDataList(conndb.GetAll<MarketDataApi.Model.PacketTSE.Format1>(conndb.GetHashKeys(hashid)));
             return true;
         }
         public static bool GetTPEXRedisDB(RedisClient conndb, string hashid)
         {
             if (conndb.GetHashKeys(hashid).Count == 0)
                 return false;
-            SymbolTpexList.SetSymbolTpexDataList(conndb.GetAll<Model.PacketTPEX.Format1>(conndb.GetHashKeys(hashid)));
+            SymbolTpexList.SetSymbolTpexDataList(conndb.GetAll<MarketDataApi.Model.PacketTPEX.Format1>(conndb.GetHashKeys(hashid)));
             return true;
         }
         public static bool GetTAIFEXRedisDB(RedisClient conndb, string hashid)
         {
             if (conndb.GetHashKeys(hashid).Count == 0)
                 return false;
-            SymbolTaifexList.SetSymbolTaifexDataList(conndb.GetAll<Model.PacketTAIFEX.I010>(conndb.GetHashKeys(hashid)));
-            return true;
-        }
-
-        public static bool GetTAIFEXI020RedisDB(RedisClient conndb, string hashid)
-        {
-            if(conndb.GetHashKeys(hashid).Count == 0)
-                return false;
-            Model.PacketTAIFEX.TaifexI020List.SetTaifexI020List( conndb.GetAll<Model.PacketTAIFEX.I020>(conndb.GetHashKeys(hashid)));
-            return true;
-        }
-
-        public static bool GetTAIFEXI080RedisDB(RedisClient conndb, string hashid)
-        {
-            if (conndb.GetHashKeys(hashid).Count == 0)
-                return false;
-            Model.PacketTAIFEX.TaifexI080List.SetTaifexI080List(conndb.GetAll<Model.PacketTAIFEX.I080>(conndb.GetHashKeys(hashid)));
-            return true;
-        }
-
-        public static bool GetTPEXFormat6RedisDB(RedisClient conndb, string hashid)
-        {
-            if (conndb.GetHashKeys(hashid).Count == 0)
-                return false;
-            Model.PacketTPEX.TpexFormat6List.SetTpexFormat6List(conndb.GetAll<Model.PacketTPEX.Format6>(conndb.GetHashKeys(hashid)));
-            return true;
-        }
-
-        public static bool GetTPEXFormat17RedisDB(RedisClient conndb, string hashid)
-        {
-            if (conndb.GetHashKeys(hashid).Count == 0)
-                return false;
-            Model.PacketTPEX.TpexFormat17List.SetTpexFormat17List(conndb.GetAll<Model.PacketTPEX.Format17>(conndb.GetHashKeys(hashid)));
-            return true;
-        }
-
-        public static bool GetTSEFormat6RedisDB(RedisClient conndb, string hashid)
-        {
-            if (conndb.GetHashKeys(hashid).Count == 0)
-                return false;
-            Model.PacketTSE.TseFormat6List.SetTseFormat6List(conndb.GetAll<Model.PacketTSE.Format6>(conndb.GetHashKeys(hashid)));
-            return true;
-        }
-
-        public static bool GetTSEFormat17RedisDB(RedisClient conndb, string hashid)
-        {
-            if (conndb.GetHashKeys(hashid).Count == 0)
-                return false;
-            Model.PacketTSE.TseFormat17List.SetTseFormat17List(conndb.GetAll<Model.PacketTSE.Format17>(conndb.GetHashKeys(hashid)));
+            SymbolTaifexList.SetSymbolTaifexDataList(conndb.GetAll<MarketDataApi.Model.PacketTAIFEX.I010>(conndb.GetHashKeys(hashid)));
             return true;
         }
 

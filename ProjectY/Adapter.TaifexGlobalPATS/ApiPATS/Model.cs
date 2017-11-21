@@ -7,11 +7,6 @@ using System.Text;
 
 namespace Adapter.TaifexGlobalPATS.ApiPATS
 {
-    public class SubscribeHashTable : SortedDictionary<string, PriceUpdateStruct>
-    {
-
-    }
-
     public class PriceDetailHashTable : Dictionary<int, PriceStruct>
     {
 

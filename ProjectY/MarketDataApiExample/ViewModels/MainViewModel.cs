@@ -12,7 +12,6 @@ using System.Collections.ObjectModel;
 using CommonLibrary.Model;
 using NLog;
 using System.IO;
-using CommonLibrary;
 using System.Collections.Concurrent;
 using System.Data;
 using ServiceStack.Redis;
@@ -58,10 +57,10 @@ namespace MarketDataApiExample.ViewModels
         private long _gridSeq = 1;
         RedisClient _redisClient;
 
-        private ObservableCollection<CommonLibrary.Model.PacketPATS.Format0> _patsFormat0List = new ObservableCollection<CommonLibrary.Model.PacketPATS.Format0>();
-        private ObservableCollection<CommonLibrary.Model.PacketPATS.Format1> _patsFormat1List = new ObservableCollection<CommonLibrary.Model.PacketPATS.Format1>();
-        private ObservableCollection<CommonLibrary.Model.PacketPATS.Format2> _patsFormat2List = new ObservableCollection<CommonLibrary.Model.PacketPATS.Format2>();
-        private CommonLibrary.Model.PacketPATS.Format0 _selectPats;
+        private ObservableCollection<MarketDataApi.Model.PacketPATS.Format0> _patsFormat0List = new ObservableCollection<MarketDataApi.Model.PacketPATS.Format0>();
+        private ObservableCollection<MarketDataApi.Model.PacketPATS.Format1> _patsFormat1List = new ObservableCollection<MarketDataApi.Model.PacketPATS.Format1>();
+        private ObservableCollection<MarketDataApi.Model.PacketPATS.Format2> _patsFormat2List = new ObservableCollection<MarketDataApi.Model.PacketPATS.Format2>();
+        private MarketDataApi.Model.PacketPATS.Format0 _selectPats;
         private ObservableCollection<string> _statusMessageList = new ObservableCollection<string>();
         #endregion
 
@@ -71,13 +70,13 @@ namespace MarketDataApiExample.ViewModels
             {
                 DefaultSettings.Instance.Initialize();//讀設定檔
 
-                if (Utility.TestConn(DefaultSettings.Instance.REDIS_DB_IP, DefaultSettings.Instance.REDIS_DB_PORT))
+                if (CommonLibrary.Utility.TestConn(DefaultSettings.Instance.REDIS_DB_IP, DefaultSettings.Instance.REDIS_DB_PORT))
                 {
                     _redisClient = new RedisClient(DefaultSettings.Instance.REDIS_DB_IP, DefaultSettings.Instance.REDIS_DB_PORT);
 
-                    Utility.GetTAIFEXRedisDB(_redisClient, Parameter.I010_HASH_KEY);
-                    Utility.GetTPEXRedisDB(_redisClient, Parameter.TPEX_FORMAT1_HASH_KEY);
-                    Utility.GetTSERedisDB(_redisClient, Parameter.TSE_FORMAT1_HASH_KEY);
+                    CommonLibrary.Utility.GetTAIFEXRedisDB(_redisClient, Parameter.I010_HASH_KEY);
+                    CommonLibrary.Utility.GetTPEXRedisDB(_redisClient, Parameter.TPEX_FORMAT1_HASH_KEY);
+                    CommonLibrary.Utility.GetTSERedisDB(_redisClient, Parameter.TSE_FORMAT1_HASH_KEY);
 
                     SymbolTaifexDictionary = SymbolTaifexList.GetAllSymbolTpexCollection();
                     SymbolTpexDictionary = SymbolTpexList.GetAllSymbolTpexCollection();
@@ -343,7 +342,7 @@ namespace MarketDataApiExample.ViewModels
             }
         }
         
-        public ObservableCollection<CommonLibrary.Model.PacketPATS.Format0> PatsFormat0List
+        public ObservableCollection<MarketDataApi.Model.PacketPATS.Format0> PatsFormat0List
         {
             get
             {
@@ -355,7 +354,7 @@ namespace MarketDataApiExample.ViewModels
                 OnPropertyChanged("PatsFormat0List");
             }
         }
-        public ObservableCollection<CommonLibrary.Model.PacketPATS.Format1> PatsFormat1List
+        public ObservableCollection<MarketDataApi.Model.PacketPATS.Format1> PatsFormat1List
         {
             get
             {
@@ -367,7 +366,7 @@ namespace MarketDataApiExample.ViewModels
                 OnPropertyChanged("PatsFormat1List");
             }
         }
-        public ObservableCollection<CommonLibrary.Model.PacketPATS.Format2> PatsFormat2List
+        public ObservableCollection<MarketDataApi.Model.PacketPATS.Format2> PatsFormat2List
         {
             get
             {
@@ -453,7 +452,7 @@ namespace MarketDataApiExample.ViewModels
         /// <summary>
         /// 所選盤前PATS
         /// </summary>
-        public CommonLibrary.Model.PacketPATS.Format0 SelectPats
+        public MarketDataApi.Model.PacketPATS.Format0 SelectPats
         {
             get
             {
@@ -669,22 +668,22 @@ namespace MarketDataApiExample.ViewModels
         private void SupscribeSymbol()
         {
             //TEST類別商品訂閱
-            api.Sub(AdapterCode.TAIFEX_FUTURES_NIGHT, "I020");
-            System.Threading.Thread.Sleep(100);
-            api.Sub(AdapterCode.TAIFEX_FUTURES_NIGHT, "I080");
-            System.Threading.Thread.Sleep(100);
-            api.Sub(AdapterCode.TAIFEX_OPTIONS_NIGHT, "I020");
-            System.Threading.Thread.Sleep(100);
-            api.Sub(AdapterCode.TAIFEX_OPTIONS_NIGHT, "I080");
-            System.Threading.Thread.Sleep(100);
-            api.Sub(AdapterCode.TPEX, "6");
-            System.Threading.Thread.Sleep(100);
-            api.Sub(AdapterCode.TPEX, "17");
-            System.Threading.Thread.Sleep(100);
-            api.Sub(AdapterCode.TSE, "6");
-            System.Threading.Thread.Sleep(100);
-            api.Sub(AdapterCode.TSE, "17");
-            return;
+            //api.Sub(AdapterCode.TAIFEX_FUTURES_NIGHT, "I020");
+            //System.Threading.Thread.Sleep(100);
+            //api.Sub(AdapterCode.TAIFEX_FUTURES_NIGHT, "I080");
+            //System.Threading.Thread.Sleep(100);
+            //api.Sub(AdapterCode.TAIFEX_OPTIONS_NIGHT, "I020");
+            //System.Threading.Thread.Sleep(100);
+            //api.Sub(AdapterCode.TAIFEX_OPTIONS_NIGHT, "I080");
+            //System.Threading.Thread.Sleep(100);
+            //api.Sub(AdapterCode.TPEX, "6");
+            //System.Threading.Thread.Sleep(100);
+            //api.Sub(AdapterCode.TPEX, "17");
+            //System.Threading.Thread.Sleep(100);
+            //api.Sub(AdapterCode.TSE, "6");
+            //System.Threading.Thread.Sleep(100);
+            //api.Sub(AdapterCode.TSE, "17");
+            //return;
             if (api == null || string.IsNullOrEmpty(SelectMarket) || string.IsNullOrEmpty(SelectType))
             {
                 return;
@@ -1190,7 +1189,7 @@ namespace MarketDataApiExample.ViewModels
                         {
                             continue;
                         }
-                        CommonLibrary.Model.PacketTSE.Format1 data = new CommonLibrary.Model.PacketTSE.Format1(Encoding.Default.GetBytes(line));
+                        MarketDataApi.Model.PacketTSE.Format1 data = new MarketDataApi.Model.PacketTSE.Format1(Encoding.Default.GetBytes(line));
                         AddSymbolTseDictionary(data);
                     }
                 }
@@ -1200,7 +1199,7 @@ namespace MarketDataApiExample.ViewModels
                 _logger.Error(err, string.Format("LoadTSEData(): ErrMsg = {0}.", err.Message));
             }
         }
-        private void AddSymbolTseDictionary(CommonLibrary.Model.PacketTSE.Format1 data)
+        private void AddSymbolTseDictionary(MarketDataApi.Model.PacketTSE.Format1 data)
         {
 
             if (string.IsNullOrEmpty(data.StockID) || SymbolTseList.AllSymbolTseList.ContainsKey(data.StockID))
@@ -1230,7 +1229,7 @@ namespace MarketDataApiExample.ViewModels
                         {
                             continue;
                         }
-                        CommonLibrary.Model.PacketTPEX.Format1 data = new CommonLibrary.Model.PacketTPEX.Format1(Encoding.Default.GetBytes(line));
+                        MarketDataApi.Model.PacketTPEX.Format1 data = new MarketDataApi.Model.PacketTPEX.Format1(Encoding.Default.GetBytes(line));
                         AddSymbolTpexDictionary(data);
                     }
                 }
@@ -1240,7 +1239,7 @@ namespace MarketDataApiExample.ViewModels
                 _logger.Error(err, string.Format("LoadData(): ErrMsg = {0}.", err.Message));
             }
         }
-        private void AddSymbolTpexDictionary(CommonLibrary.Model.PacketTPEX.Format1 data)
+        private void AddSymbolTpexDictionary(MarketDataApi.Model.PacketTPEX.Format1 data)
         {
 
             if (string.IsNullOrEmpty(data.StockID) || SymbolTpexList.AllSymbolTpexList.ContainsKey(data.StockID))
@@ -1270,7 +1269,7 @@ namespace MarketDataApiExample.ViewModels
                         {
                             continue;
                         }
-                        CommonLibrary.Model.PacketTAIFEX.I010 data = new CommonLibrary.Model.PacketTAIFEX.I010(Encoding.Default.GetBytes(line), 0);
+                        MarketDataApi.Model.PacketTAIFEX.I010 data = new MarketDataApi.Model.PacketTAIFEX.I010(Encoding.Default.GetBytes(line), 0);
                         AddSymbolTaifexDictionary(data);
                     }
                 }
@@ -1280,7 +1279,7 @@ namespace MarketDataApiExample.ViewModels
                 _logger.Error(err, string.Format("LoadData(): ErrMsg = {0}.", err.Message));
             }
         }
-        private void AddSymbolTaifexDictionary(CommonLibrary.Model.PacketTAIFEX.I010 data)
+        private void AddSymbolTaifexDictionary(MarketDataApi.Model.PacketTAIFEX.I010 data)
         {
 
             if (string.IsNullOrEmpty(data.B_ProdId) || SymbolTaifexList.AllSymbolTaifexList.ContainsKey(data.B_ProdId))

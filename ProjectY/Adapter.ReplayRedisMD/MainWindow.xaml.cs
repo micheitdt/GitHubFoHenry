@@ -3,9 +3,6 @@ using NetMQ;
 using NetMQ.Sockets;
 using ServiceStack.Redis;
 using System;
-using System.Net;
-using System.Net.Sockets;
-using System.Text;
 using System.Threading;
 using System.Windows;
 
@@ -16,6 +13,10 @@ namespace Adapter.ReplayRedisMD
     /// </summary>
     public partial class MainWindow : Window
     {
+        private const string ORIGINAL_MD_HASH_KEY = "OriginalMD";
+        private const int SIZE_OF_EXCHANGENAME = 10;
+        private const int SIZE_OF_COMMODITYNAME = 10;
+        private const int SIZE_OF_CONTRACTDATE = 50;
         RedisClient _client;
 
         public MainWindow()
@@ -60,7 +61,7 @@ namespace Adapter.ReplayRedisMD
                         //CommonLibrary.Model.PacketTPEX.TpexFormat17List.AllTpexFormat17List;
                         //CommonLibrary.Model.PacketTSE.TseFormat6List.AllTseFormat6List;
                         //CommonLibrary.Model.PacketTSE.TseFormat17List.AllTseFormat17List;
-                        foreach (var data in Utility.GetOriginalRedisDB(_client, Parameter.ORIGINAL_MD_HASH_KEY))
+                        foreach (var data in Utility.GetOriginalRedisDB(_client, ORIGINAL_MD_HASH_KEY))
                         {
                             var prefixAry = data.Key.Split('#');
                             prefix = string.Format("{0}#{1}#{2}#", prefixAry[0], prefixAry[1], prefixAry[2]);
