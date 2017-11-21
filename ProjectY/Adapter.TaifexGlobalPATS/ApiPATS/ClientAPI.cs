@@ -325,7 +325,7 @@ namespace Adapter.TaifexGlobalPATS.ApiPATS
                     }
                 }
             }
-            catch (Exception E)
+            catch (Exception )
             {
                 StackTrack();
             }

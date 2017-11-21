@@ -36,9 +36,15 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="AsyncIO">
+      <HintPath>..\CommonLibrary\Resources\AsyncIO.dll</HintPath>
+    </Reference>
+    <Reference Include="JetBrains.Annotations">
+      <HintPath>..\CommonLibrary\Resources\JetBrains.Annotations.dll</HintPath>
+    </Reference>
     <Reference Include="NetMQ, Version=4.0.0.0, Culture=neutral, PublicKeyToken=a6decef4ddc58b3a, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>bin\Debug\NetMQ.dll</HintPath>
+      <HintPath>..\CommonLibrary\Resources\NetMQ.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />

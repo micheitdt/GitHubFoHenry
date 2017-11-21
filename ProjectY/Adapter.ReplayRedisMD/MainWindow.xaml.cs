@@ -13,10 +13,10 @@ namespace Adapter.ReplayRedisMD
     /// </summary>
     public partial class MainWindow : Window
     {
-        private const string ORIGINAL_MD_HASH_KEY = "OriginalMD";
-        private const int SIZE_OF_EXCHANGENAME = 10;
-        private const int SIZE_OF_COMMODITYNAME = 10;
-        private const int SIZE_OF_CONTRACTDATE = 50;
+        public const string ORIGINAL_MD_HASH_KEY = "OriginalMD";
+        public const int SIZE_OF_EXCHANGENAME = 10;
+        public const int SIZE_OF_COMMODITYNAME = 10;
+        public const int SIZE_OF_CONTRACTDATE = 50;
         RedisClient _client;
 
         public MainWindow()

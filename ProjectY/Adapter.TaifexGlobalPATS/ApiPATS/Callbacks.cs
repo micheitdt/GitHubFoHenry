@@ -152,9 +152,8 @@ namespace Adapter.TaifexGlobalPATS.ApiPATS
                         }
                     }
                 }
-                catch(Exception ex)
+                catch(Exception )
                 {
-                    int i = 0;
                 }
             }
 
@@ -198,7 +197,7 @@ namespace Adapter.TaifexGlobalPATS.ApiPATS
                     ClientAPIMethods.DoGetFillByID(fillStruct.FillID, ref filldata);
                     owner.PutFillObject(filldata);
                 }
-                catch (Exception e)
+                catch (Exception )
                 {
                 }
             }
