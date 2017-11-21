@@ -38,7 +38,7 @@ namespace Adapter.ReplayRedisMD
             tbMessage.Text += string.Format("REDIS_DB_IP={0}", DefaultSettings.Instance.REDIS_DB_IP) + Environment.NewLine;
             tbMessage.Text += string.Format("REDIS_DB_PORT={0}", DefaultSettings.Instance.REDIS_DB_PORT);
 
-            SendReplayQuotes( DefaultSettings.Instance.PUB_ADDRESS);
+            SendReplayQuotes(DefaultSettings.Instance.PUB_ADDRESS);
         }
 
         private void SendReplayQuotes(string PUB_ADDRESS)
@@ -64,7 +64,7 @@ namespace Adapter.ReplayRedisMD
                         {
                             var prefixAry = data.Key.Split('#');
                             prefix = string.Format("{0}#{1}#{2}#", prefixAry[0], prefixAry[1], prefixAry[2]);
-                            socket.SendMoreFrame(data.Key).SendFrame(data.Value);
+                            socket.SendMoreFrame(prefix).SendFrame(data.Value);
                         }
                     }
                     catch (Exception ex)

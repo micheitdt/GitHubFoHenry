@@ -392,14 +392,19 @@ namespace Service.Redis.GlobalMD.ViewModels
         /// </summary>
         private void Api_QuotesByteArrayReceived(object sender, MarketDataApi.MarketDataApi.QuotesByteArrayEventArgs e)
         {
-            App.Current.Dispatcher.Invoke((Action)(() =>
+            try
             {
-                var data = Encoding.UTF8.GetString(e.KeyData);
-                _client.Set<byte[]>(data+ _gridSeq, e.PacketData);
-                _client.SetEntryInHash(Parameter.ORIGINAL_MD_HASH_KEY, data + _gridSeq, "");
-                _logger.Debug(string.Format("Redis新增{0}", data + _gridSeq));
-                _gridSeq++;
-            }));
+                App.Current.Dispatcher.Invoke((Action)(() =>
+                {
+                    var data = Encoding.UTF8.GetString(e.KeyData);
+                    _client.Set<byte[]>(data + _gridSeq, e.PacketData);
+                    _client.SetEntryInHash(Parameter.ORIGINAL_MD_HASH_KEY, data + _gridSeq, "");
+                    _logger.Debug(string.Format("Redis新增{0}", data + _gridSeq));
+                    _gridSeq++;
+                }));
+            }
+            catch(Exception)
+            { }
         }
         #endregion
 

@@ -854,13 +854,13 @@ namespace MarketDataApiExample.ViewModels
                     foreach (SymbolTaifex data in _symbolTaifexDictionary)
                     {
                         api.Sub(AdapterCode.TAIFEX_FUTURES_DAY, "I020", data.SymbolNo);
-                        //System.Threading.Thread.Sleep(1);
+                        System.Threading.Thread.Sleep(1);
                         api.Sub(AdapterCode.TAIFEX_FUTURES_DAY, "I080", data.SymbolNo);
-                        //System.Threading.Thread.Sleep(1);
+                        System.Threading.Thread.Sleep(1);
                         api.Sub(AdapterCode.TAIFEX_OPTIONS_DAY, "I020", data.SymbolNo);
-                        //System.Threading.Thread.Sleep(1);
+                        System.Threading.Thread.Sleep(1);
                         api.Sub(AdapterCode.TAIFEX_OPTIONS_DAY, "I080", data.SymbolNo);
-                        //System.Threading.Thread.Sleep(1);
+                        System.Threading.Thread.Sleep(1);
                         //GeneralSupscribeSymbol("4-期貨PM盤", "I020", data.SymbolNo);
                         //GeneralSupscribeSymbol("4-期貨PM盤", "I080", data.SymbolNo);
                         //GeneralSupscribeSymbol("5-選擇權PM盤", "I020", data.SymbolNo);
@@ -869,18 +869,18 @@ namespace MarketDataApiExample.ViewModels
                     foreach (SymbolTpex data in _symbolTpexDictionary)
                     {
                         api.Sub(AdapterCode.TPEX, "6", data.SymbolNo);
-                        //System.Threading.Thread.Sleep(1);
+                        System.Threading.Thread.Sleep(1);
                         api.Sub(AdapterCode.TPEX, "17", data.SymbolNo);
-                        //System.Threading.Thread.Sleep(1);
+                        System.Threading.Thread.Sleep(1);
                         //GeneralSupscribeSymbol("1-上櫃", "6", data.SymbolNo);
                         //GeneralSupscribeSymbol("1-上櫃", "17", data.SymbolNo);
                     }
                     foreach (SymbolTse data in _symbolTseDictionary)
                     {
                         api.Sub(AdapterCode.TSE, "6", data.SymbolNo);
-                        //System.Threading.Thread.Sleep(1);
+                        System.Threading.Thread.Sleep(1);
                         api.Sub(AdapterCode.TSE, "17", data.SymbolNo);
-                        //System.Threading.Thread.Sleep(1);
+                        System.Threading.Thread.Sleep(1);
                         //GeneralSupscribeSymbol("0-上市", "6", data.SymbolNo);
                         //GeneralSupscribeSymbol("0-上市", "17", data.SymbolNo);
                     }
