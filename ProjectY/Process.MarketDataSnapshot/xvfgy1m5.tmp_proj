@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{E59DB3FC-4A83-45CE-9BAA-BE02FBDCD00B}</ProjectGuid>
+    <ProjectGuid>{34AD77CE-E5E7-4423-BCAB-876399BAFA54}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Adapter.ReplayRedisMD</RootNamespace>
-    <AssemblyName>Adapter.ReplayRedisMD</AssemblyName>
+    <RootNamespace>Process.MarketDataSnapshot</RootNamespace>
+    <AssemblyName>Process.MarketDataSnapshot</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -36,59 +36,14 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="AsyncIO, Version=0.1.18.0, Culture=neutral, PublicKeyToken=44a94435bd6f33f8, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\CommonLibrary\Resources\AsyncIO.dll</HintPath>
-    </Reference>
-    <Reference Include="JetBrains.Annotations, Version=10.0.0.0, Culture=neutral, PublicKeyToken=1010a0d8d6380325, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\CommonLibrary\Resources\JetBrains.Annotations.dll</HintPath>
-    </Reference>
-    <Reference Include="NetMQ, Version=4.0.0.0, Culture=neutral, PublicKeyToken=a6decef4ddc58b3a, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\CommonLibrary\Resources\NetMQ.dll</HintPath>
-    </Reference>
-    <Reference Include="ServiceStack.Common">
-      <HintPath>..\CommonLibrary\Resources\ServiceStack.Common.dll</HintPath>
-    </Reference>
-    <Reference Include="ServiceStack.Interfaces">
-      <HintPath>..\CommonLibrary\Resources\ServiceStack.Interfaces.dll</HintPath>
-    </Reference>
-    <Reference Include="ServiceStack.Redis">
-      <HintPath>..\CommonLibrary\Resources\ServiceStack.Redis.dll</HintPath>
-    </Reference>
-    <Reference Include="ServiceStack.Text">
-      <HintPath>..\CommonLibrary\Resources\ServiceStack.Text.dll</HintPath>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Xaml">
-      <RequiredTargetFramework>4.0</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="WindowsBase" />
-    <Reference Include="PresentationCore" />
-    <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
-    <ApplicationDefinition Include="App.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </ApplicationDefinition>
-    <Page Include="MainWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
+    <Compile Include="DefaultSettings.cs" />
+    <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DefaultSettings.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -129,6 +84,10 @@
       <Project>{9d37d39e-bb99-4b75-9f25-cd9d2c993915}</Project>
       <Name>CommonLibrary</Name>
     </ProjectReference>
+    <ProjectReference Include="..\MarketDataApi\MarketDataApi.csproj">
+      <Project>{4e233e12-b86b-46ef-9525-2922796d28df}</Project>
+      <Name>MarketDataApi</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
@@ -138,4 +97,29 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <ItemGroup>
+    <ReferencePath Include="C:\Users\90870\Documents\GitHubFoHenry\ProjectY\CommonLibrary\bin\Debug\CommonLibrary.dll" />
+    <ReferencePath Include="C:\Users\90870\Documents\GitHubFoHenry\ProjectY\MarketDataApi\bin\Debug\MarketDataApi.dll" />
+    <ReferencePath Include="C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\Microsoft.CSharp.dll" />
+    <ReferencePath Include="C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\mscorlib.dll" />
+    <ReferencePath Include="C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\PresentationCore.dll" />
+    <ReferencePath Include="C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\PresentationFramework.dll" />
+    <ReferencePath Include="C:\Users\90870\Documents\GitHubFoHenry\ProjectY\CommonLibrary\Resources\ServiceStack.Common.dll" />
+    <ReferencePath Include="C:\Users\90870\Documents\GitHubFoHenry\ProjectY\CommonLibrary\Resources\ServiceStack.Interfaces.dll" />
+    <ReferencePath Include="C:\Users\90870\Documents\GitHubFoHenry\ProjectY\CommonLibrary\Resources\ServiceStack.Redis.dll" />
+    <ReferencePath Include="C:\Users\90870\Documents\GitHubFoHenry\ProjectY\CommonLibrary\Resources\ServiceStack.Text.dll" />
+    <ReferencePath Include="C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\System.Core.dll" />
+    <ReferencePath Include="C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\System.Data.DataSetExtensions.dll" />
+    <ReferencePath Include="C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\System.Data.dll" />
+    <ReferencePath Include="C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\System.dll" />
+    <ReferencePath Include="C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\System.Net.Http.dll" />
+    <ReferencePath Include="C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\System.Xaml.dll" />
+    <ReferencePath Include="C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\System.Xml.dll" />
+    <ReferencePath Include="C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\System.Xml.Linq.dll" />
+    <ReferencePath Include="C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\WindowsBase.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="C:\Users\90870\Documents\GitHubFoHenry\ProjectY\Process.MarketDataSnapshot\obj\Debug\MainWindow.g.cs" />
+    <Compile Include="C:\Users\90870\Documents\GitHubFoHenry\ProjectY\Process.MarketDataSnapshot\obj\Debug\App.g.cs" />
+  </ItemGroup>
 </Project>

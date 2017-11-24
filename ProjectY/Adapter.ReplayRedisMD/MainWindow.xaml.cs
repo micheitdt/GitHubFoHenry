@@ -54,13 +54,6 @@ namespace Adapter.ReplayRedisMD
                     try
                     {
                         string prefix;
-                        //TODO未讀所有行情重送
-                        //CommonLibrary.Model.PacketTAIFEX.TaifexI020List.AllTaifexI020List;
-                        //CommonLibrary.Model.PacketTAIFEX.TaifexI080List.AllTaifexI080List;
-                        //CommonLibrary.Model.PacketTPEX.TpexFormat6List.AllTpexFormat6List;
-                        //CommonLibrary.Model.PacketTPEX.TpexFormat17List.AllTpexFormat17List;
-                        //CommonLibrary.Model.PacketTSE.TseFormat6List.AllTseFormat6List;
-                        //CommonLibrary.Model.PacketTSE.TseFormat17List.AllTseFormat17List;
                         foreach (var data in Utility.GetOriginalRedisDB(_client, ORIGINAL_MD_HASH_KEY))
                         {
                             var prefixAry = data.Key.Split('#');

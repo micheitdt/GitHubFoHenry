@@ -69,7 +69,20 @@ namespace Adapter.TaifexFD
                                     case "22":
                                     case "27":
                                     case "28":
+                                    case "12":
+                                    case "25":
+                                    case "26":
+                                    //case "34":複式商品
                                         productID = Encoding.ASCII.GetString(bytes, 14, 20).Trim();
+                                        prefix = string.Format("2#{0}#{1}#", formatCode, productID);
+                                        socket.SendMoreFrame(prefix).SendFrame(bytes);
+                                        break;
+                                    case "11":
+                                    case "24":
+                                    case "31":
+                                    case "32":
+                                    case "33":
+                                        productID = Encoding.ASCII.GetString(bytes, 14, 10).Trim();
                                         prefix = string.Format("2#{0}#{1}#", formatCode, productID);
                                         socket.SendMoreFrame(prefix).SendFrame(bytes);
                                         break;

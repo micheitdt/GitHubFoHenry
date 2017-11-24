@@ -684,7 +684,6 @@ namespace CommonLibrary.Model
 
         public static void SetSymbolTseDataList(IDictionary<string, MarketDataApi.Model.PacketTSE.Format1> data)
         {
-            AllSymbolTseList = new SymbolTseList();
             foreach (var obj in data)
             {
                 AllSymbolTseList.TryAdd(obj.Key, new SymbolTse(obj.Value));

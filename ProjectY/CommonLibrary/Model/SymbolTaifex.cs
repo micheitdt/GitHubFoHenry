@@ -396,7 +396,6 @@ namespace CommonLibrary.Model
 
         public static void SetSymbolTaifexDataList(IDictionary<string, MarketDataApi.Model.PacketTAIFEX.I010> data)
         {
-            AllSymbolTaifexList = new SymbolTaifexList();
             foreach (var obj in data)
             {
                 AllSymbolTaifexList.TryAdd(obj.Key, new SymbolTaifex(obj.Value));

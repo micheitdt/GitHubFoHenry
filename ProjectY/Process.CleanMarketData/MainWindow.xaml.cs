@@ -2,13 +2,29 @@
 using System;
 using System.Windows;
 
-namespace Service.Redis.CleanMD
+namespace Process.CleanMarketData
 {
     /// <summary>
     /// MainWindow.xaml 的互動邏輯
     /// </summary>
     public partial class MainWindow : Window
     {
+        private const string TSE_FORMAT1_HASH_KEY = "0#1";
+        private const string TPEX_FORMAT1_HASH_KEY = "1#1";
+        private const string FUTURES_I010_HASH_KEY = "2#11";
+        private const string OPTION_I010_HASH_KEY = "3#11";
+        private const string TSE_FORMAT6_HASH_KEY = "0#6";
+        private const string TPEX_FORMAT6_HASH_KEY = "1#6";
+        private const string TSE_FORMAT17_HASH_KEY = "0#17";
+        private const string TPEX_FORMAT17_HASH_KEY = "1#17";
+        private const string FUTURES_I020_HASH_KEY = "2#21";
+        private const string FUTURES_I080_HASH_KEY = "2#22";
+        private const string OPTION_I020_HASH_KEY = "3#21";
+        private const string OPTION_I080_HASH_KEY = "3#22";
+
+        private static readonly string[] ALL_HASH_KEY = { TSE_FORMAT1_HASH_KEY, TPEX_FORMAT1_HASH_KEY, FUTURES_I010_HASH_KEY, OPTION_I010_HASH_KEY,
+        TSE_FORMAT6_HASH_KEY , TPEX_FORMAT6_HASH_KEY, TSE_FORMAT17_HASH_KEY, TPEX_FORMAT17_HASH_KEY, FUTURES_I020_HASH_KEY, FUTURES_I080_HASH_KEY, OPTION_I020_HASH_KEY, OPTION_I080_HASH_KEY};
+
         public MainWindow()
         {
             InitializeComponent();
@@ -29,7 +45,7 @@ namespace Service.Redis.CleanMD
             tbMessage.Text += string.Format("REDIS_DB_PORT={0}", DefaultSettings.Instance.REDIS_DB_PORT);
 
             RedisClient client = new RedisClient(DefaultSettings.Instance.REDIS_DB_IP, DefaultSettings.Instance.REDIS_DB_PORT);//預設第1個db
-            client.FlushDb();
+            client.Del(ALL_HASH_KEY);
             MessageBox.Show("已清空Redis資料", "注意", MessageBoxButton.OK);
             Environment.Exit(0);
         }

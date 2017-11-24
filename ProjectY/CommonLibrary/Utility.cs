@@ -10,6 +10,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading.Tasks;
 using MarketDataApi;
+using System.Collections;
 
 namespace CommonLibrary
 {
@@ -27,6 +28,23 @@ namespace CommonLibrary
             }
             return true;
         }
+
+        public static void SaveLog(string value, string path = "")
+        {
+            if(string.IsNullOrEmpty( path))
+            {
+                path = Environment.CurrentDirectory + "\\" + DateTime.Today.ToString("yyyyMMddHH");
+            }
+
+            using (StreamWriter sw = File.AppendText(path))
+            {
+                //開始寫入
+                sw.WriteLine(value);
+                //清空緩衝區
+                sw.Flush();
+            }
+        }
+
         /// <summary>
         /// 測試連接
         /// </summary>
@@ -88,6 +106,8 @@ namespace CommonLibrary
                 { typeof(MarketDataApi.Model.PacketTPEX.Format17), () => { conndb.Set<MarketDataApi.Model.PacketTPEX.Format17>(key, data as MarketDataApi.Model.PacketTPEX.Format17); conndb.SetEntryInHash(hashid, key, ""); }},
                 { typeof(MarketDataApi.Model.PacketTAIFEX.I020), () => { conndb.Set<MarketDataApi.Model.PacketTAIFEX.I020>(key, data as MarketDataApi.Model.PacketTAIFEX.I020); conndb.SetEntryInHash(hashid, key, ""); }},
                 { typeof(MarketDataApi.Model.PacketTAIFEX.I080), () => { conndb.Set<MarketDataApi.Model.PacketTAIFEX.I080>(key, data as MarketDataApi.Model.PacketTAIFEX.I080); conndb.SetEntryInHash(hashid, key, ""); }},
+                { typeof(MarketDataApi.Model.PacketTAIFEX.I022), () => { conndb.Set<MarketDataApi.Model.PacketTAIFEX.I022>(key, data as MarketDataApi.Model.PacketTAIFEX.I022); conndb.SetEntryInHash(hashid, key, ""); }},
+                { typeof(MarketDataApi.Model.PacketTAIFEX.I082), () => { conndb.Set<MarketDataApi.Model.PacketTAIFEX.I082>(key, data as MarketDataApi.Model.PacketTAIFEX.I082); conndb.SetEntryInHash(hashid, key, ""); }},
             };
             switchTypeAction[data.GetType()]();
 
@@ -180,13 +200,138 @@ namespace CommonLibrary
                 data[offset + i] = array[i];
             }
         }
-
-        public static void SetBytes(ref byte[] data, int offset, int value)
+        /// <summary>
+        /// 帶int取得動態byte
+        /// </summary>
+        public static int SetIntToDynamicBytes(ref byte[] data, int offset, UInt32 value)
         {
-            data[offset] = (byte)value;
-            data[offset + 1] = (byte)(value >> 8);
-            data[offset + 2] = (byte)(value >> 16);
-            data[offset + 3] = (byte)(value >> 24);
+            if(value.CompareTo(64) >= 0)
+            {
+                if(value.CompareTo(16384) >= 0)//(16384~1073741824)
+                {
+                    Byte[] byteArray = BitConverter.GetBytes(value);
+                    BitArray bitAry = new BitArray(new byte[] { byteArray[0], byteArray[1], byteArray[2], byteArray[3] });
+                    BitArray retBitAry = new BitArray(new byte[4]);
+                    for (int i = 2; i < bitAry.Count; i++)
+                    {
+                        retBitAry[i] = bitAry[i - 2];
+                    }
+                    //標示4byte
+                    retBitAry[0] = true;
+                    retBitAry[1] = true;
+
+                    retBitAry.CopyTo(byteArray, 0);
+                    data[offset] = byteArray[0];
+                    data[offset + 1] = byteArray[1];
+                    data[offset + 2] = byteArray[2];
+                    data[offset + 3] = byteArray[3];
+                    return 4;
+                }
+                else//(64~16383)
+                {
+                    //EX：10000001.00000000 => 00100000.10100000(右移2位後。第1bit改1因為使用2byte)
+                    Byte[] byteArray = BitConverter.GetBytes(value);
+                    BitArray bitAry = new BitArray(new byte[] { byteArray[0], byteArray[1] });
+                    BitArray retBitAry = new BitArray(new byte[2]);
+                    for (int i = 2; i < bitAry.Count; i++)
+                    {
+                        retBitAry[i] = bitAry[i - 2];
+                    }
+                    //標示2byte
+                    retBitAry[0] = true;
+                    retBitAry[1] = false;
+
+                    retBitAry.CopyTo(byteArray, 0);
+                    data[offset] = byteArray[0];
+                    data[offset + 1] = byteArray[1];
+                    return 2;
+                }
+            }
+            else//(0~63)
+            {
+                Byte[] byteArray = BitConverter.GetBytes(value);
+                BitArray bitAry = new BitArray(new byte[] { byteArray[0]});
+                BitArray retBitAry = new BitArray(new byte[1]);
+                for (int i = 2; i < bitAry.Count; i++)
+                {
+                    retBitAry[i] = bitAry[i - 2];
+                }
+                //標示1byte
+                retBitAry[0] = false;
+                retBitAry[1] = false;
+
+                retBitAry.CopyTo(byteArray, 0);
+                data[offset] = byteArray[0];
+                return 1;
+            }
+        }
+        /// <summary>
+        /// 帶動態byte取得int值
+        /// </summary>
+        public static int GetIntToDynamicBytes(byte[] data, int offset)
+        {
+            BitArray bitAry = new BitArray(new byte[] { data[offset] });
+            if(bitAry[0] == false)//1 byte
+            {
+                BitArray retBitAry = new BitArray(new byte[] { data[offset + 0] });
+                for (int i = 2; i < 8; i++)
+                {
+                    retBitAry[i - 2] = retBitAry[i];
+                }
+                retBitAry[6] = false;
+                retBitAry[7] = false;
+                byte[] ret = new byte[1];
+                retBitAry.CopyTo(ret, 0);
+                return ret[0];
+            }
+            else
+            {
+                if (bitAry[1] == false)//2 byte
+                {
+                    BitArray retBitAry = new BitArray(new byte[] { data[offset + 0], data[offset + 1] });
+
+                    for(int i = 2; i < 16; i++)
+                    {
+                        retBitAry[i - 2] = retBitAry[i];
+                    }
+                    retBitAry[14] = false;
+                    retBitAry[15] = false;
+                    byte[] ret = new byte[2];
+                    retBitAry.CopyTo(ret, 0);
+                    return ret[0] | (ret[1] << 8);
+                }
+                else//4 byte
+                {
+                    BitArray retBitAry = new BitArray(new byte[] { data[offset + 0], data[offset + 1], data[offset + 2], data[offset + 3] });
+
+                    for (int i = 2; i < 32; i++)
+                    {
+                        retBitAry[i - 2] = retBitAry[i];
+                    }
+                    retBitAry[30] = false;
+                    retBitAry[31] = false;
+                    byte[] ret = new byte[4];
+                    retBitAry.CopyTo(ret, 0);
+                    return ret[0] | (ret[1] << 8) | ret[2] << 16 | (ret[3] << 32);
+                }
+            }
+        }
+        /// <summary>
+        /// string to byte array
+        /// </summary>
+        public static int SetStringToDynamicBytes(ref byte[] data, int offset, string value)
+        {
+            Byte[] byteArray = Encoding.Default.GetBytes(value);
+            byteArray.CopyTo(data, 1);
+            return byteArray.Count() + 1;
+        }
+        /// <summary>
+        /// byte array to string
+        /// </summary>
+        public static string GetStringToDynamicBytes(byte[] data, int offset)
+        {
+           string retValue = Encoding.Default.GetString(data.Take(data[0]).ToArray());
+            return retValue;
         }
         #endregion
     }

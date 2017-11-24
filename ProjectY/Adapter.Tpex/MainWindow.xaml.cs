@@ -66,6 +66,7 @@ namespace Adapter.Tpex
                                 formatCode = Functions.ConvertToFormat9(bytes, 4, 1);
                                 switch (formatCode)
                                 {
+                                    case 1:
                                     case 6:
                                         stockID = Encoding.ASCII.GetString(bytes, 10, 6).Trim();
                                         prefix = string.Format("1#{0}#{1}#", formatCode, stockID);

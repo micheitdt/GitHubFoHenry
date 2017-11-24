@@ -69,7 +69,19 @@ namespace Adapter.TaifexON
                                     case "52":
                                     case "57":
                                     case "58":
+                                    case "42":
+                                    case "55":
+                                    case "56":
                                         productID = Encoding.ASCII.GetString(bytes, 14, 20).Trim();
+                                        prefix = string.Format("5#{0}#{1}#", formatCode, productID);
+                                        socket.SendMoreFrame(prefix).SendFrame(bytes);
+                                        break;
+                                    case "41":
+                                    case "54":
+                                    case "61":
+                                    case "62":
+                                    case "63":
+                                        productID = Encoding.ASCII.GetString(bytes, 14, 10).Trim();
                                         prefix = string.Format("5#{0}#{1}#", formatCode, productID);
                                         socket.SendMoreFrame(prefix).SendFrame(bytes);
                                         break;

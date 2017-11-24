@@ -15,12 +15,6 @@ namespace MarketDataApi
         public int MatchQuantity;
     }
     
-    public struct PriceVolumeS
-    {
-        public string Price;
-        public int Volume;
-    }
-    
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi, Pack = 1)]
     public struct PriceUpdateStruct
     {

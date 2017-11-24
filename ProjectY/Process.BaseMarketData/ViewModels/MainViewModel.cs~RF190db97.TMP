@@ -3,19 +3,25 @@ using MarketDataApi;
 using NLog;
 using ServiceStack.Redis;
 using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using CommonLibrary;
 
 namespace Service.Redis.GlobalMD.ViewModels
 {
-    public class MainViewModel
+    public class MainViewModel : INotifyPropertyChanged
     {
+
         private static MainViewModel _instance;
         MarketDataApi.MarketDataApi api;
         RedisClient _client;
-        //錄制商品
-        private long _gridSeq = 1;
+        private SymbolTseList _symbolTseDictionary = new SymbolTseList();
+        private SymbolTpexList _symbolTpexDictionary = new SymbolTpexList();
+        private SymbolTaifexList _symbolTaifexDictionary = new SymbolTaifexList();
 
         #region prop
         /// <summary>
@@ -84,41 +90,15 @@ namespace Service.Redis.GlobalMD.ViewModels
                             //盤前訊息订阅
                             api.Sub(AdapterCode.TAIFEX_FUTURES_DAY, "I010");
                             api.Sub(AdapterCode.TAIFEX_OPTIONS_DAY, "I010");
-                            api.Sub(AdapterCode.TAIFEX_FUTURES_NIGHT, "I010");
-                            api.Sub(AdapterCode.TAIFEX_OPTIONS_NIGHT, "I010");
                             api.Sub(AdapterCode.TSE, "1");
                             api.Sub(AdapterCode.TPEX, "1");
                             break;
                         }
                     case "2":
                         {
-                            _logger.Debug("盤中資料方法-錄制期/現貨日盤商品訊息");
-                            api = new MarketDataApi.MarketDataApi(DefaultSettings.Instance.UDP_IP, DefaultSettings.Instance.UDP_PORT);
-                            //api.TaifexI020Received += api_TaifexI020Received;  /// <- 期貨I020[成交]回呼事件
-                            //api.TaifexI080Received += api_TaifexI080Received;  /// <- 期貨I080[委買委賣]回呼事件
-                            //api.TaifexI022Received += Api_TaifexI022Received;
-                            //api.TaifexI082Received += Api_TaifexI082Received;
-                            //api.TseFormat6Received += api_TseFormat6Received;  /// <- 上市現貨格式6(Format6)回呼事件
-                            //api.TpexFormat6Received += api_TpexFormat6Received; /// <- 上櫃現貨格式6(Format6)回呼事件
-                            //api.TseFormat17Received += api_TseFormat17Received;  /// <- 上市現貨格式6(Format17)回呼事件
-                            //api.TpexFormat17Received += api_TpexFormat17Received; /// <- 上櫃現貨格式6(Format17)回呼事件
-                            api.QuotesByteArrayReceived += Api_QuotesByteArrayReceived;/// <- 原始資料回呼事件
-                            api.Sub(AdapterCode.TAIFEX_FUTURES_NIGHT, "I020");
-                            api.Sub(AdapterCode.TAIFEX_FUTURES_NIGHT, "I080");
-                            api.Sub(AdapterCode.TAIFEX_OPTIONS_NIGHT, "I020");
-                            api.Sub(AdapterCode.TAIFEX_OPTIONS_NIGHT, "I080");
-                            api.Sub(AdapterCode.TAIFEX_FUTURES_DAY, "I020");
-                            api.Sub(AdapterCode.TAIFEX_FUTURES_DAY, "I080");
-                            api.Sub(AdapterCode.TAIFEX_OPTIONS_DAY, "I020");
-                            api.Sub(AdapterCode.TAIFEX_OPTIONS_DAY, "I080");
-                            api.Sub(AdapterCode.TSE, "6");
-                            api.Sub(AdapterCode.TSE, "17");
-                            api.Sub(AdapterCode.TPEX, "6");
-                            api.Sub(AdapterCode.TPEX, "17");
                             break;
                         }
                     default:
-                        _logger.Error("LoadTSEData(): ErrMsg = LOAD_MD_MODE無法辨視.");
                         break;
                 }
             }
@@ -150,7 +130,7 @@ namespace Service.Redis.GlobalMD.ViewModels
                         {
                             continue;
                         }
-                        MarketDataApi.Model.PacketTSE.Format1 data = new MarketDataApi.Model.PacketTSE.Format1(Encoding.Default.GetBytes(line));
+                        CommonLibrary.Model.PacketTSE.Format1 data = new CommonLibrary.Model.PacketTSE.Format1(Encoding.Default.GetBytes(line));
                         AddSymbolTseDictionary(data);
                     }
                 }
@@ -160,7 +140,7 @@ namespace Service.Redis.GlobalMD.ViewModels
                 _logger.Error(err, string.Format("LoadTSEData(): ErrMsg = {0}.", err.Message));
             }
         }
-        private void AddSymbolTseDictionary(MarketDataApi.Model.PacketTSE.Format1 data)
+        private void AddSymbolTseDictionary(CommonLibrary.Model.PacketTSE.Format1 data)
         {
             if (string.IsNullOrEmpty(data.StockID) || SymbolTseList.AllSymbolTseList.ContainsKey(data.StockID))
             {
@@ -174,7 +154,7 @@ namespace Service.Redis.GlobalMD.ViewModels
             else
             {
                 SymbolTseList.AddSymbolTseData(temp);
-                Utility.SetRedisDB(_client, Parameter.TSE_FORMAT1_HASH_KEY, data.StockID, data);
+                Utility.SetRedisDB(_client, Parameter.TSE_HASH_KEY, data.StockID, data);
                 _logger.Debug(string.Format("Redis新增TSE：{0}    {1}", data.StockID, data.StockName));
             }
         }
@@ -199,7 +179,7 @@ namespace Service.Redis.GlobalMD.ViewModels
                         {
                             continue;
                         }
-                        MarketDataApi.Model.PacketTPEX.Format1 data = new MarketDataApi.Model.PacketTPEX.Format1(Encoding.Default.GetBytes(line));
+                        CommonLibrary.Model.PacketTPEX.Format1 data = new CommonLibrary.Model.PacketTPEX.Format1(Encoding.Default.GetBytes(line));
                         AddSymbolTpexDictionary(data);
                     }
                 }
@@ -209,7 +189,7 @@ namespace Service.Redis.GlobalMD.ViewModels
                 _logger.Error(err, string.Format("LoadData(): ErrMsg = {0}.", err.Message));
             }
         }
-        private void AddSymbolTpexDictionary(MarketDataApi.Model.PacketTPEX.Format1 data)
+        private void AddSymbolTpexDictionary(CommonLibrary.Model.PacketTPEX.Format1 data)
         {
             if (string.IsNullOrEmpty(data.StockID) || SymbolTpexList.AllSymbolTpexList.ContainsKey(data.StockID))
             {
@@ -223,7 +203,7 @@ namespace Service.Redis.GlobalMD.ViewModels
             else
             {
                 SymbolTpexList.AddSymbolTpexData(temp);
-                Utility.SetRedisDB(_client, Parameter.TPEX_FORMAT1_HASH_KEY, data.StockID, data);
+                Utility.SetRedisDB(_client, Parameter.TPEX_HASH_KEY, data.StockID, data);
                 _logger.Debug(string.Format("Redis新增TPEX：{0}    {1}", data.StockID, data.StockName));
             }
         }
@@ -248,7 +228,7 @@ namespace Service.Redis.GlobalMD.ViewModels
                         {
                             continue;
                         }
-                        MarketDataApi.Model.PacketTAIFEX.I010 data = new MarketDataApi.Model.PacketTAIFEX.I010(Encoding.Default.GetBytes(line), 0);
+                        CommonLibrary.Model.PacketTAIFEX.I010 data = new CommonLibrary.Model.PacketTAIFEX.I010(Encoding.Default.GetBytes(line), 0);
                         AddSymbolTaifexDictionary(data);
                     }
                 }
@@ -258,7 +238,7 @@ namespace Service.Redis.GlobalMD.ViewModels
                 _logger.Error(err, string.Format("LoadData(): ErrMsg = {0}.", err.Message));
             }
         }
-        private void AddSymbolTaifexDictionary(MarketDataApi.Model.PacketTAIFEX.I010 data)
+        private void AddSymbolTaifexDictionary(CommonLibrary.Model.PacketTAIFEX.I010 data)
         {
             if (string.IsNullOrEmpty(data.B_ProdId) || SymbolTaifexList.AllSymbolTaifexList.ContainsKey(data.B_ProdId))
             {
@@ -268,7 +248,7 @@ namespace Service.Redis.GlobalMD.ViewModels
             SymbolTaifex temp = new SymbolTaifex(data);
             SymbolTaifexList.AddSymbolTalfexData(temp);
             
-            Utility.SetRedisDB(_client, Parameter.I010_HASH_KEY, data.B_ProdId, data);
+            Utility.SetRedisDB(_client, Parameter.TAIFEX_HASH_KEY, data.B_ProdId, data);
             string typeName = (data.H_TransmissionCode == "1") ? "期貨" : "選擇權";//4:選擇權
             _logger.Debug(string.Format("Redis新增{0}：{1}", typeName, data.B_ProdId));
         }
@@ -309,123 +289,6 @@ namespace Service.Redis.GlobalMD.ViewModels
             }));
         }
         //------------------------------------------------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// 期貨I022[資訊]回呼事件
-        /// </summary>
-        private void Api_TaifexI022Received(object sender, MarketDataApi.MarketDataApi.TaifexI022ReceivedEventArgs e)
-        {
-            Utility.SetRedisDB(_client, Parameter.I022_HASH_KEY, e.PacketData.B_ProdId + _gridSeq, e.PacketData);
-            _logger.Debug(string.Format("Redis新增{0}：{1}", "I022" + _gridSeq, e.PacketData.B_ProdId));
-            _gridSeq++;
-        }
-        //------------------------------------------------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// 期貨I082[資訊]回呼事件
-        /// </summary>
-        private void Api_TaifexI082Received(object sender, MarketDataApi.MarketDataApi.TaifexI082ReceivedEventArgs e)
-        {
-            Utility.SetRedisDB(_client, Parameter.I082_HASH_KEY, e.PacketData.B_ProdId + _gridSeq, e.PacketData);
-            _logger.Debug(string.Format("Redis新增{0}：{1}", "I082" + _gridSeq, e.PacketData.B_ProdId));
-            _gridSeq++;
-        }
-        //------------------------------------------------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// 期貨I080[委買委賣]回呼事件
-        /// </summary>
-        void api_TaifexI080Received(object sender, MarketDataApi.MarketDataApi.TaifexI080ReceivedEventArgs e)
-        {
-            App.Current.Dispatcher.Invoke((Action)(() =>
-            {
-                Utility.SetRedisDB(_client, Parameter.I080_HASH_KEY, e.PacketData.B_ProdId + _gridSeq, e.PacketData);
-                _logger.Debug(string.Format("Redis新增{0}：{1}", "I080" + _gridSeq, e.PacketData.B_ProdId));
-                _gridSeq++;
-            }));
-        }
-        //------------------------------------------------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// 期貨I020[成交]回呼事件
-        /// </summary>
-        void api_TaifexI020Received(object sender, MarketDataApi.MarketDataApi.TaifexI020ReceivedEventArgs e)
-        {
-            App.Current.Dispatcher.Invoke((Action)(() =>
-            {
-                Utility.SetRedisDB(_client, Parameter.I020_HASH_KEY, e.PacketData.B_ProdId + _gridSeq, e.PacketData);
-                _logger.Debug(string.Format("Redis新增{0}：{1}", "I020" + _gridSeq, e.PacketData.B_ProdId));
-                _gridSeq++;
-            }));
-        }
-        //------------------------------------------------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// 上櫃現貨格式6回呼事件
-        /// </summary>
-        void api_TpexFormat6Received(object sender, MarketDataApi.MarketDataApi.TpexFormat6ReceivedEventArgs e)
-        {
-            App.Current.Dispatcher.Invoke((Action)(() =>
-            {
-                Utility.SetRedisDB(_client, Parameter.TPEX_FORMAT6_HASH_KEY, e.PacketData.StockID + _gridSeq, e.PacketData);
-                _logger.Debug(string.Format("Redis新增{0}：{1}", "上櫃格式6" + _gridSeq, e.PacketData.StockID));
-                _gridSeq++;
-            }));
-        }
-        //------------------------------------------------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// 上市現貨格式6回呼事件
-        /// </summary>
-        void api_TseFormat6Received(object sender, MarketDataApi.MarketDataApi.TseFormat6ReceivedEventArgs e)
-        {
-            App.Current.Dispatcher.Invoke((Action)(() =>
-            {
-                Utility.SetRedisDB(_client, Parameter.TSE_FORMAT6_HASH_KEY, e.PacketData.StockID + _gridSeq, e.PacketData);
-                _logger.Debug(string.Format("Redis新增{0}：{1}", "上市格式6" + _gridSeq, e.PacketData.StockID));
-                _gridSeq++;
-            }));
-        }
-        //------------------------------------------------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// 上櫃現貨格式17回呼事件
-        /// </summary>
-        void api_TpexFormat17Received(object sender, MarketDataApi.MarketDataApi.TpexFormat17ReceivedEventArgs e)
-        {
-            App.Current.Dispatcher.Invoke((Action)(() =>
-            {
-                Utility.SetRedisDB(_client, Parameter.TPEX_FORMAT17_HASH_KEY, e.PacketData.StockID + _gridSeq, e.PacketData);
-                _logger.Debug(string.Format("Redis新增{0}：{1}", "上櫃格式17" + _gridSeq, e.PacketData.StockID));
-                _gridSeq++;
-            }));
-        }
-        //------------------------------------------------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// 上市現貨格式17回呼事件
-        /// </summary>
-        void api_TseFormat17Received(object sender, MarketDataApi.MarketDataApi.TseFormat17ReceivedEventArgs e)
-        {
-            App.Current.Dispatcher.Invoke((Action)(() =>
-            {
-                Utility.SetRedisDB(_client, Parameter.TSE_FORMAT17_HASH_KEY, e.PacketData.StockID + _gridSeq, e.PacketData);
-                _logger.Debug(string.Format("Redis新增{0}：{1}", "上市格式17" + _gridSeq, e.PacketData.StockID));
-                _gridSeq++;
-            }));
-        }
-        //------------------------------------------------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// 行情原始資料回呼事件
-        /// </summary>
-        private void Api_QuotesByteArrayReceived(object sender, MarketDataApi.MarketDataApi.QuotesByteArrayEventArgs e)
-        {
-            try
-            {
-                App.Current.Dispatcher.Invoke((Action)(() =>
-                {
-                    var data = Encoding.UTF8.GetString(e.KeyData);
-                    _client.Set<byte[]>(data + _gridSeq, e.PacketData);
-                    _client.SetEntryInHash(Parameter.ORIGINAL_MD_HASH_KEY, data + _gridSeq, "");
-                    _logger.Debug(string.Format("Redis新增{0}", data + _gridSeq));
-                    _gridSeq++;
-                }));
-            }
-            catch(Exception)
-            { }
-        }
         #endregion
 
         #region Logger
@@ -434,5 +297,14 @@ namespace Service.Redis.GlobalMD.ViewModels
         /// </summary>
         private static Logger _logger = LogManager.GetCurrentClassLogger();
         #endregion Logger
+
+        #region INotifyPropertyChanged
+        public event PropertyChangedEventHandler PropertyChanged;
+        public void OnPropertyChanged(string name)
+        {
+            if (this.PropertyChanged != null)
+                this.PropertyChanged(this, new PropertyChangedEventArgs(name));
+        }
+        #endregion
     }
 }

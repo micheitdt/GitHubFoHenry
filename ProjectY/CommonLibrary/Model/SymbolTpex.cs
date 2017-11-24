@@ -683,7 +683,6 @@ namespace CommonLibrary.Model
 
         public static void SetSymbolTpexDataList(IDictionary<string, MarketDataApi.Model.PacketTPEX.Format1> data)
         {
-            AllSymbolTpexList = new SymbolTpexList();
             foreach (var obj in data)
             {
                 AllSymbolTpexList.TryAdd(obj.Key, new SymbolTpex(obj.Value));

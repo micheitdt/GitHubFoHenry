@@ -247,10 +247,10 @@ namespace MarketDataApi
                                                 ProcessSolvedPacket_TSE(data[1], messages[1]); break;
                                             case "1":
                                                 ProcessSolvedPacket_TPEX(data[1], messages[1]); break;
-                                            case "2":
-                                            case "3":
-                                            case "4":
-                                            case "5":
+                                            case "2"://期日
+                                            case "3"://選日
+                                            case "4"://期夜
+                                            case "5"://選夜
                                                 ProcessSolvedPacket_TAIFEX(data[1], messages[1]); break;
                                             case "6":
                                                 ProcessSolvedPacket_PATS(data[1], messages[1], data[2]); break;
