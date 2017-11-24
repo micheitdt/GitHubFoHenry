@@ -12,18 +12,18 @@ namespace Process.CleanMarketData
         private const string TSE_FORMAT1_HASH_KEY = "0#1";
         private const string TPEX_FORMAT1_HASH_KEY = "1#1";
         private const string FUTURES_I010_HASH_KEY = "2#11";
-        private const string OPTION_I010_HASH_KEY = "3#11";
+        private const string I010_HASH_KEY = "11";
         private const string TSE_FORMAT6_HASH_KEY = "0#6";
         private const string TPEX_FORMAT6_HASH_KEY = "1#6";
         private const string TSE_FORMAT17_HASH_KEY = "0#17";
         private const string TPEX_FORMAT17_HASH_KEY = "1#17";
-        private const string FUTURES_I020_HASH_KEY = "2#21";
-        private const string FUTURES_I080_HASH_KEY = "2#22";
-        private const string OPTION_I020_HASH_KEY = "3#21";
-        private const string OPTION_I080_HASH_KEY = "3#22";
+        private const string I022_HASH_KEY = "27";
+        private const string I082_HASH_KEY = "28";
+        private const string I020_HASH_KEY = "21";
+        private const string I080_HASH_KEY = "22";
 
-        private static readonly string[] ALL_HASH_KEY = { TSE_FORMAT1_HASH_KEY, TPEX_FORMAT1_HASH_KEY, FUTURES_I010_HASH_KEY, OPTION_I010_HASH_KEY,
-        TSE_FORMAT6_HASH_KEY , TPEX_FORMAT6_HASH_KEY, TSE_FORMAT17_HASH_KEY, TPEX_FORMAT17_HASH_KEY, FUTURES_I020_HASH_KEY, FUTURES_I080_HASH_KEY, OPTION_I020_HASH_KEY, OPTION_I080_HASH_KEY};
+        private static readonly string[] ALL_HASH_KEY = { TSE_FORMAT1_HASH_KEY, TPEX_FORMAT1_HASH_KEY, FUTURES_I010_HASH_KEY, I010_HASH_KEY,
+        TSE_FORMAT6_HASH_KEY , TPEX_FORMAT6_HASH_KEY, TSE_FORMAT17_HASH_KEY, TPEX_FORMAT17_HASH_KEY, I022_HASH_KEY, I082_HASH_KEY, I020_HASH_KEY, I080_HASH_KEY};
 
         public MainWindow()
         {

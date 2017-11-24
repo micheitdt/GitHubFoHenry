@@ -66,10 +66,10 @@ namespace Process.BaseMarketData.ViewModels
 
                                 _socketSub.Subscribe(Encoding.UTF8.GetBytes("0#1#"));
                                 _socketSub.Subscribe(Encoding.UTF8.GetBytes("1#1#"));
-                                _socketSub.Subscribe(Encoding.UTF8.GetBytes("2#I010#"));
-                                _socketSub.Subscribe(Encoding.UTF8.GetBytes("3#I010#"));
-                                _socketSub.Subscribe(Encoding.UTF8.GetBytes("4#I010#"));
-                                _socketSub.Subscribe(Encoding.UTF8.GetBytes("5#I010#"));
+                                _socketSub.Subscribe(Encoding.UTF8.GetBytes("2#11#"));//日期
+                                _socketSub.Subscribe(Encoding.UTF8.GetBytes("3#41#"));//日選
+                                _socketSub.Subscribe(Encoding.UTF8.GetBytes("4#11#"));//夜期
+                                _socketSub.Subscribe(Encoding.UTF8.GetBytes("5#41#"));//夜選
 
                                 Utility.SaveLog(DateTime.Now.ToString("HH:mm:ss:ttt") + "連接並訂閱:0#1#, 1#1#, 2#I010#, 3#I010#, 4#I010#, 5#I010#");
                             }
@@ -182,18 +182,17 @@ namespace Process.BaseMarketData.ViewModels
         }
         private void SaveRedisTSE(byte[] data)
         {
-            _client.HSet(Parameter.TSE_FORMAT1_HASH_KEY, Utility.ByteGetSubArray(data, 10, 6), data);
-            //string symbol = Encoding.ASCII.GetString(data, 10, 6).Trim();
-            //string stkCountMark = Encoding.ASCII.GetString(data, 36, 2).Trim();
-            //if (symbol == "NE" || symbol == "AL")//NE:開盤-收盤；AL開盤前 資料末筆
-            //{
-            //    Utility.SaveLog(DateTime.Now.ToString("HH:mm:ss:ttt") + string.Format("接收末筆TSE：{0}{1}筆資料", stkCountMark, symbol));
-            //}
-            //else
-            //{
-            //    Utility.SetByteAryRedisDB(_client, Parameter.TSE_FORMAT1_HASH_KEY, Utility.ByteGetSubArray(data, 10, 6), data);
-            //    Utility.SaveLog(DateTime.Now.ToString("HH:mm:ss:ttt") + string.Format("Redis新增TSE：{0}", symbol));
-            //}
+            string symbol = Encoding.ASCII.GetString(data, 10, 6).Trim();
+            string stkCountMark = Encoding.ASCII.GetString(data, 36, 2).Trim();
+            if (symbol == "NE" || symbol == "AL")//NE:開盤-收盤；AL開盤前 資料末筆
+            {
+                Utility.SaveLog(DateTime.Now.ToString("HH:mm:ss:ttt") + string.Format("接收末筆TSE：{0}{1}筆資料", stkCountMark, symbol));
+            }
+            else
+            {
+                _client.HSet(Parameter.TSE_FORMAT1_HASH_KEY, Utility.ByteGetSubArray(data, 10, 6), data);
+                Utility.SaveLog(DateTime.Now.ToString("HH:mm:ss:ttt") + string.Format("Redis新增TSE：{0}", symbol));
+            }
         }
         /// <summary>
         /// 讀現貨 上櫃
@@ -227,19 +226,17 @@ namespace Process.BaseMarketData.ViewModels
         }
         private void SaveRedisTPEX(byte[] data)
         {
-
-            _client.HSet(Parameter.TPEX_FORMAT1_HASH_KEY, Utility.ByteGetSubArray(data, 10, 6), data);
-            //string symbol = Encoding.ASCII.GetString(data, 10, 6).Trim();
-            //string stkCountMark = Encoding.ASCII.GetString(data, 36, 2).Trim();
-            //if (symbol == "NE" || symbol == "AL")//NE:開盤-收盤；AL開盤前 資料末筆
-            //{
-            //    Utility.SaveLog(DateTime.Now.ToString("HH:mm:ss:ttt") + string.Format("接收末筆TPEX：{0}{1}筆資料", stkCountMark, symbol));
-            //}
-            //else
-            //{
-            //    Utility.SetByteAryRedisDB(_client, Parameter.TPEX_FORMAT1_HASH_KEY, Utility.ByteGetSubArray(data, 10, 6), data);
-            //    Utility.SaveLog(DateTime.Now.ToString("HH:mm:ss:ttt") + string.Format("Redis新增TPEX：{0}", symbol));
-            //}
+            string symbol = Encoding.ASCII.GetString(data, 10, 6).Trim();
+            string stkCountMark = Encoding.ASCII.GetString(data, 36, 2).Trim();
+            if (symbol == "NE" || symbol == "AL")//NE:開盤-收盤；AL開盤前 資料末筆
+            {
+                Utility.SaveLog(DateTime.Now.ToString("HH:mm:ss:ttt") + string.Format("接收末筆TPEX：{0}{1}筆資料", stkCountMark, symbol));
+            }
+            else
+            {
+                _client.HSet(Parameter.TPEX_FORMAT1_HASH_KEY, Utility.ByteGetSubArray(data, 10, 6), data);
+                Utility.SaveLog(DateTime.Now.ToString("HH:mm:ss:ttt") + string.Format("Redis新增TPEX：{0}", symbol));
+            }
         }
         /// <summary>
         /// 讀期權
@@ -274,9 +271,9 @@ namespace Process.BaseMarketData.ViewModels
         private void SaveRedisTAIFEX(byte[] data)
         {
             _client.HSet(Parameter.I010_HASH_KEY, Utility.ByteGetSubArray(data, 14, 10), data);
-            //string symbol = Encoding.ASCII.GetString(data, 14, 10).TrimEnd(' ');
-            //Utility.SaveLog(DateTime.Now.ToString("HH:mm:ss:ttt") + string.Format("Redis新增{0}", symbol));
+            string symbol = Encoding.ASCII.GetString(data, 14, 10).TrimEnd(' ');
+            Utility.SaveLog(DateTime.Now.ToString("HH:mm:ss:ttt") + string.Format("Redis新增{0}", symbol));
         }
-#endregion
+        #endregion
     }
 }

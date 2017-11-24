@@ -47,23 +47,23 @@ namespace Process.MarketDataSnapshot.ViewModels
                 {
                     BuildSubSocket(DefaultSettings.Instance.UDP_IP, DefaultSettings.Instance.UDP_PORT);
                     
-                    _socketSub.Subscribe(Encoding.UTF8.GetBytes("4#I022#"));
-                    _socketSub.Subscribe(Encoding.UTF8.GetBytes("4#I082#"));
-                    _socketSub.Subscribe(Encoding.UTF8.GetBytes("5#I022#"));
-                    _socketSub.Subscribe(Encoding.UTF8.GetBytes("5#I082#"));
-                    _socketSub.Subscribe(Encoding.UTF8.GetBytes("2#I022#"));
-                    _socketSub.Subscribe(Encoding.UTF8.GetBytes("2#I082#"));
-                    _socketSub.Subscribe(Encoding.UTF8.GetBytes("3#I022#"));
-                    _socketSub.Subscribe(Encoding.UTF8.GetBytes("3#I082#"));
+                    _socketSub.Subscribe(Encoding.UTF8.GetBytes("4#27#"));
+                    _socketSub.Subscribe(Encoding.UTF8.GetBytes("4#28#"));
+                    _socketSub.Subscribe(Encoding.UTF8.GetBytes("5#57#"));
+                    _socketSub.Subscribe(Encoding.UTF8.GetBytes("5#58#"));
+                    _socketSub.Subscribe(Encoding.UTF8.GetBytes("2#27#"));
+                    _socketSub.Subscribe(Encoding.UTF8.GetBytes("2#28#"));
+                    _socketSub.Subscribe(Encoding.UTF8.GetBytes("3#57#"));
+                    _socketSub.Subscribe(Encoding.UTF8.GetBytes("3#58#"));
 
-                    _socketSub.Subscribe(Encoding.UTF8.GetBytes("4#I020#"));
-                    _socketSub.Subscribe(Encoding.UTF8.GetBytes("4#I080#"));
-                    _socketSub.Subscribe(Encoding.UTF8.GetBytes("5#I020#"));
-                    _socketSub.Subscribe(Encoding.UTF8.GetBytes("5#I080#"));
-                    _socketSub.Subscribe(Encoding.UTF8.GetBytes("2#I020#"));
-                    _socketSub.Subscribe(Encoding.UTF8.GetBytes("2#I080#"));
-                    _socketSub.Subscribe(Encoding.UTF8.GetBytes("3#I020#"));
-                    _socketSub.Subscribe(Encoding.UTF8.GetBytes("3#I080#"));
+                    _socketSub.Subscribe(Encoding.UTF8.GetBytes("4#21#"));
+                    _socketSub.Subscribe(Encoding.UTF8.GetBytes("4#22#"));
+                    _socketSub.Subscribe(Encoding.UTF8.GetBytes("5#51#"));
+                    _socketSub.Subscribe(Encoding.UTF8.GetBytes("5#52#"));
+                    _socketSub.Subscribe(Encoding.UTF8.GetBytes("2#21#"));
+                    _socketSub.Subscribe(Encoding.UTF8.GetBytes("2#22#"));
+                    _socketSub.Subscribe(Encoding.UTF8.GetBytes("3#51#"));
+                    _socketSub.Subscribe(Encoding.UTF8.GetBytes("3#52#"));
 
                     _socketSub.Subscribe(Encoding.UTF8.GetBytes("0#6#"));
                     _socketSub.Subscribe(Encoding.UTF8.GetBytes("0#17#"));
@@ -140,15 +140,15 @@ namespace Process.MarketDataSnapshot.ViewModels
                     case "6":
                         {
                             _client.HSet(Parameter.TSE_FORMAT6_HASH_KEY, Utility.ByteGetSubArray(packetData, 10, 6), packetData);
-                            //string symbol = Encoding.ASCII.GetString(packetData, 10, 6).Trim();
-                            //Utility.SaveLog(DateTime.Now.ToString("HH:mm:ss:ttt") + string.Format("Redis新增{0}：{1}", "上市格式6", symbol));
+                            string symbol = Encoding.ASCII.GetString(packetData, 10, 6).Trim();
+                            Utility.SaveLog(DateTime.Now.ToString("HH:mm:ss:ttt") + string.Format("Redis新增{0}：{1}", "上市格式6", symbol));
                             break;
                         }
                     case "17":
                         {
                             _client.HSet(Parameter.TSE_FORMAT17_HASH_KEY, Utility.ByteGetSubArray(packetData, 10, 6), packetData);
-                            //string symbol = Encoding.ASCII.GetString(packetData, 10, 6).Trim();
-                            //Utility.SaveLog(DateTime.Now.ToString("HH:mm:ss:ttt") + string.Format("Redis新增{0}：{1}", "上市格式17", symbol));
+                            string symbol = Encoding.ASCII.GetString(packetData, 10, 6).Trim();
+                            Utility.SaveLog(DateTime.Now.ToString("HH:mm:ss:ttt") + string.Format("Redis新增{0}：{1}", "上市格式17", symbol));
                             break;
                         }
                     default:
@@ -169,15 +169,15 @@ namespace Process.MarketDataSnapshot.ViewModels
                     case "6":
                         {
                             _client.HSet(Parameter.TPEX_FORMAT6_HASH_KEY, Utility.ByteGetSubArray(packetData, 10, 6), packetData);
-                            //string symbol = Encoding.ASCII.GetString(packetData, 10, 6).Trim();
-                            //Utility.SaveLog(DateTime.Now.ToString("HH:mm:ss:ttt") + string.Format("Redis新增{0}：{1}", "上櫃格式6", symbol));
+                            string symbol = Encoding.ASCII.GetString(packetData, 10, 6).Trim();
+                            Utility.SaveLog(DateTime.Now.ToString("HH:mm:ss:ttt") + string.Format("Redis新增{0}：{1}", "上櫃格式6", symbol));
                             break;
                         }
                     case "17":
                         {
                             _client.HSet(Parameter.TPEX_FORMAT17_HASH_KEY, Utility.ByteGetSubArray(packetData, 10, 6), packetData);
-                            //string symbol = Encoding.ASCII.GetString(packetData, 10, 6).Trim();
-                            //Utility.SaveLog(DateTime.Now.ToString("HH:mm:ss:ttt") + string.Format("Redis新增{0}：{1}", "上櫃格式17", symbol));
+                            string symbol = Encoding.ASCII.GetString(packetData, 10, 6).Trim();
+                            Utility.SaveLog(DateTime.Now.ToString("HH:mm:ss:ttt") + string.Format("Redis新增{0}：{1}", "上櫃格式17", symbol));
                             break;
                         }
                     default:
@@ -198,29 +198,29 @@ namespace Process.MarketDataSnapshot.ViewModels
                     case "I020":
                         {
                             _client.HSet(Parameter.I020_HASH_KEY, Utility.ByteGetSubArray(packetData, 14, 20), packetData);
-                            //string symbol = Encoding.ASCII.GetString(packetData, 14, 20).TrimEnd(' ');
-                            //Utility.SaveLog(DateTime.Now.ToString("HH:mm:ss:ttt") + string.Format("Redis新增{0}：{1}", "I020", symbol));
+                            string symbol = Encoding.ASCII.GetString(packetData, 14, 20).TrimEnd(' ');
+                            Utility.SaveLog(DateTime.Now.ToString("HH:mm:ss:ttt") + string.Format("Redis新增{0}：{1}", "I020", symbol));
                             break;
                         }
                     case "I080":
                         {
                             _client.HSet(Parameter.I080_HASH_KEY, Utility.ByteGetSubArray(packetData, 14, 20), packetData);
-                            //string symbol = Encoding.ASCII.GetString(packetData, 14, 20).TrimEnd(' ');
-                            //Utility.SaveLog(DateTime.Now.ToString("HH:mm:ss:ttt") + string.Format("Redis新增{0}：{1}", "I080", symbol));
+                            string symbol = Encoding.ASCII.GetString(packetData, 14, 20).TrimEnd(' ');
+                            Utility.SaveLog(DateTime.Now.ToString("HH:mm:ss:ttt") + string.Format("Redis新增{0}：{1}", "I080", symbol));
                             break;
                         }
                     case "I022":
                         {
                             _client.HSet(Parameter.I022_HASH_KEY, Utility.ByteGetSubArray(packetData, 14, 20), packetData);
-                            //string symbol = Encoding.ASCII.GetString(packetData, 14, 20).TrimEnd(' ');
-                            //Utility.SaveLog(DateTime.Now.ToString("HH:mm:ss:ttt") + string.Format("Redis新增{0}：{1}", "I022", symbol));
+                            string symbol = Encoding.ASCII.GetString(packetData, 14, 20).TrimEnd(' ');
+                            Utility.SaveLog(DateTime.Now.ToString("HH:mm:ss:ttt") + string.Format("Redis新增{0}：{1}", "I022", symbol));
                             break;
                         }
                     case "I082":
                         {
                             _client.HSet(Parameter.I082_HASH_KEY, Utility.ByteGetSubArray(packetData, 14, 20), packetData);
-                            //string symbol = Encoding.ASCII.GetString(packetData, 14, 20).TrimEnd(' ');
-                            //Utility.SaveLog(DateTime.Now.ToString("HH:mm:ss:ttt") + string.Format("Redis新增{0}：{1}", "I082", symbol));
+                            string symbol = Encoding.ASCII.GetString(packetData, 14, 20).TrimEnd(' ');
+                            Utility.SaveLog(DateTime.Now.ToString("HH:mm:ss:ttt") + string.Format("Redis新增{0}：{1}", "I082", symbol));
                             break;
                         }
                     default:
