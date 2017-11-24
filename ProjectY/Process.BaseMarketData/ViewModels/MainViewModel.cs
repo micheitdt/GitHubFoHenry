@@ -1,18 +1,22 @@
 ﻿using CommonLibrary.Model;
-using MarketDataApi;
 using ServiceStack.Redis;
 using System;
 using System.IO;
 using System.Text;
 using CommonLibrary;
+using System.Collections.Generic;
+using System.Threading;
+using NetMQ.Sockets;
+using NetMQ;
+using System.Linq;
 
 namespace Process.BaseMarketData.ViewModels
 {
     public class MainViewModel
     {
         private static MainViewModel _instance;
-        MarketDataApi.MarketDataApi api;
-        RedisClient _client;
+        private static SubscriberSocket _socketSub;
+        private static RedisClient _client;
 
         #region prop
         /// <summary>
@@ -55,17 +59,20 @@ namespace Process.BaseMarketData.ViewModels
                     case "1":
                         {
                             Utility.SaveLog(DateTime.Now.ToString("HH:mm:ss:ttt") + "盤前資料方法-連接proxy接收訊息");
-                            api = new MarketDataApi.MarketDataApi(DefaultSettings.Instance.UDP_IP, DefaultSettings.Instance.UDP_PORT);
-                            api.TaifexI010Received += api_TaifexI010Received; /// <- 期貨I010[盘前]回呼事件
-                            api.TseFormat1Received += api_TseFormat1Received; /// <- 上櫃現貨格式1(盘前)回呼事件
-                            api.TpexFormat1Received += api_TpexFormat1Received;/// <- 上市現貨格式1(盘前)回呼事件
-                            //盤前訊息訂閱
-                            api.Sub(AdapterCode.TAIFEX_FUTURES_DAY, "I010");
-                            api.Sub(AdapterCode.TAIFEX_OPTIONS_DAY, "I010");
-                            api.Sub(AdapterCode.TAIFEX_FUTURES_NIGHT, "I010");
-                            api.Sub(AdapterCode.TAIFEX_OPTIONS_NIGHT, "I010");
-                            api.Sub(AdapterCode.TSE, "1");
-                            api.Sub(AdapterCode.TPEX, "1");
+
+                            if (string.IsNullOrEmpty(DefaultSettings.Instance.UDP_IP) == false)
+                            {
+                                BuildSubSocket(DefaultSettings.Instance.UDP_IP, DefaultSettings.Instance.UDP_PORT);
+
+                                _socketSub.Subscribe(Encoding.UTF8.GetBytes("0#1#"));
+                                _socketSub.Subscribe(Encoding.UTF8.GetBytes("1#1#"));
+                                _socketSub.Subscribe(Encoding.UTF8.GetBytes("2#I010#"));
+                                _socketSub.Subscribe(Encoding.UTF8.GetBytes("3#I010#"));
+                                _socketSub.Subscribe(Encoding.UTF8.GetBytes("4#I010#"));
+                                _socketSub.Subscribe(Encoding.UTF8.GetBytes("5#I010#"));
+
+                                Utility.SaveLog(DateTime.Now.ToString("HH:mm:ss:ttt") + "連接並訂閱:0#1#, 1#1#, 2#I010#, 3#I010#, 4#I010#, 5#I010#");
+                            }
                             break;
                         }
                     default:
@@ -80,6 +87,69 @@ namespace Process.BaseMarketData.ViewModels
         }
 
         #region func
+        private void BuildSubSocket(string ip, int port)
+        {
+            _socketSub = new SubscriberSocket(string.Format(">tcp://{0}:{1}", ip, port));
+            _socketSub.Options.ReceiveHighWatermark = 10000;
+            Thread.Sleep(100);
+            ThreadPool.QueueUserWorkItem(x =>
+            {
+                try
+                {
+                    List<byte[]> messages = new List<byte[]>();
+                    while (true)
+                    {
+                        _socketSub.ReceiveMultipartBytes(ref messages, 2);
+                        switch (messages.Count)
+                        {
+                            case 2:
+                                var data = Encoding.UTF8.GetString(messages[0]).Split('#');
+                                switch (data.Length)
+                                {
+                                    case 4:
+                                        switch (data[0])
+                                        {
+                                            case "0":
+                                                if(data[1] =="1")
+                                                {
+                                                    SaveRedisTSE(messages[1]);
+                                                }
+                                                break;
+                                            case "1":
+                                                if (data[1] == "1")
+                                                {
+                                                    SaveRedisTPEX(messages[1]);
+                                                }
+                                                break;
+                                            case "2"://期日
+                                            case "3"://選日
+                                            case "4"://期夜
+                                            case "5"://選夜
+                                                if (data[1] == "11" || data[1] == "41")
+                                                {
+                                                    SaveRedisTAIFEX(messages[1]);
+                                                }
+                                                break;
+                                            case "6":
+                                            default:
+                                                break;
+                                        }
+                                        break;
+                                    default:
+                                        break;
+                                }
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                }
+                catch (TerminatingException ex)
+                {
+                    System.Diagnostics.Debug.WriteLine(ex.ErrorCode);
+                }
+            });
+        }
         /// <summary>
         /// 讀現貨 上市
         /// </summary>
@@ -101,8 +171,7 @@ namespace Process.BaseMarketData.ViewModels
                         {
                             continue;
                         }
-                        MarketDataApi.Model.PacketTSE.Format1 data = new MarketDataApi.Model.PacketTSE.Format1(Encoding.Default.GetBytes(line));
-                        AddSymbolTseDictionary(data);
+                        SaveRedisTSE(Encoding.Default.GetBytes(line));
                     }
                 }
             }
@@ -111,22 +180,20 @@ namespace Process.BaseMarketData.ViewModels
                 Utility.SaveLog(DateTime.Now.ToString("HH:mm:ss:ttt") + string.Format("LoadTSEData(): ErrMsg = {0}.", err.Message));
             }
         }
-        private void AddSymbolTseDictionary(MarketDataApi.Model.PacketTSE.Format1 data)
+        private void SaveRedisTSE(byte[] data)
         {
-            if (string.IsNullOrEmpty(data.StockID))
-            {
-                return;
-            }
-            SymbolTse temp = new SymbolTse(data);
-            if (temp.StkCountMark == "NE" || temp.StkCountMark == "AL")//NE:開盤-收盤；AL開盤前 資料末筆
-            {
-                Utility.SaveLog(DateTime.Now.ToString("HH:mm:ss:ttt") + string.Format("接收末筆TSE：{0}{1}筆資料", temp.StkCountMark, data.StockID));
-            }
-            else
-            {
-                Utility.SetRedisDB(_client, Parameter.TSE_FORMAT1_HASH_KEY, data.StockID, data);
-                Utility.SaveLog(DateTime.Now.ToString("HH:mm:ss:ttt") + string.Format("Redis新增TSE：{0}    {1}", data.StockID, data.StockName));
-            }
+            _client.HSet(Parameter.TSE_FORMAT1_HASH_KEY, Utility.ByteGetSubArray(data, 10, 6), data);
+            //string symbol = Encoding.ASCII.GetString(data, 10, 6).Trim();
+            //string stkCountMark = Encoding.ASCII.GetString(data, 36, 2).Trim();
+            //if (symbol == "NE" || symbol == "AL")//NE:開盤-收盤；AL開盤前 資料末筆
+            //{
+            //    Utility.SaveLog(DateTime.Now.ToString("HH:mm:ss:ttt") + string.Format("接收末筆TSE：{0}{1}筆資料", stkCountMark, symbol));
+            //}
+            //else
+            //{
+            //    Utility.SetByteAryRedisDB(_client, Parameter.TSE_FORMAT1_HASH_KEY, Utility.ByteGetSubArray(data, 10, 6), data);
+            //    Utility.SaveLog(DateTime.Now.ToString("HH:mm:ss:ttt") + string.Format("Redis新增TSE：{0}", symbol));
+            //}
         }
         /// <summary>
         /// 讀現貨 上櫃
@@ -149,8 +216,7 @@ namespace Process.BaseMarketData.ViewModels
                         {
                             continue;
                         }
-                        MarketDataApi.Model.PacketTPEX.Format1 data = new MarketDataApi.Model.PacketTPEX.Format1(Encoding.Default.GetBytes(line));
-                        AddSymbolTpexDictionary(data);
+                        SaveRedisTPEX(Encoding.Default.GetBytes(line));
                     }
                 }
             }
@@ -159,22 +225,21 @@ namespace Process.BaseMarketData.ViewModels
                 Utility.SaveLog(DateTime.Now.ToString("HH:mm:ss:ttt") + string.Format("LoadData(): ErrMsg = {0}.", err.Message));
             }
         }
-        private void AddSymbolTpexDictionary(MarketDataApi.Model.PacketTPEX.Format1 data)
+        private void SaveRedisTPEX(byte[] data)
         {
-            if (string.IsNullOrEmpty(data.StockID))
-            {
-                return;
-            }
-            SymbolTpex temp = new SymbolTpex(data);
-            if (temp.StkCountMark == "NE" || temp.StkCountMark == "AL")//NE:開盤-收盤；AL開盤前 資料末筆
-            {
-                Utility.SaveLog(DateTime.Now.ToString("HH:mm:ss:ttt") + string.Format("接收末筆TPEX：{0}{1}筆資料", temp.StkCountMark, data.StockID));
-            }
-            else
-            {
-                Utility.SetRedisDB(_client, Parameter.TPEX_FORMAT1_HASH_KEY, data.StockID, data);
-                Utility.SaveLog(DateTime.Now.ToString("HH:mm:ss:ttt") + string.Format("Redis新增TPEX：{0}    {1}", data.StockID, data.StockName));
-            }
+
+            _client.HSet(Parameter.TPEX_FORMAT1_HASH_KEY, Utility.ByteGetSubArray(data, 10, 6), data);
+            //string symbol = Encoding.ASCII.GetString(data, 10, 6).Trim();
+            //string stkCountMark = Encoding.ASCII.GetString(data, 36, 2).Trim();
+            //if (symbol == "NE" || symbol == "AL")//NE:開盤-收盤；AL開盤前 資料末筆
+            //{
+            //    Utility.SaveLog(DateTime.Now.ToString("HH:mm:ss:ttt") + string.Format("接收末筆TPEX：{0}{1}筆資料", stkCountMark, symbol));
+            //}
+            //else
+            //{
+            //    Utility.SetByteAryRedisDB(_client, Parameter.TPEX_FORMAT1_HASH_KEY, Utility.ByteGetSubArray(data, 10, 6), data);
+            //    Utility.SaveLog(DateTime.Now.ToString("HH:mm:ss:ttt") + string.Format("Redis新增TPEX：{0}", symbol));
+            //}
         }
         /// <summary>
         /// 讀期權
@@ -197,8 +262,7 @@ namespace Process.BaseMarketData.ViewModels
                         {
                             continue;
                         }
-                        MarketDataApi.Model.PacketTAIFEX.I010 data = new MarketDataApi.Model.PacketTAIFEX.I010(Encoding.Default.GetBytes(line), 0);
-                        AddSymbolTaifexDictionary(data);
+                        SaveRedisTAIFEX(Encoding.Default.GetBytes(line));
                     }
                 }
             }
@@ -207,51 +271,12 @@ namespace Process.BaseMarketData.ViewModels
                 Utility.SaveLog(DateTime.Now.ToString("HH:mm:ss:ttt") + string.Format("LoadData(): ErrMsg = {0}.", err.Message));
             }
         }
-        private void AddSymbolTaifexDictionary(MarketDataApi.Model.PacketTAIFEX.I010 data)
+        private void SaveRedisTAIFEX(byte[] data)
         {
-            if (string.IsNullOrEmpty(data.B_ProdId))
-            {
-                return;
-            }
-            Utility.SetRedisDB(_client, Parameter.I010_HASH_KEY, data.B_ProdId, data);
-            Utility.SaveLog(DateTime.Now.ToString("HH:mm:ss:ttt") + string.Format("Redis新增(1期貨.2選擇權{0})：{1}", data.H_TransmissionCode, data.B_ProdId));
+            _client.HSet(Parameter.I010_HASH_KEY, Utility.ByteGetSubArray(data, 14, 10), data);
+            //string symbol = Encoding.ASCII.GetString(data, 14, 10).TrimEnd(' ');
+            //Utility.SaveLog(DateTime.Now.ToString("HH:mm:ss:ttt") + string.Format("Redis新增{0}", symbol));
         }
-        #endregion
-
-        #region Event
-        //------------------------------------------------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// 上市現貨格式1回呼事件
-        /// </summary>
-        private void api_TseFormat1Received(object sender, MarketDataApi.MarketDataApi.TseFormat1ReceivedEventArgs e)
-        {
-            App.Current.Dispatcher.Invoke((Action)(() =>
-            {
-                AddSymbolTseDictionary(e.PacketData);
-            }));
-        }
-        //------------------------------------------------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// 上櫃現貨格式1回呼事件
-        /// </summary>
-        private void api_TpexFormat1Received(object sender, MarketDataApi.MarketDataApi.TpexFormat1ReceivedEventArgs e)
-        {
-            App.Current.Dispatcher.Invoke((Action)(() =>
-            {
-                AddSymbolTpexDictionary(e.PacketData);
-            }));
-        }
-        //------------------------------------------------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// 期貨I010[資訊]回呼事件
-        /// </summary>
-        private void api_TaifexI010Received(object sender, MarketDataApi.MarketDataApi.TaifexI010ReceivedEventArgs e)
-        {
-            App.Current.Dispatcher.Invoke((Action)(() =>
-            {
-                AddSymbolTaifexDictionary(e.PacketData);
-            }));
-        }
-        #endregion
+#endregion
     }
 }

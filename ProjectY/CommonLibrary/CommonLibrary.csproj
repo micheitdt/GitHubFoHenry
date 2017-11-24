@@ -63,6 +63,7 @@
     <Compile Include="Model\SymbolTaifex.cs" />
     <Compile Include="Model\SymbolTpex.cs" />
     <Compile Include="Model\SymbolTse.cs" />
+    <Compile Include="Parameter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utility.cs" />
   </ItemGroup>

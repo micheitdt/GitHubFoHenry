@@ -1,18 +1,19 @@
-﻿using CommonLibrary.Model;
-using MarketDataApi;
-using ServiceStack.Redis;
+﻿using ServiceStack.Redis;
 using System;
-using System.IO;
-using System.Text;
 using CommonLibrary;
+using NetMQ.Sockets;
+using System.Threading;
+using System.Collections.Generic;
+using NetMQ;
+using System.Text;
 
 namespace Process.MarketDataSnapshot.ViewModels
 {
     public class MainViewModel
     {
         private static MainViewModel _instance;
-        MarketDataApi.MarketDataApi api;
-        RedisClient _client;
+        private static SubscriberSocket _socketSub;
+        private static RedisClient _client;
 
         #region prop
         /// <summary>
@@ -41,35 +42,36 @@ namespace Process.MarketDataSnapshot.ViewModels
                 //連接redis
                 _client = new RedisClient(DefaultSettings.Instance.REDIS_DB_IP, DefaultSettings.Instance.REDIS_DB_PORT);
                 Utility.SaveLog(DateTime.Now.ToString("HH:mm:ss:ttt") + "   盤中資料方法-錄制期/現貨日盤商品訊息");
-                api = new MarketDataApi.MarketDataApi(DefaultSettings.Instance.UDP_IP, DefaultSettings.Instance.UDP_PORT);
-                api.TaifexI022Received += Api_TaifexI022Received;  /// <- 期貨I020[成交試撮]回呼事件
-                api.TaifexI082Received += Api_TaifexI082Received;  /// <- 期貨I020[委買委賣試撮]回呼事件
-                api.TaifexI020Received += api_TaifexI020Received;  /// <- 期貨I020[成交]回呼事件
-                api.TaifexI080Received += api_TaifexI080Received;  /// <- 期貨I080[委買委賣]回呼事件
-                api.TseFormat6Received += api_TseFormat6Received;  /// <- 上市現貨格式6(Format6)回呼事件
-                api.TpexFormat6Received += api_TpexFormat6Received; /// <- 上櫃現貨格式6(Format6)回呼事件
-                api.TseFormat17Received += api_TseFormat17Received;  /// <- 上市現貨格式6(Format17)回呼事件
-                api.TpexFormat17Received += api_TpexFormat17Received; /// <- 上櫃現貨格式6(Format17)回呼事件
-                api.Sub(AdapterCode.TAIFEX_FUTURES_NIGHT, "I022");
-                api.Sub(AdapterCode.TAIFEX_FUTURES_NIGHT, "I082");
-                api.Sub(AdapterCode.TAIFEX_OPTIONS_NIGHT, "I022");
-                api.Sub(AdapterCode.TAIFEX_OPTIONS_NIGHT, "I082");
-                api.Sub(AdapterCode.TAIFEX_FUTURES_DAY, "I022");
-                api.Sub(AdapterCode.TAIFEX_FUTURES_DAY, "I082");
-                api.Sub(AdapterCode.TAIFEX_OPTIONS_DAY, "I022");
-                api.Sub(AdapterCode.TAIFEX_OPTIONS_DAY, "I082");
-                api.Sub(AdapterCode.TAIFEX_FUTURES_NIGHT, "I020");
-                api.Sub(AdapterCode.TAIFEX_FUTURES_NIGHT, "I080");
-                api.Sub(AdapterCode.TAIFEX_OPTIONS_NIGHT, "I020");
-                api.Sub(AdapterCode.TAIFEX_OPTIONS_NIGHT, "I080");
-                api.Sub(AdapterCode.TAIFEX_FUTURES_DAY, "I020");
-                api.Sub(AdapterCode.TAIFEX_FUTURES_DAY, "I080");
-                api.Sub(AdapterCode.TAIFEX_OPTIONS_DAY, "I020");
-                api.Sub(AdapterCode.TAIFEX_OPTIONS_DAY, "I080");
-                api.Sub(AdapterCode.TSE, "6");
-                api.Sub(AdapterCode.TSE, "17");
-                api.Sub(AdapterCode.TPEX, "6");
-                api.Sub(AdapterCode.TPEX, "17");
+
+                if (string.IsNullOrEmpty(DefaultSettings.Instance.UDP_IP) == false)
+                {
+                    BuildSubSocket(DefaultSettings.Instance.UDP_IP, DefaultSettings.Instance.UDP_PORT);
+                    
+                    _socketSub.Subscribe(Encoding.UTF8.GetBytes("4#I022#"));
+                    _socketSub.Subscribe(Encoding.UTF8.GetBytes("4#I082#"));
+                    _socketSub.Subscribe(Encoding.UTF8.GetBytes("5#I022#"));
+                    _socketSub.Subscribe(Encoding.UTF8.GetBytes("5#I082#"));
+                    _socketSub.Subscribe(Encoding.UTF8.GetBytes("2#I022#"));
+                    _socketSub.Subscribe(Encoding.UTF8.GetBytes("2#I082#"));
+                    _socketSub.Subscribe(Encoding.UTF8.GetBytes("3#I022#"));
+                    _socketSub.Subscribe(Encoding.UTF8.GetBytes("3#I082#"));
+
+                    _socketSub.Subscribe(Encoding.UTF8.GetBytes("4#I020#"));
+                    _socketSub.Subscribe(Encoding.UTF8.GetBytes("4#I080#"));
+                    _socketSub.Subscribe(Encoding.UTF8.GetBytes("5#I020#"));
+                    _socketSub.Subscribe(Encoding.UTF8.GetBytes("5#I080#"));
+                    _socketSub.Subscribe(Encoding.UTF8.GetBytes("2#I020#"));
+                    _socketSub.Subscribe(Encoding.UTF8.GetBytes("2#I080#"));
+                    _socketSub.Subscribe(Encoding.UTF8.GetBytes("3#I020#"));
+                    _socketSub.Subscribe(Encoding.UTF8.GetBytes("3#I080#"));
+
+                    _socketSub.Subscribe(Encoding.UTF8.GetBytes("0#6#"));
+                    _socketSub.Subscribe(Encoding.UTF8.GetBytes("0#17#"));
+                    _socketSub.Subscribe(Encoding.UTF8.GetBytes("1#6#"));
+                    _socketSub.Subscribe(Encoding.UTF8.GetBytes("1#17#"));
+
+                    Utility.SaveLog(DateTime.Now.ToString("HH:mm:ss:ttt") + "連接並訂閱:4#I022#, 4#I082#, 5#I022#, 5#I082#, 2#I022#, 2#I082#, 3#I022#, 3#I082#, 4#I020#, 4#I080#, 5#I020#, 5#I080#, 2#I020#, 2#I080#, 3#I020#, 3#I080#, 0#6#, 0#17#, 1#6#, 1#17#");
+                }
             }
             else
             {
@@ -78,98 +80,232 @@ namespace Process.MarketDataSnapshot.ViewModels
         }
 
         #region func
-        #endregion
+        private void BuildSubSocket(string ip, int port)
+        {
+            _socketSub = new SubscriberSocket(string.Format(">tcp://{0}:{1}", ip, port));
+            _socketSub.Options.ReceiveHighWatermark = 10000;
+            Thread.Sleep(100);
+            ThreadPool.QueueUserWorkItem(x =>
+            {
+                try
+                {
+                    List<byte[]> messages = new List<byte[]>();
+                    while (true)
+                    {
+                        _socketSub.ReceiveMultipartBytes(ref messages, 2);
+                        switch (messages.Count)
+                        {
+                            case 2:
+                                var data = Encoding.UTF8.GetString(messages[0]).Split('#');
+                                switch (data.Length)
+                                {
+                                    case 4:
+                                        switch (data[0])
+                                        {
+                                            case "0":
+                                                ProcessSolvedPacket_TSE(data[1], messages[1]); break;
+                                            case "1":
+                                                ProcessSolvedPacket_TPEX(data[1], messages[1]); break;
+                                            case "2"://期日
+                                            case "3"://選日
+                                            case "4"://期夜
+                                            case "5"://選夜
+                                                ProcessSolvedPacket_TAIFEX(data[1], messages[1]); break;
+                                            case "6":
+                                            default:
+                                                break;
+                                        }
+                                        break;
+                                    default:
+                                        break;
+                                }
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                }
+                catch (TerminatingException ex)
+                {
+                    System.Diagnostics.Debug.WriteLine(ex.ErrorCode);
+                }
+            });
+        }
+        private void ProcessSolvedPacket_TSE(string packetType, byte[] packetData)
+        {
+            try
+            {
+                switch (packetType)
+                {
+                    case "6":
+                        {
+                            _client.HSet(Parameter.TSE_FORMAT6_HASH_KEY, Utility.ByteGetSubArray(packetData, 10, 6), packetData);
+                            //string symbol = Encoding.ASCII.GetString(packetData, 10, 6).Trim();
+                            //Utility.SaveLog(DateTime.Now.ToString("HH:mm:ss:ttt") + string.Format("Redis新增{0}：{1}", "上市格式6", symbol));
+                            break;
+                        }
+                    case "17":
+                        {
+                            _client.HSet(Parameter.TSE_FORMAT17_HASH_KEY, Utility.ByteGetSubArray(packetData, 10, 6), packetData);
+                            //string symbol = Encoding.ASCII.GetString(packetData, 10, 6).Trim();
+                            //Utility.SaveLog(DateTime.Now.ToString("HH:mm:ss:ttt") + string.Format("Redis新增{0}：{1}", "上市格式17", symbol));
+                            break;
+                        }
+                    default:
+                        break;
+                }
+            }
+            catch (Exception)
+            {
+            }
+        }
 
-        #region Event
-        //------------------------------------------------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// 期貨I022[資訊]回呼事件
-        /// </summary>
-        private void Api_TaifexI022Received(object sender, MarketDataApi.MarketDataApi.TaifexI022ReceivedEventArgs e)
+        private void ProcessSolvedPacket_TPEX(string packetType, byte[] packetData)
         {
-            Utility.SetRedisDB(_client, Parameter.I022_HASH_KEY, e.PacketData.B_ProdId, e.PacketData);
-            Utility.SaveLog(DateTime.Now.ToString("HH:mm:ss:ttt") + string.Format("Redis新增{0}：{1}", "I022", e.PacketData.B_ProdId));
-        }
-        //------------------------------------------------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// 期貨I082[資訊]回呼事件
-        /// </summary>
-        private void Api_TaifexI082Received(object sender, MarketDataApi.MarketDataApi.TaifexI082ReceivedEventArgs e)
-        {
-            Utility.SetRedisDB(_client, Parameter.I082_HASH_KEY, e.PacketData.B_ProdId, e.PacketData);
-            Utility.SaveLog(DateTime.Now.ToString("HH:mm:ss:ttt") + string.Format("Redis新增{0}：{1}", "I082", e.PacketData.B_ProdId));
-        }
-        //------------------------------------------------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// 期貨I080[委買委賣]回呼事件
-        /// </summary>
-        void api_TaifexI080Received(object sender, MarketDataApi.MarketDataApi.TaifexI080ReceivedEventArgs e)
-        {
-            App.Current.Dispatcher.Invoke((Action)(() =>
+            try
             {
-                Utility.SetRedisDB(_client, Parameter.I080_HASH_KEY, e.PacketData.B_ProdId, e.PacketData);
-                Utility.SaveLog(DateTime.Now.ToString("HH:mm:ss:ttt") + string.Format("Redis新增{0}：{1}", "I080", e.PacketData.B_ProdId));
-            }));
-        }
-        //------------------------------------------------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// 期貨I020[成交]回呼事件
-        /// </summary>
-        void api_TaifexI020Received(object sender, MarketDataApi.MarketDataApi.TaifexI020ReceivedEventArgs e)
-        {
-            App.Current.Dispatcher.Invoke((Action)(() =>
+                switch (packetType)
+                {
+                    case "6":
+                        {
+                            _client.HSet(Parameter.TPEX_FORMAT6_HASH_KEY, Utility.ByteGetSubArray(packetData, 10, 6), packetData);
+                            //string symbol = Encoding.ASCII.GetString(packetData, 10, 6).Trim();
+                            //Utility.SaveLog(DateTime.Now.ToString("HH:mm:ss:ttt") + string.Format("Redis新增{0}：{1}", "上櫃格式6", symbol));
+                            break;
+                        }
+                    case "17":
+                        {
+                            _client.HSet(Parameter.TPEX_FORMAT17_HASH_KEY, Utility.ByteGetSubArray(packetData, 10, 6), packetData);
+                            //string symbol = Encoding.ASCII.GetString(packetData, 10, 6).Trim();
+                            //Utility.SaveLog(DateTime.Now.ToString("HH:mm:ss:ttt") + string.Format("Redis新增{0}：{1}", "上櫃格式17", symbol));
+                            break;
+                        }
+                    default:
+                        break;
+                }
+            }
+            catch (Exception)
             {
-                Utility.SetRedisDB(_client, Parameter.I020_HASH_KEY, e.PacketData.B_ProdId, e.PacketData);
-                Utility.SaveLog(DateTime.Now.ToString("HH:mm:ss:ttt") + string.Format("Redis新增{0}：{1}", "I020", e.PacketData.B_ProdId));
-            }));
+            }
         }
-        //------------------------------------------------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// 上櫃現貨格式6回呼事件
-        /// </summary>
-        void api_TpexFormat6Received(object sender, MarketDataApi.MarketDataApi.TpexFormat6ReceivedEventArgs e)
+
+        private void ProcessSolvedPacket_TAIFEX(string packetType, byte[] packetData)
         {
-            App.Current.Dispatcher.Invoke((Action)(() =>
+            try
             {
-                Utility.SetRedisDB(_client, Parameter.TPEX_FORMAT6_HASH_KEY, e.PacketData.StockID, e.PacketData);
-                Utility.SaveLog(DateTime.Now.ToString("HH:mm:ss:ttt") + string.Format("Redis新增{0}：{1}", "上櫃格式6", e.PacketData.StockID));
-            }));
+                switch (ConvertToPacketType_TAIFEX(packetType))
+                {
+                    case "I020":
+                        {
+                            _client.HSet(Parameter.I020_HASH_KEY, Utility.ByteGetSubArray(packetData, 14, 20), packetData);
+                            //string symbol = Encoding.ASCII.GetString(packetData, 14, 20).TrimEnd(' ');
+                            //Utility.SaveLog(DateTime.Now.ToString("HH:mm:ss:ttt") + string.Format("Redis新增{0}：{1}", "I020", symbol));
+                            break;
+                        }
+                    case "I080":
+                        {
+                            _client.HSet(Parameter.I080_HASH_KEY, Utility.ByteGetSubArray(packetData, 14, 20), packetData);
+                            //string symbol = Encoding.ASCII.GetString(packetData, 14, 20).TrimEnd(' ');
+                            //Utility.SaveLog(DateTime.Now.ToString("HH:mm:ss:ttt") + string.Format("Redis新增{0}：{1}", "I080", symbol));
+                            break;
+                        }
+                    case "I022":
+                        {
+                            _client.HSet(Parameter.I022_HASH_KEY, Utility.ByteGetSubArray(packetData, 14, 20), packetData);
+                            //string symbol = Encoding.ASCII.GetString(packetData, 14, 20).TrimEnd(' ');
+                            //Utility.SaveLog(DateTime.Now.ToString("HH:mm:ss:ttt") + string.Format("Redis新增{0}：{1}", "I022", symbol));
+                            break;
+                        }
+                    case "I082":
+                        {
+                            _client.HSet(Parameter.I082_HASH_KEY, Utility.ByteGetSubArray(packetData, 14, 20), packetData);
+                            //string symbol = Encoding.ASCII.GetString(packetData, 14, 20).TrimEnd(' ');
+                            //Utility.SaveLog(DateTime.Now.ToString("HH:mm:ss:ttt") + string.Format("Redis新增{0}：{1}", "I082", symbol));
+                            break;
+                        }
+                    default:
+                        break;
+                }
+            }
+            catch (Exception)
+            {
+            }
         }
-        //------------------------------------------------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// 上市現貨格式6回呼事件
-        /// </summary>
-        void api_TseFormat6Received(object sender, MarketDataApi.MarketDataApi.TseFormat6ReceivedEventArgs e)
+
+        private string ConvertToPacketType_TAIFEX(string packetType)
         {
-            App.Current.Dispatcher.Invoke((Action)(() =>
+            switch (packetType)
             {
-                Utility.SetRedisDB(_client, Parameter.TSE_FORMAT6_HASH_KEY, e.PacketData.StockID, e.PacketData);
-                Utility.SaveLog(DateTime.Now.ToString("HH:mm:ss:ttt") + string.Format("Redis新增{0}：{1}", "上市格式6", e.PacketData.StockID));
-            }));
-        }
-        //------------------------------------------------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// 上櫃現貨格式17回呼事件
-        /// </summary>
-        void api_TpexFormat17Received(object sender, MarketDataApi.MarketDataApi.TpexFormat17ReceivedEventArgs e)
-        {
-            App.Current.Dispatcher.Invoke((Action)(() =>
-            {
-                Utility.SetRedisDB(_client, Parameter.TPEX_FORMAT17_HASH_KEY, e.PacketData.StockID, e.PacketData);
-                Utility.SaveLog(DateTime.Now.ToString("HH:mm:ss:ttt") + string.Format("Redis新增{0}：{1}", "上櫃格式17", e.PacketData.StockID));
-            }));
-        }
-        //------------------------------------------------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// 上市現貨格式17回呼事件
-        /// </summary>
-        void api_TseFormat17Received(object sender, MarketDataApi.MarketDataApi.TseFormat17ReceivedEventArgs e)
-        {
-            App.Current.Dispatcher.Invoke((Action)(() =>
-            {
-                Utility.SetRedisDB(_client, Parameter.TSE_FORMAT17_HASH_KEY, e.PacketData.StockID, e.PacketData);
-                Utility.SaveLog(DateTime.Now.ToString("HH:mm:ss:ttt") + string.Format("Redis新增{0}：{1}", "上市格式17", e.PacketData.StockID));
-            }));
+                case "21":
+                case "51":
+                    return "I020";
+                case "22":
+                case "52":
+                    return "I080";
+                case "23":
+                case "53":
+                    return "I140";
+                case "24":
+                case "54":
+                    return "I100";
+                case "25":
+                case "55":
+                    return "I021";
+                case "26":
+                case "56":
+                    return "I023";
+                case "27":
+                case "57":
+                    return "I022";
+                case "28":
+                case "58":
+                    return "I082";
+                case "11":
+                case "41":
+                    return "I010";
+                case "12":
+                case "42":
+                    return "I030";
+                case "13":
+                case "43":
+                    return "I011";
+                case "14":
+                case "44":
+                    return "I050";
+                case "15":
+                case "45":
+                    return "I060";
+                case "16":
+                case "46":
+                    return "I120";
+                case "17":
+                case "47":
+                    return "I130";
+                case "18":
+                case "48":
+                    return "I064";
+                case "19":
+                    return "I065";
+                case "31":
+                case "61":
+                    return "I070";
+                case "32":
+                case "62":
+                    return "I071";
+                case "33":
+                case "63":
+                    return "I072";
+                case "34":
+                    return "I073";
+                case "71":
+                    return "B020";
+                case "72":
+                    return "B080";
+                case "73":
+                    return "B021";
+                default:
+                    return "Unknown";
+            }
         }
         #endregion
     }

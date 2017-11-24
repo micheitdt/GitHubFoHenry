@@ -1,5 +1,4 @@
 ﻿using CommonLibrary.Model;
-using MarketDataApi;
 using NLog;
 using ServiceStack.Redis;
 using System;
@@ -82,12 +81,12 @@ namespace Service.Redis.GlobalMD.ViewModels
                             api.TseFormat1Received += api_TseFormat1Received; /// <- 上櫃現貨格式1(盘前)回呼事件
                             api.TpexFormat1Received += api_TpexFormat1Received;/// <- 上市現貨格式1(盘前)回呼事件
                             //盤前訊息订阅
-                            api.Sub(AdapterCode.TAIFEX_FUTURES_DAY, "I010");
-                            api.Sub(AdapterCode.TAIFEX_OPTIONS_DAY, "I010");
-                            api.Sub(AdapterCode.TAIFEX_FUTURES_NIGHT, "I010");
-                            api.Sub(AdapterCode.TAIFEX_OPTIONS_NIGHT, "I010");
-                            api.Sub(AdapterCode.TSE, "1");
-                            api.Sub(AdapterCode.TPEX, "1");
+                            api.Sub(MarketDataApi.AdapterCode.TAIFEX_FUTURES_DAY, "I010");
+                            api.Sub(MarketDataApi.AdapterCode.TAIFEX_OPTIONS_DAY, "I010");
+                            api.Sub(MarketDataApi.AdapterCode.TAIFEX_FUTURES_NIGHT, "I010");
+                            api.Sub(MarketDataApi.AdapterCode.TAIFEX_OPTIONS_NIGHT, "I010");
+                            api.Sub(MarketDataApi.AdapterCode.TSE, "1");
+                            api.Sub(MarketDataApi.AdapterCode.TPEX, "1");
                             break;
                         }
                     case "2":
@@ -103,18 +102,26 @@ namespace Service.Redis.GlobalMD.ViewModels
                             //api.TseFormat17Received += api_TseFormat17Received;  /// <- 上市現貨格式6(Format17)回呼事件
                             //api.TpexFormat17Received += api_TpexFormat17Received; /// <- 上櫃現貨格式6(Format17)回呼事件
                             api.QuotesByteArrayReceived += Api_QuotesByteArrayReceived;/// <- 原始資料回呼事件
-                            api.Sub(AdapterCode.TAIFEX_FUTURES_NIGHT, "I020");
-                            api.Sub(AdapterCode.TAIFEX_FUTURES_NIGHT, "I080");
-                            api.Sub(AdapterCode.TAIFEX_OPTIONS_NIGHT, "I020");
-                            api.Sub(AdapterCode.TAIFEX_OPTIONS_NIGHT, "I080");
-                            api.Sub(AdapterCode.TAIFEX_FUTURES_DAY, "I020");
-                            api.Sub(AdapterCode.TAIFEX_FUTURES_DAY, "I080");
-                            api.Sub(AdapterCode.TAIFEX_OPTIONS_DAY, "I020");
-                            api.Sub(AdapterCode.TAIFEX_OPTIONS_DAY, "I080");
-                            api.Sub(AdapterCode.TSE, "6");
-                            api.Sub(AdapterCode.TSE, "17");
-                            api.Sub(AdapterCode.TPEX, "6");
-                            api.Sub(AdapterCode.TPEX, "17");
+                            api.Sub(MarketDataApi.AdapterCode.TAIFEX_FUTURES_NIGHT, "I022");
+                            api.Sub(MarketDataApi.AdapterCode.TAIFEX_FUTURES_NIGHT, "I082");
+                            api.Sub(MarketDataApi.AdapterCode.TAIFEX_OPTIONS_NIGHT, "I022");
+                            api.Sub(MarketDataApi.AdapterCode.TAIFEX_OPTIONS_NIGHT, "I082");
+                            api.Sub(MarketDataApi.AdapterCode.TAIFEX_FUTURES_DAY, "I022");
+                            api.Sub(MarketDataApi.AdapterCode.TAIFEX_FUTURES_DAY, "I082");
+                            api.Sub(MarketDataApi.AdapterCode.TAIFEX_OPTIONS_DAY, "I022");
+                            api.Sub(MarketDataApi.AdapterCode.TAIFEX_OPTIONS_DAY, "I082");
+                            api.Sub(MarketDataApi.AdapterCode.TAIFEX_FUTURES_NIGHT, "I020");
+                            api.Sub(MarketDataApi.AdapterCode.TAIFEX_FUTURES_NIGHT, "I080");
+                            api.Sub(MarketDataApi.AdapterCode.TAIFEX_OPTIONS_NIGHT, "I020");
+                            api.Sub(MarketDataApi.AdapterCode.TAIFEX_OPTIONS_NIGHT, "I080");
+                            api.Sub(MarketDataApi.AdapterCode.TAIFEX_FUTURES_DAY, "I020");
+                            api.Sub(MarketDataApi.AdapterCode.TAIFEX_FUTURES_DAY, "I080");
+                            api.Sub(MarketDataApi.AdapterCode.TAIFEX_OPTIONS_DAY, "I020");
+                            api.Sub(MarketDataApi.AdapterCode.TAIFEX_OPTIONS_DAY, "I080");
+                            api.Sub(MarketDataApi.AdapterCode.TSE, "6");
+                            api.Sub(MarketDataApi.AdapterCode.TSE, "17");
+                            api.Sub(MarketDataApi.AdapterCode.TPEX, "6");
+                            api.Sub(MarketDataApi.AdapterCode.TPEX, "17");
                             break;
                         }
                     default:

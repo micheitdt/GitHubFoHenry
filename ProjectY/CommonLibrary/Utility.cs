@@ -16,6 +16,8 @@ namespace CommonLibrary
 {
     public partial class Utility
     {
+        public static string TimePath = Environment.CurrentDirectory + "\\" + DateTime.Now.ToString("yyyyMMddHH");
+
         /// <summary>
         /// 存檔
         /// </summary>
@@ -29,14 +31,9 @@ namespace CommonLibrary
             return true;
         }
 
-        public static void SaveLog(string value, string path = "")
+        public static void SaveLog(string value)
         {
-            if(string.IsNullOrEmpty( path))
-            {
-                path = Environment.CurrentDirectory + "\\" + DateTime.Today.ToString("yyyyMMddHH");
-            }
-
-            using (StreamWriter sw = File.AppendText(path))
+            using (StreamWriter sw = File.AppendText(TimePath))
             {
                 //開始寫入
                 sw.WriteLine(value);
@@ -332,6 +329,83 @@ namespace CommonLibrary
         {
            string retValue = Encoding.Default.GetString(data.Take(data[0]).ToArray());
             return retValue;
+        }
+        //todo
+        //public static int SetDoubleToDynamicBytes(ref byte[] data, int offset, double price,double baseprice,int tagsize)
+        //{
+        //    if (price.ToString().Contains("."))//(xx.xxx)
+        //    {
+        //        //1byte=Header,8byte=Value
+        //        Byte[] byteArray = new byte[1];
+        //        BitArray retBitAry = new BitArray(byteArray);
+        //        retBitAry[0] = true;//小數
+        //        retBitAry.CopyTo(byteArray, 0);
+        //        var array = BitConverter.GetBytes(price);
+        //        data[offset] = byteArray[0];
+        //        for (int i = 0; i < array.Length; i++)
+        //        {
+        //            data[offset + i + 1] = array[i];
+        //        }
+        //        return 9;
+        //    }
+        //    else
+        //    {
+        //        if(price > 0)
+        //        {
+        //            //tag1 是否有小數 9byte
+        //            //tag2 是否正數
+        //            //tag3 是否1byte處理
+        //            //tag4 是否2byte處理
+        //            //
+        //        }
+        //        if (price.CompareTo(16384) >= 0)//(16384~1073741824)
+        //        {
+        //            Byte[] byteArray = BitConverter.GetBytes(price);
+        //            BitArray bitAry = new BitArray(new byte[] { byteArray[0], byteArray[1], byteArray[2], byteArray[3] });
+        //            BitArray retBitAry = new BitArray(new byte[4]);
+        //            for (int i = 2; i < bitAry.Count; i++)
+        //            {
+        //                retBitAry[i] = bitAry[i - 2];
+        //            }
+        //            //標示4byte
+        //            retBitAry[0] = true;
+        //            retBitAry[1] = true;
+
+        //            retBitAry.CopyTo(byteArray, 0);
+        //            data[offset] = byteArray[0];
+        //            data[offset + 1] = byteArray[1];
+        //            data[offset + 2] = byteArray[2];
+        //            data[offset + 3] = byteArray[3];
+        //            return 4;
+        //        }
+        //        else//(64~16383)
+        //        {
+        //            //EX：10000001.00000000 => 00100000.10100000(右移2位後。第1bit改1因為使用2byte)
+        //            Byte[] byteArray = BitConverter.GetBytes(price);
+        //            BitArray bitAry = new BitArray(new byte[] { byteArray[0], byteArray[1] });
+        //            BitArray retBitAry = new BitArray(new byte[2]);
+        //            for (int i = 2; i < bitAry.Count; i++)
+        //            {
+        //                retBitAry[i] = bitAry[i - 2];
+        //            }
+        //            //標示2byte
+        //            retBitAry[0] = true;
+        //            retBitAry[1] = false;
+
+        //            retBitAry.CopyTo(byteArray, 0);
+        //            data[offset] = byteArray[0];
+        //            data[offset + 1] = byteArray[1];
+        //            return 2;
+        //        }
+        //    }
+        //}
+
+        public static byte[] ByteGetSubArray(byte[] input, int index_start, int length)
+        {
+            byte[] newArray;
+            newArray = new byte[length];
+            Array.Copy(input, index_start, newArray, 0, length);
+            return newArray;
         }
         #endregion
     }
