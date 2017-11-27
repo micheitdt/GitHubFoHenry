@@ -330,76 +330,114 @@ namespace CommonLibrary
            string retValue = Encoding.Default.GetString(data.Take(data[0]).ToArray());
             return retValue;
         }
-        //todo
-        //public static int SetDoubleToDynamicBytes(ref byte[] data, int offset, double price,double baseprice,int tagsize)
-        //{
-        //    if (price.ToString().Contains("."))//(xx.xxx)
-        //    {
-        //        //1byte=Header,8byte=Value
-        //        Byte[] byteArray = new byte[1];
-        //        BitArray retBitAry = new BitArray(byteArray);
-        //        retBitAry[0] = true;//小數
-        //        retBitAry.CopyTo(byteArray, 0);
-        //        var array = BitConverter.GetBytes(price);
-        //        data[offset] = byteArray[0];
-        //        for (int i = 0; i < array.Length; i++)
-        //        {
-        //            data[offset + i + 1] = array[i];
-        //        }
-        //        return 9;
-        //    }
-        //    else
-        //    {
-        //        if(price > 0)
-        //        {
-        //            //tag1 是否有小數 9byte
-        //            //tag2 是否正數
-        //            //tag3 是否1byte處理
-        //            //tag4 是否2byte處理
-        //            //
-        //        }
-        //        if (price.CompareTo(16384) >= 0)//(16384~1073741824)
-        //        {
-        //            Byte[] byteArray = BitConverter.GetBytes(price);
-        //            BitArray bitAry = new BitArray(new byte[] { byteArray[0], byteArray[1], byteArray[2], byteArray[3] });
-        //            BitArray retBitAry = new BitArray(new byte[4]);
-        //            for (int i = 2; i < bitAry.Count; i++)
-        //            {
-        //                retBitAry[i] = bitAry[i - 2];
-        //            }
-        //            //標示4byte
-        //            retBitAry[0] = true;
-        //            retBitAry[1] = true;
+        /// <summary>
+        /// 帶double取得動態byte
+        /// </summary>
+        public static int SetDoubleToDynamicBytes(ref byte[] data, int offset, double price, double baseprice, double tagsize)
+        {
+            //EX1:( P=100, B=90, T=0.1 )= 100
+            int count = 0;
+            int compartValue = price.CompareTo(baseprice);
+            byte isAdd = 0;
+            switch (compartValue)
+            {
+                case 1://實價 > 基價
+                    count = (int)((price - baseprice) / tagsize);
+                    isAdd = 1;
+                    break;
+                case -1://實價 < 基價
+                    count = (int)((price - baseprice) / tagsize);
+                    break;
+                case 0://實價 = 基價
+                    data[offset] = 0x00;
+                    return 1;
+            }
+            if (count.CompareTo(32) >= 0)
+            {
+                if (count.CompareTo(8192) >= 0)//(8192~536870912)
+                {
+                    //標示4byte
+                    //int retValue = count >> 3;//右移4bit
+                    count = count | (isAdd << 31);//設最左bit 1正 or 0負
+                    count = count | (1 << 30);//設左2 true
+                    count = count | (1 << 29);//設左3 true
 
-        //            retBitAry.CopyTo(byteArray, 0);
-        //            data[offset] = byteArray[0];
-        //            data[offset + 1] = byteArray[1];
-        //            data[offset + 2] = byteArray[2];
-        //            data[offset + 3] = byteArray[3];
-        //            return 4;
-        //        }
-        //        else//(64~16383)
-        //        {
-        //            //EX：10000001.00000000 => 00100000.10100000(右移2位後。第1bit改1因為使用2byte)
-        //            Byte[] byteArray = BitConverter.GetBytes(price);
-        //            BitArray bitAry = new BitArray(new byte[] { byteArray[0], byteArray[1] });
-        //            BitArray retBitAry = new BitArray(new byte[2]);
-        //            for (int i = 2; i < bitAry.Count; i++)
-        //            {
-        //                retBitAry[i] = bitAry[i - 2];
-        //            }
-        //            //標示2byte
-        //            retBitAry[0] = true;
-        //            retBitAry[1] = false;
+                    Byte[] byteArray = BitConverter.GetBytes(count);
+                    data[offset] = byteArray[0];
+                    data[offset + 1] = byteArray[1];
+                    data[offset + 2] = byteArray[2];
+                    data[offset + 3] = byteArray[3];
+                    return 4;
+                }
+                else//(64~8191)
+                {
+                    //標示2byte
+                    //int retValue = (count >> 3);//右移3bit
+                    count = (count | (isAdd << 15));//設最左bit 1正 or 0負
+                    count = count | (1 << 14);//設左2 true
+                    //設左3 false
 
-        //            retBitAry.CopyTo(byteArray, 0);
-        //            data[offset] = byteArray[0];
-        //            data[offset + 1] = byteArray[1];
-        //            return 2;
-        //        }
-        //    }
-        //}
+                    Byte[] byteArray = BitConverter.GetBytes((UInt16)count);
+                    data[offset] = byteArray[0];
+                    data[offset + 1] = byteArray[1];
+                    return 2;
+                }
+            }
+            else//(1~31)
+            {
+                //標示1byte
+                count = (count | (isAdd << 7));//設最左bit 1正 or 0負
+                //設左2 false
+                //設左3 false
 
+                Byte[] byteArray = BitConverter.GetBytes(count);
+                data[offset] = byteArray[0];
+                return 1;
+            }
+        }
+        /// <summary>
+        /// 帶動態byte取得double
+        /// </summary>
+        public static double GetDoubleToDynamicBytes(ref byte[] data, int offset, double baseprice, double tagsize)
+        {
+            byte b = data[0];
+
+            var isAdd = (b >> 7) & 1;//x0000000
+            var mark1 = (b >> 6) & 1;//0x000000
+            var mark2 = (b >> 5) & 1;//00x00000
+            if (mark1 == 0)
+            {
+                var temp = b & 0x1F;//000xxxxx
+                double retValue = temp;
+                return baseprice + (retValue * tagsize);
+            }
+            else if(mark1 == 1 && mark2 ==0)
+            {
+                var temp = b & 0x1FFF;//000xxxxx(FF)2byte
+                double retValue = temp;
+                return baseprice + (retValue * tagsize);
+            }
+            else
+            {
+                var temp = b & 0x1FFFFFFF;//000xxxxx(FFFFFF)4byte
+                double retValue = temp;
+                return baseprice + (retValue * tagsize);
+            }            
+        }
+
+        static int SetZeroBit(int value, int position)
+        {
+            return value & ~(1 << position);
+        }
+
+        static int SetUnZeroBit(int value, int position)
+        {
+            return value | (1 << position);
+        }
+
+        /// <summary>
+        /// 裁切Byte array資料
+        /// </summary>
         public static byte[] ByteGetSubArray(byte[] input, int index_start, int length)
         {
             byte[] newArray;

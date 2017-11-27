@@ -74,6 +74,23 @@ namespace MarketDataApiExample.ViewModels
                 {
                     _redisClient = new RedisClient(DefaultSettings.Instance.REDIS_DB_IP, DefaultSettings.Instance.REDIS_DB_PORT);
 
+                    //for(uint i = 0; i < (UInt32.MaxValue /4); i++)
+                    //{
+                    //    getConvertTime(i);
+                    //}
+                    //byte[] data = new byte[10];
+                    //int byteCount = CommonLibrary.Utility.SetDoubleToDynamicBytes( ref data, 0,100, 90, 1);//10
+                    //double price = CommonLibrary.Utility.GetDoubleToDynamicBytes(ref data, 0, 90, 1);//10
+                    //byteCount = CommonLibrary.Utility.SetDoubleToDynamicBytes(ref data, 0, 100, 90, 0.1);//100
+                    //price = CommonLibrary.Utility.GetDoubleToDynamicBytes(ref data, 0, 90, 0.1);//100
+                    //byteCount = CommonLibrary.Utility.SetDoubleToDynamicBytes(ref data, 0, 100, 90, 0.01);//1000
+                    //price = CommonLibrary.Utility.GetDoubleToDynamicBytes(ref data, 0, 90, 0.01);//1000
+                    //byteCount = CommonLibrary.Utility.SetDoubleToDynamicBytes(ref data, 0, 100, 90, 0.001);//10000
+                    //price = CommonLibrary.Utility.GetDoubleToDynamicBytes(ref data, 0, 90, 0.001);//10000
+                    //byteCount = CommonLibrary.Utility.SetDoubleToDynamicBytes(ref data, 0, 100, 90, 0.0001);//100000
+                    //price = CommonLibrary.Utility.GetDoubleToDynamicBytes(ref data, 0, 90, 0.0001);//100000
+
+
                     CommonLibrary.Utility.GetTAIFEXRedisDB(_redisClient, Parameter.I010_HASH_KEY);
                     CommonLibrary.Utility.GetTPEXRedisDB(_redisClient, Parameter.TPEX_FORMAT1_HASH_KEY);
                     CommonLibrary.Utility.GetTSERedisDB(_redisClient, Parameter.TSE_FORMAT1_HASH_KEY);
@@ -92,6 +109,28 @@ namespace MarketDataApiExample.ViewModels
                 _logger.Error(ex, string.Format("MainViewModel(): ErrMsg = {0}.", ex.Message));
             }
         }
+
+        //private void getConvertTime( uint i)
+        //{
+        //    byte[] data = new byte[10];
+
+        //    System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();//引用stopwatch物件
+        //    sw.Reset();
+        //    sw.Start();;
+
+        //    int count = CommonLibrary.Utility.SetIntToDynamicBytes(ref data, 0, i);
+
+        //    sw.Stop();
+        //    Debug.WriteLine("int to byte array :" + sw.Elapsed.TotalMilliseconds.ToString());
+
+        //    sw.Reset();
+        //    sw.Start();
+
+        //    int value = CommonLibrary.Utility.GetIntToDynamicBytes(data, 0);
+
+        //    sw.Stop();
+        //    Debug.WriteLine("byte array to int :" + sw.Elapsed.TotalMilliseconds.ToString());
+        //}
 
         #region prop
         /// <summary>
