@@ -101,6 +101,11 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="DefaultSettings.cs" />
+    <Compile Include="Model\Quotes.cs" />
+    <Compile Include="Model\RelayCommand.cs" />
+    <Compile Include="Model\SymbolTaifex.cs" />
+    <Compile Include="Model\SymbolTpex.cs" />
+    <Compile Include="Model\SymbolTse.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -156,6 +161,14 @@
     <ProjectReference Include="..\CommonLibrary\CommonLibrary.csproj">
       <Project>{9d37d39e-bb99-4b75-9f25-cd9d2c993915}</Project>
       <Name>CommonLibrary</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Common\Common.csproj">
+      <Project>{404e40c8-2222-478e-92c0-64c5e9b41955}</Project>
+      <Name>Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ESunnyPATSConverterApi\ESunnyPATSConverterApi.csproj">
+      <Project>{832cd4d1-34b9-443a-a04c-6dad52c64595}</Project>
+      <Name>ESunnyPATSConverterApi</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

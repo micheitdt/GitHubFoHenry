@@ -9,7 +9,6 @@ using System.Windows.Input;
 using System.Diagnostics;
 using System.ComponentModel;
 using System.Collections.ObjectModel;
-using CommonLibrary.Model;
 using NLog;
 using System.IO;
 using System.Collections.Concurrent;
@@ -18,6 +17,7 @@ using ServiceStack.Redis;
 using System.Windows.Data;
 using NPOI.HSSF.UserModel;
 using ESunnyPATSConverterApi;
+using MarketDataApiExample.Model;
 
 namespace MarketDataApiExample.ViewModels
 {
@@ -58,7 +58,6 @@ namespace MarketDataApiExample.ViewModels
         private SymbolTaifex _selectTaifex;
         MdApi api;
         private long _gridSeq = 1;
-        RedisClient _redisClient;
 
         private ObservableCollection<MarketDataApi.PacketPATS.Format0> _patsFormat0List = new ObservableCollection<MarketDataApi.PacketPATS.Format0>();
         private ObservableCollection<MarketDataApi.PacketPATS.Format1> _patsFormat1List = new ObservableCollection<MarketDataApi.PacketPATS.Format1>();
@@ -72,29 +71,11 @@ namespace MarketDataApiExample.ViewModels
             try
             {
                 DefaultSettings.Instance.Initialize();//讀設定檔
-
-                if (CommonLibrary.Utility.TestConn(DefaultSettings.Instance.REDIS_DB_IP, DefaultSettings.Instance.REDIS_DB_PORT))
-                {
-                    _redisClient = new RedisClient(DefaultSettings.Instance.REDIS_DB_IP, DefaultSettings.Instance.REDIS_DB_PORT);
-
-                    //for (uint i = 0; i < (UInt32.MaxValue / 8); i++)
-                    //{
-                    //    getConvertTime1(i);
-                    //    getConvertTime2(i);
-                    //}
-
-                    CommonLibrary.Utility.GetTAIFEXRedisDB(_redisClient, CommonLibrary.Parameter.I010_HASH_KEY);
-                    CommonLibrary.Utility.GetTPEXRedisDB(_redisClient, CommonLibrary.Parameter.TPEX_FORMAT1_HASH_KEY);
-                    CommonLibrary.Utility.GetTSERedisDB(_redisClient, CommonLibrary.Parameter.TSE_FORMAT1_HASH_KEY);
-
-                    SymbolTaifexDictionary = SymbolTaifexList.GetAllSymbolTaifexCollection();
-                    SymbolTpexDictionary = SymbolTpexList.GetAllSymbolTpexCollection();
-                    SymbolTseDictionary = SymbolTseList.GetAllSymbolTseCollection();
-                }
-                else
-                {
-                    StatusMessageList.Insert(0, DateTime.Now.ToString("HH:mm:ss:ttt") + "    Redis连接失敗:" + DefaultSettings.Instance.REDIS_DB_IP + ":" + DefaultSettings.Instance.REDIS_DB_PORT + "  無法抓取盤前資料");
-                }
+                //for (uint i = 0; i < (UInt32.MaxValue / 8); i++)
+                //{
+                //    getConvertTime1(i);
+                //    getConvertTime2(i);
+                //}
             }
             catch(Exception ex)
             {
@@ -110,7 +91,7 @@ namespace MarketDataApiExample.ViewModels
             sw.Reset();
             sw.Start(); ;
 
-            int count = CommonLibrary.Utility.SetIntToDynamicBytes(ref data, 0, i);
+            int count = Common.Utility.SetIntToDynamicBytes(ref data, 0, i);
 
             sw.Stop();
             Debug.WriteLine("int to byte array :" + sw.Elapsed.TotalMilliseconds.ToString() + "i :" + i );
@@ -118,7 +99,7 @@ namespace MarketDataApiExample.ViewModels
             sw.Reset();
             sw.Start();
 
-            var value = CommonLibrary.Utility.GetIntToDynamicBytes(data, 0);
+            var value = Common.Utility.GetIntToDynamicBytes(data, 0);
 
             sw.Stop();
             Debug.WriteLine("byte array to int :" + sw.Elapsed.TotalMilliseconds.ToString() + "value:" + value);
@@ -143,7 +124,7 @@ namespace MarketDataApiExample.ViewModels
             sw.Reset();
             sw.Start(); ;
             uint count = 0;
-            CommonLibrary.Utility.SetDoubleToDynamicBytes(ref data, 0, -11.0215m, -10m, (decimal)(1/Math.Pow(10,i)) , ref count);//10
+            Common.Utility.SetDoubleToDynamicBytes(ref data, 0, -11.0215m, -10m, (decimal)(1/Math.Pow(10,i)) , ref count);//10
 
             sw.Stop();
             Debug.WriteLine("int to byte array :" + sw.Elapsed.TotalMilliseconds.ToString());
@@ -151,7 +132,7 @@ namespace MarketDataApiExample.ViewModels
             sw.Reset();
             sw.Start();
             
-            decimal price = CommonLibrary.Utility.GetDoubleToDynamicBytes(ref data, 0, -10m, (decimal)(1 / Math.Pow(10, i)), ref count);//10
+            decimal price = Common.Utility.GetDoubleToDynamicBytes(ref data, 0, -10m, (decimal)(1 / Math.Pow(10, i)), ref count);//10
 
             sw.Stop();
             Debug.WriteLine("byte array to int :" + sw.Elapsed.TotalMilliseconds.ToString());

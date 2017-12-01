@@ -1,19 +1,21 @@
-﻿using CommonLibrary.Model;
-using ServiceStack.Redis;
+﻿using ServiceStack.Redis;
 using System;
 using System.IO;
 using System.Text;
-using CommonLibrary;
 using System.Collections.Generic;
 using System.Threading;
 using NetMQ.Sockets;
 using NetMQ;
-using System.Linq;
+using Common;
 
 namespace Process.BaseMarketData.ViewModels
 {
     public class MainViewModel
     {
+        private const string TSE_FORMAT1_HASH_KEY = "0#1";
+        private const string TPEX_FORMAT1_HASH_KEY = "1#1";
+        private const string I010_HASH_KEY = "11";
+
         private static MainViewModel _instance;
         private static SubscriberSocket _socketSub;
         private static RedisClient _client;
@@ -190,7 +192,7 @@ namespace Process.BaseMarketData.ViewModels
             }
             else
             {
-                _client.HSet(Parameter.TSE_FORMAT1_HASH_KEY, Utility.ByteGetSubArray(data, 10, 6), data);
+                _client.HSet(TSE_FORMAT1_HASH_KEY, Utility.ByteGetSubArray(data, 10, 6), data);
                 Utility.SaveLog(DateTime.Now.ToString("HH:mm:ss:ttt") + string.Format("Redis新增TSE：{0}", symbol));
             }
         }
@@ -234,7 +236,7 @@ namespace Process.BaseMarketData.ViewModels
             }
             else
             {
-                _client.HSet(Parameter.TPEX_FORMAT1_HASH_KEY, Utility.ByteGetSubArray(data, 10, 6), data);
+                _client.HSet(TPEX_FORMAT1_HASH_KEY, Utility.ByteGetSubArray(data, 10, 6), data);
                 Utility.SaveLog(DateTime.Now.ToString("HH:mm:ss:ttt") + string.Format("Redis新增TPEX：{0}", symbol));
             }
         }
@@ -270,7 +272,7 @@ namespace Process.BaseMarketData.ViewModels
         }
         private void SaveRedisTAIFEX(byte[] data)
         {
-            _client.HSet(Parameter.I010_HASH_KEY, Utility.ByteGetSubArray(data, 14, 10), data);
+            _client.HSet(I010_HASH_KEY, Utility.ByteGetSubArray(data, 14, 10), data);
             string symbol = Encoding.ASCII.GetString(data, 14, 10).TrimEnd(' ');
             Utility.SaveLog(DateTime.Now.ToString("HH:mm:ss:ttt") + string.Format("Redis新增{0}", symbol));
         }
