@@ -16,7 +16,7 @@ namespace CommonLibrary.Model
         public SymbolTse()
         { }
 
-        public SymbolTse(MarketDataApi.Model.PacketTSE.Format1 data)
+        public SymbolTse(MarketDataApi.PacketTSE.Format1 data)
         {
             _symbolNo = data.StockID;
             _symbolName = data.StockName;
@@ -672,7 +672,7 @@ namespace CommonLibrary.Model
             internal set;
         }
 
-        public static ObservableCollection<SymbolTse> GetAllSymbolTpexCollection()
+        public static ObservableCollection<SymbolTse> GetAllSymbolTseCollection()
         {
             return new ObservableCollection<SymbolTse>(AllSymbolTseList.Values);
         }
@@ -682,7 +682,19 @@ namespace CommonLibrary.Model
             AllSymbolTseList.TryAdd(data.SymbolNo, data);
         }
 
-        public static void SetSymbolTseDataList(IDictionary<string, MarketDataApi.Model.PacketTSE.Format1> data)
+        public static void UpdateSymbolTseData(SymbolTse data)
+        {
+            if(AllSymbolTseList.ContainsKey(data.SymbolNo))
+            {
+                AllSymbolTseList[data.SymbolNo] = data;
+            }
+            else
+            {
+                AllSymbolTseList.TryAdd(data.SymbolNo, data);
+            }
+        }
+
+        public static void SetSymbolTseDataList(IDictionary<string, MarketDataApi.PacketTSE.Format1> data)
         {
             foreach (var obj in data)
             {
@@ -690,7 +702,7 @@ namespace CommonLibrary.Model
             }
         }
 
-        public static void AddTseData(MarketDataApi.Model.PacketTSE.Format1 data)
+        public static void AddTseData(MarketDataApi.PacketTSE.Format1 data)
         {
             SymbolTse temp = new SymbolTse(data);
             AllSymbolTseList.TryAdd(data.StockID, temp);

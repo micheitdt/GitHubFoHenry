@@ -94,17 +94,17 @@ namespace CommonLibrary
             //方法1
             var switchTypeAction = new Dictionary<Type, Action>
             {
-                { typeof(MarketDataApi.Model.PacketTSE.Format1), () => { conndb.Set<MarketDataApi.Model.PacketTSE.Format1>(key, data as MarketDataApi.Model.PacketTSE.Format1); conndb.SetEntryInHash(hashid, key, ""); } },
-                { typeof(MarketDataApi.Model.PacketTPEX.Format1), () => {  conndb.Set<MarketDataApi.Model.PacketTPEX.Format1>(key, data as MarketDataApi.Model.PacketTPEX.Format1); conndb.SetEntryInHash(hashid, key, ""); }  },
-                { typeof(MarketDataApi.Model.PacketTAIFEX.I010), () => { conndb.Set<MarketDataApi.Model.PacketTAIFEX.I010>(key, data as MarketDataApi.Model.PacketTAIFEX.I010); conndb.SetEntryInHash(hashid, key, ""); }},
-                { typeof(MarketDataApi.Model.PacketTSE.Format6), () => { conndb.Set<MarketDataApi.Model.PacketTSE.Format6>(key, data as MarketDataApi.Model.PacketTSE.Format6); conndb.SetEntryInHash(hashid, key, ""); }},
-                { typeof(MarketDataApi.Model.PacketTSE.Format17), () => { conndb.Set<MarketDataApi.Model.PacketTSE.Format17>(key, data as MarketDataApi.Model.PacketTSE.Format17); conndb.SetEntryInHash(hashid, key, ""); }},
-                { typeof(MarketDataApi.Model.PacketTPEX.Format6), () => { conndb.Set<MarketDataApi.Model.PacketTPEX.Format6>(key, data as MarketDataApi.Model.PacketTPEX.Format6); conndb.SetEntryInHash(hashid, key, ""); }},
-                { typeof(MarketDataApi.Model.PacketTPEX.Format17), () => { conndb.Set<MarketDataApi.Model.PacketTPEX.Format17>(key, data as MarketDataApi.Model.PacketTPEX.Format17); conndb.SetEntryInHash(hashid, key, ""); }},
-                { typeof(MarketDataApi.Model.PacketTAIFEX.I020), () => { conndb.Set<MarketDataApi.Model.PacketTAIFEX.I020>(key, data as MarketDataApi.Model.PacketTAIFEX.I020); conndb.SetEntryInHash(hashid, key, ""); }},
-                { typeof(MarketDataApi.Model.PacketTAIFEX.I080), () => { conndb.Set<MarketDataApi.Model.PacketTAIFEX.I080>(key, data as MarketDataApi.Model.PacketTAIFEX.I080); conndb.SetEntryInHash(hashid, key, ""); }},
-                { typeof(MarketDataApi.Model.PacketTAIFEX.I022), () => { conndb.Set<MarketDataApi.Model.PacketTAIFEX.I022>(key, data as MarketDataApi.Model.PacketTAIFEX.I022); conndb.SetEntryInHash(hashid, key, ""); }},
-                { typeof(MarketDataApi.Model.PacketTAIFEX.I082), () => { conndb.Set<MarketDataApi.Model.PacketTAIFEX.I082>(key, data as MarketDataApi.Model.PacketTAIFEX.I082); conndb.SetEntryInHash(hashid, key, ""); }},
+                { typeof(MarketDataApi.PacketTSE.Format1), () => { conndb.Set<MarketDataApi.PacketTSE.Format1>(key, data as MarketDataApi.PacketTSE.Format1); conndb.SetEntryInHash(hashid, key, ""); } },
+                { typeof(MarketDataApi.PacketTPEX.Format1), () => {  conndb.Set<MarketDataApi.PacketTPEX.Format1>(key, data as MarketDataApi.PacketTPEX.Format1); conndb.SetEntryInHash(hashid, key, ""); }  },
+                { typeof(MarketDataApi.PacketTAIFEX.I010), () => { conndb.Set<MarketDataApi.PacketTAIFEX.I010>(key, data as MarketDataApi.PacketTAIFEX.I010); conndb.SetEntryInHash(hashid, key, ""); }},
+                { typeof(MarketDataApi.PacketTSE.Format6), () => { conndb.Set<MarketDataApi.PacketTSE.Format6>(key, data as MarketDataApi.PacketTSE.Format6); conndb.SetEntryInHash(hashid, key, ""); }},
+                { typeof(MarketDataApi.PacketTSE.Format17), () => { conndb.Set<MarketDataApi.PacketTSE.Format17>(key, data as MarketDataApi.PacketTSE.Format17); conndb.SetEntryInHash(hashid, key, ""); }},
+                { typeof(MarketDataApi.PacketTPEX.Format6), () => { conndb.Set<MarketDataApi.PacketTPEX.Format6>(key, data as MarketDataApi.PacketTPEX.Format6); conndb.SetEntryInHash(hashid, key, ""); }},
+                { typeof(MarketDataApi.PacketTPEX.Format17), () => { conndb.Set<MarketDataApi.PacketTPEX.Format17>(key, data as MarketDataApi.PacketTPEX.Format17); conndb.SetEntryInHash(hashid, key, ""); }},
+                { typeof(MarketDataApi.PacketTAIFEX.I020), () => { conndb.Set<MarketDataApi.PacketTAIFEX.I020>(key, data as MarketDataApi.PacketTAIFEX.I020); conndb.SetEntryInHash(hashid, key, ""); }},
+                { typeof(MarketDataApi.PacketTAIFEX.I080), () => { conndb.Set<MarketDataApi.PacketTAIFEX.I080>(key, data as MarketDataApi.PacketTAIFEX.I080); conndb.SetEntryInHash(hashid, key, ""); }},
+                { typeof(MarketDataApi.PacketTAIFEX.I022), () => { conndb.Set<MarketDataApi.PacketTAIFEX.I022>(key, data as MarketDataApi.PacketTAIFEX.I022); conndb.SetEntryInHash(hashid, key, ""); }},
+                { typeof(MarketDataApi.PacketTAIFEX.I082), () => { conndb.Set<MarketDataApi.PacketTAIFEX.I082>(key, data as MarketDataApi.PacketTAIFEX.I082); conndb.SetEntryInHash(hashid, key, ""); }},
             };
             switchTypeAction[data.GetType()]();
 
@@ -126,9 +126,9 @@ namespace CommonLibrary
             //方法1
             var switchTypeAction = new Dictionary<string, Action>
             {
-                { Parameter.TSE_FORMAT1_HASH_KEY, () => { SymbolTseList.SetSymbolTseDataList(conndb.GetAll<MarketDataApi.Model.PacketTSE.Format1>(conndb.GetHashKeys(hashid))); } },
-                { Parameter.TPEX_FORMAT1_HASH_KEY, () => { SymbolTpexList.SetSymbolTpexDataList(conndb.GetAll<MarketDataApi.Model.PacketTPEX.Format1>(conndb.GetHashKeys(hashid))); } },
-                { Parameter.I010_HASH_KEY, () => { SymbolTaifexList.SetSymbolTaifexDataList(conndb.GetAll<MarketDataApi.Model.PacketTAIFEX.I010>(conndb.GetHashKeys(hashid))); }},
+                { Parameter.TSE_FORMAT1_HASH_KEY, () => { SymbolTseList.SetSymbolTseDataList(conndb.GetAll<MarketDataApi.PacketTSE.Format1>(conndb.GetHashKeys(hashid))); } },
+                { Parameter.TPEX_FORMAT1_HASH_KEY, () => { SymbolTpexList.SetSymbolTpexDataList(conndb.GetAll<MarketDataApi.PacketTPEX.Format1>(conndb.GetHashKeys(hashid))); } },
+                { Parameter.I010_HASH_KEY, () => { SymbolTaifexList.SetSymbolTaifexDataList(conndb.GetAll<MarketDataApi.PacketTAIFEX.I010>(conndb.GetHashKeys(hashid))); }},
             };
             switchTypeAction[hashid]();
             //方法2-string to int error
@@ -151,21 +151,21 @@ namespace CommonLibrary
         {
             if (conndb.GetHashKeys(hashid).Count == 0)
                 return false;
-            SymbolTseList.SetSymbolTseDataList(conndb.GetAll<MarketDataApi.Model.PacketTSE.Format1>(conndb.GetHashKeys(hashid)));
+            SymbolTseList.SetSymbolTseDataList(conndb.GetAll<MarketDataApi.PacketTSE.Format1>(conndb.GetHashKeys(hashid)));
             return true;
         }
         public static bool GetTPEXRedisDB(RedisClient conndb, string hashid)
         {
             if (conndb.GetHashKeys(hashid).Count == 0)
                 return false;
-            SymbolTpexList.SetSymbolTpexDataList(conndb.GetAll<MarketDataApi.Model.PacketTPEX.Format1>(conndb.GetHashKeys(hashid)));
+            SymbolTpexList.SetSymbolTpexDataList(conndb.GetAll<MarketDataApi.PacketTPEX.Format1>(conndb.GetHashKeys(hashid)));
             return true;
         }
         public static bool GetTAIFEXRedisDB(RedisClient conndb, string hashid)
         {
             if (conndb.GetHashKeys(hashid).Count == 0)
                 return false;
-            SymbolTaifexList.SetSymbolTaifexDataList(conndb.GetAll<MarketDataApi.Model.PacketTAIFEX.I010>(conndb.GetHashKeys(hashid)));
+            SymbolTaifexList.SetSymbolTaifexDataList(conndb.GetAll<MarketDataApi.PacketTAIFEX.I010>(conndb.GetHashKeys(hashid)));
             return true;
         }
 
@@ -204,20 +204,34 @@ namespace CommonLibrary
         {
             if(value.CompareTo(64) >= 0)
             {
-                if(value.CompareTo(16384) >= 0)//(16384~1073741824)
+                if(value.CompareTo(16384) >= 0)//(16384~1073741823)
                 {
-                    Byte[] byteArray = BitConverter.GetBytes(value);
-                    BitArray bitAry = new BitArray(new byte[] { byteArray[0], byteArray[1], byteArray[2], byteArray[3] });
-                    BitArray retBitAry = new BitArray(new byte[4]);
-                    for (int i = 2; i < bitAry.Count; i++)
+                    if (value >= 1073741824)
                     {
-                        retBitAry[i] = bitAry[i - 2];
+                        return -1;
                     }
-                    //標示4byte
-                    retBitAry[0] = true;
-                    retBitAry[1] = true;
+                    //方法1
+                    //Byte[] byteArray = BitConverter.GetBytes(value);
+                    //BitArray bitAry = new BitArray(new byte[] { byteArray[0], byteArray[1], byteArray[2], byteArray[3] });
+                    //BitArray retBitAry = new BitArray(new byte[4]);
+                    //for (int i = 2; i < bitAry.Count; i++)
+                    //{
+                    //    retBitAry[i] = bitAry[i - 2];
+                    //}
+                    ////標示4byte
+                    //retBitAry[0] = true;
+                    //retBitAry[1] = true;
 
-                    retBitAry.CopyTo(byteArray, 0);
+                    //retBitAry.CopyTo(byteArray, 0);
+                    //data[offset] = byteArray[0];
+                    //data[offset + 1] = byteArray[1];
+                    //data[offset + 2] = byteArray[2];
+                    //data[offset + 3] = byteArray[3];
+
+                    //方法2
+                    value = value << 2;
+                    value |= (uint)(1 << 0 | 1 << 1);
+                    Byte[] byteArray = BitConverter.GetBytes(value);
                     data[offset] = byteArray[0];
                     data[offset + 1] = byteArray[1];
                     data[offset + 2] = byteArray[2];
@@ -227,18 +241,26 @@ namespace CommonLibrary
                 else//(64~16383)
                 {
                     //EX：10000001.00000000 => 00100000.10100000(右移2位後。第1bit改1因為使用2byte)
-                    Byte[] byteArray = BitConverter.GetBytes(value);
-                    BitArray bitAry = new BitArray(new byte[] { byteArray[0], byteArray[1] });
-                    BitArray retBitAry = new BitArray(new byte[2]);
-                    for (int i = 2; i < bitAry.Count; i++)
-                    {
-                        retBitAry[i] = bitAry[i - 2];
-                    }
-                    //標示2byte
-                    retBitAry[0] = true;
-                    retBitAry[1] = false;
+                    //方法1
+                    //Byte[] byteArray = BitConverter.GetBytes(value);
+                    //BitArray bitAry = new BitArray(new byte[] { byteArray[0], byteArray[1] });
+                    //BitArray retBitAry = new BitArray(new byte[2]);
+                    //for (int i = 2; i < bitAry.Count; i++)
+                    //{
+                    //    retBitAry[i] = bitAry[i - 2];
+                    //}
+                    ////標示2byte
+                    //retBitAry[0] = true;
+                    //retBitAry[1] = false;
 
-                    retBitAry.CopyTo(byteArray, 0);
+                    //retBitAry.CopyTo(byteArray, 0);
+                    //data[offset] = byteArray[0];
+                    //data[offset + 1] = byteArray[1];
+
+                    //方法2
+                    value = value << 2;
+                    value |= (uint)(1 << 0);
+                    Byte[] byteArray = BitConverter.GetBytes(value);
                     data[offset] = byteArray[0];
                     data[offset + 1] = byteArray[1];
                     return 2;
@@ -246,18 +268,24 @@ namespace CommonLibrary
             }
             else//(0~63)
             {
-                Byte[] byteArray = BitConverter.GetBytes(value);
-                BitArray bitAry = new BitArray(new byte[] { byteArray[0]});
-                BitArray retBitAry = new BitArray(new byte[1]);
-                for (int i = 2; i < bitAry.Count; i++)
-                {
-                    retBitAry[i] = bitAry[i - 2];
-                }
-                //標示1byte
-                retBitAry[0] = false;
-                retBitAry[1] = false;
+                //方法1
+                //Byte[] byteArray = BitConverter.GetBytes(value);
+                //BitArray bitAry = new BitArray(new byte[] { byteArray[0]});
+                //BitArray retBitAry = new BitArray(new byte[1]);
+                //for (int i = 2; i < bitAry.Count; i++)
+                //{
+                //    retBitAry[i] = bitAry[i - 2];
+                //}
+                ////標示1byte
+                //retBitAry[0] = false;
+                //retBitAry[1] = false;
 
-                retBitAry.CopyTo(byteArray, 0);
+                //retBitAry.CopyTo(byteArray, 0);
+                //data[offset] = byteArray[0];
+
+                //方法2
+                value = value << 2;
+                Byte[] byteArray = BitConverter.GetBytes(value);
                 data[offset] = byteArray[0];
                 return 1;
             }
@@ -265,52 +293,68 @@ namespace CommonLibrary
         /// <summary>
         /// 帶動態byte取得int值
         /// </summary>
-        public static int GetIntToDynamicBytes(byte[] data, int offset)
+        public static uint GetIntToDynamicBytes(byte[] data, int offset)
         {
-            BitArray bitAry = new BitArray(new byte[] { data[offset] });
-            if(bitAry[0] == false)//1 byte
+            //BitArray bitAry = new BitArray(new byte[] { data[offset] });
+            //if(bitAry[0] == false)//1 byte
+            //{
+            //    BitArray retBitAry = new BitArray(new byte[] { data[offset + 0] });
+            //    for (int i = 2; i < 8; i++)
+            //    {
+            //        retBitAry[i - 2] = retBitAry[i];
+            //    }
+            //    retBitAry[6] = false;
+            //    retBitAry[7] = false;
+            //    byte[] ret = new byte[1];
+            //    retBitAry.CopyTo(ret, 0);
+            //    return ret[0];
+            //}
+            //else
+            //{
+            //    if (bitAry[1] == false)//2 byte
+            //    {
+            //        BitArray retBitAry = new BitArray(new byte[] { data[offset + 0], data[offset + 1] });
+
+            //        for(int i = 2; i < 16; i++)
+            //        {
+            //            retBitAry[i - 2] = retBitAry[i];
+            //        }
+            //        retBitAry[14] = false;
+            //        retBitAry[15] = false;
+            //        byte[] ret = new byte[2];
+            //        retBitAry.CopyTo(ret, 0);
+            //        return ret[0] | (ret[1] << 8);
+            //    }
+            //    else//4 byte
+            //    {
+            //        BitArray retBitAry = new BitArray(new byte[] { data[offset + 0], data[offset + 1], data[offset + 2], data[offset + 3] });
+
+            //        for (int i = 2; i < 32; i++)
+            //        {
+            //            retBitAry[i - 2] = retBitAry[i];
+            //        }
+            //        retBitAry[30] = false;
+            //        retBitAry[31] = false;
+            //        byte[] ret = new byte[4];
+            //        retBitAry.CopyTo(ret, 0);
+            //        return ret[0] | (ret[1] << 8) | ret[2] << 16 | (ret[3] << 32);
+            //    }
+            //}
+            byte b = data[offset];
+            var is2Byte = (b >> 0) & 1;
+            var is4Byte = (b >> 1) & 1;
+
+            if (is2Byte == 0)
             {
-                BitArray retBitAry = new BitArray(new byte[] { data[offset + 0] });
-                for (int i = 2; i < 8; i++)
-                {
-                    retBitAry[i - 2] = retBitAry[i];
-                }
-                retBitAry[6] = false;
-                retBitAry[7] = false;
-                byte[] ret = new byte[1];
-                retBitAry.CopyTo(ret, 0);
-                return ret[0];
+                return (uint)(data[offset] >> 2);
+            }
+            else if (is2Byte == 1 && is4Byte == 0)
+            {
+                return (uint)(BitConverter.ToUInt16(data, offset) >> 2);
             }
             else
             {
-                if (bitAry[1] == false)//2 byte
-                {
-                    BitArray retBitAry = new BitArray(new byte[] { data[offset + 0], data[offset + 1] });
-
-                    for(int i = 2; i < 16; i++)
-                    {
-                        retBitAry[i - 2] = retBitAry[i];
-                    }
-                    retBitAry[14] = false;
-                    retBitAry[15] = false;
-                    byte[] ret = new byte[2];
-                    retBitAry.CopyTo(ret, 0);
-                    return ret[0] | (ret[1] << 8);
-                }
-                else//4 byte
-                {
-                    BitArray retBitAry = new BitArray(new byte[] { data[offset + 0], data[offset + 1], data[offset + 2], data[offset + 3] });
-
-                    for (int i = 2; i < 32; i++)
-                    {
-                        retBitAry[i - 2] = retBitAry[i];
-                    }
-                    retBitAry[30] = false;
-                    retBitAry[31] = false;
-                    byte[] ret = new byte[4];
-                    retBitAry.CopyTo(ret, 0);
-                    return ret[0] | (ret[1] << 8) | ret[2] << 16 | (ret[3] << 32);
-                }
+                return (uint)(BitConverter.ToUInt32(data, offset) >> 2);
             }
         }
         /// <summary>
@@ -333,20 +377,19 @@ namespace CommonLibrary
         /// <summary>
         /// 帶double取得動態byte
         /// </summary>
-        public static int SetDoubleToDynamicBytes(ref byte[] data, int offset, double price, double baseprice, double tagsize)
+        public static int SetDoubleToDynamicBytes(ref byte[] data, int offset, decimal price, decimal baseprice, decimal tagsize,ref uint count)
         {
-            //EX1:( P=100, B=90, T=0.1 )= 100
-            int count = 0;
+            count = 0;
             int compartValue = price.CompareTo(baseprice);
-            byte isAdd = 0;
+            bool isAdd = false;//設最左bit 1=+ or 0=-
             switch (compartValue)
             {
                 case 1://實價 > 基價
-                    count = (int)((price - baseprice) / tagsize);
-                    isAdd = 1;
+                    count = (uint)((price - baseprice) / tagsize);
+                    isAdd = true;
                     break;
                 case -1://實價 < 基價
-                    count = (int)((price - baseprice) / tagsize);
+                    count = (uint)((baseprice - price) / tagsize);
                     break;
                 case 0://實價 = 基價
                     data[offset] = 0x00;
@@ -354,31 +397,66 @@ namespace CommonLibrary
             }
             if (count.CompareTo(32) >= 0)
             {
-                if (count.CompareTo(8192) >= 0)//(8192~536870912)
+                if (count.CompareTo(8192) >= 0)//(8192~536870911)
                 {
+                    if(count >= 536870912)
+                    {
+                        return -1;
+                    }
                     //標示4byte
-                    //int retValue = count >> 3;//右移4bit
-                    count = count | (isAdd << 31);//設最左bit 1正 or 0負
-                    count = count | (1 << 30);//設左2 true
-                    count = count | (1 << 29);//設左3 true
+                    //方法1
+                    //Byte[] byteArray = BitConverter.GetBytes(count);
+                    //BitArray bitAry = new BitArray(new byte[] { byteArray[0], byteArray[1], byteArray[2], byteArray[3] });
+                    //BitArray retBitAry = new BitArray(new byte[4]);
+                    //for (int i = 3; i < bitAry.Count; i++)
+                    //{
+                    //    retBitAry[i] = bitAry[i - 3];
+                    //}
+                    //retBitAry[0] = isAdd;
+                    //retBitAry[1] = true;
+                    //retBitAry[2] = true;
 
+                    //retBitAry.CopyTo(byteArray, 0);
+                    //data[offset] = byteArray[0];
+                    //data[offset + 1] = byteArray[1];
+                    //data[offset + 2] = byteArray[2];
+                    //data[offset + 3] = byteArray[3];
+
+                    //方法2
+                    count = count << 3;
+                    count |= (uint)((isAdd ? (1 << 0) : (0 << 0)) | (1 << 1) | (1 << 2));
                     Byte[] byteArray = BitConverter.GetBytes(count);
-                    data[offset] = byteArray[0];
+                    data[offset] = byteArray[0];//(byte)(byteArray[0] | (isAdd ? (1 << 7) : (0 << 7)) | (1 << 6) | (1 << 5));
                     data[offset + 1] = byteArray[1];
                     data[offset + 2] = byteArray[2];
                     data[offset + 3] = byteArray[3];
                     return 4;
                 }
-                else//(64~8191)
+                else//(32~8191)
                 {
                     //標示2byte
-                    //int retValue = (count >> 3);//右移3bit
-                    count = (count | (isAdd << 15));//設最左bit 1正 or 0負
-                    count = count | (1 << 14);//設左2 true
-                    //設左3 false
 
-                    Byte[] byteArray = BitConverter.GetBytes((UInt16)count);
-                    data[offset] = byteArray[0];
+                    //方法1
+                    //Byte[] byteArray = BitConverter.GetBytes(count);
+                    //BitArray bitAry = new BitArray(new byte[] { byteArray[0], byteArray[1] });
+                    //BitArray retBitAry = new BitArray(new byte[2]);
+                    //for (int i = 3; i < bitAry.Count; i++)
+                    //{
+                    //    retBitAry[i] = bitAry[i - 3];
+                    //}
+                    //retBitAry[0] = isAdd;
+                    //retBitAry[1] = true;
+                    //retBitAry[2] = false;
+
+                    //retBitAry.CopyTo(byteArray, 0);
+                    //data[offset] = byteArray[0];
+                    //data[offset + 1] = byteArray[1];
+
+                    //方法2
+                    count = count << 3;
+                    count |= (uint)((isAdd ? (1 << 0) : (0 << 0)) | (1 << 1));
+                    Byte[] byteArray = BitConverter.GetBytes(count);
+                    data[offset] = byteArray[0];//(byte)(byteArray[0] | (isAdd ? (1 << 7) : (0 << 7)) | (1 << 6));
                     data[offset + 1] = byteArray[1];
                     return 2;
                 }
@@ -386,10 +464,22 @@ namespace CommonLibrary
             else//(1~31)
             {
                 //標示1byte
-                count = (count | (isAdd << 7));//設最左bit 1正 or 0負
-                //設左2 false
-                //設左3 false
+                //Byte[] byteArray = BitConverter.GetBytes(count);
+                //BitArray bitAry = new BitArray(new byte[] { byteArray[0] });
+                //BitArray retBitAry = new BitArray(new byte[1]);
+                //for (int i = 3; i < bitAry.Count; i++)
+                //{
+                //    retBitAry[i] = bitAry[i - 3];
+                //}
+                ////標示1byte
+                //retBitAry[0] = isAdd;
+                //retBitAry[1] = false;
+                //retBitAry[2] = false;
 
+                //retBitAry.CopyTo(byteArray, 0);
+                //data[offset] = byteArray[0];
+                count = count << 3;
+                count |= (uint)((isAdd ? (1 << 0) : (0 << 0)));
                 Byte[] byteArray = BitConverter.GetBytes(count);
                 data[offset] = byteArray[0];
                 return 1;
@@ -398,41 +488,77 @@ namespace CommonLibrary
         /// <summary>
         /// 帶動態byte取得double
         /// </summary>
-        public static double GetDoubleToDynamicBytes(ref byte[] data, int offset, double baseprice, double tagsize)
+        public static decimal GetDoubleToDynamicBytes(ref byte[] data, int offset, decimal baseprice, decimal tagsize, ref uint count)
         {
-            byte b = data[0];
+            //方法1
+            //BitArray bitAry = new BitArray(new byte[] { data[offset] });
+            //if (bitAry[1] == false)
+            //{
+            //    BitArray retBitAry = new BitArray(new byte[] { data[offset + 0] });
+            //    for (int i = 3; i < 8; i++)
+            //    {
+            //        retBitAry[i -3] = retBitAry[i];
+            //    }
+            //    retBitAry[5] = false;
+            //    retBitAry[6] = false;
+            //    retBitAry[7] = false;
+            //    byte[] ret = new byte[1];
+            //    retBitAry.CopyTo(ret, 0);
 
-            var isAdd = (b >> 7) & 1;//x0000000
-            var mark1 = (b >> 6) & 1;//0x000000
-            var mark2 = (b >> 5) & 1;//00x00000
-            if (mark1 == 0)
+            //    count = ret[0];
+            //    return (bitAry[0])? baseprice + (count * tagsize) : baseprice - (count * tagsize);
+            //}
+            //else if(bitAry[1] && bitAry[2] == false)
+            //{
+            //    BitArray retBitAry = new BitArray(new byte[] { data[offset + 0], data[offset + 1] });
+            //    for (int i = 3; i < 16; i++)
+            //    {
+            //        retBitAry[i - 3] = retBitAry[i];
+            //    }
+            //    retBitAry[15] = false;
+            //    retBitAry[14] = false;
+            //    retBitAry[13] = false;
+            //    byte[] ret = new byte[2];
+            //    retBitAry.CopyTo(ret, 0);
+
+            //    count = BitConverter.ToUInt16(ret,0);
+            //    return (bitAry[0]) ? baseprice + (count * tagsize) : baseprice - (count * tagsize);
+            //}
+            //else
+            //{
+            //    BitArray retBitAry = new BitArray(new byte[] { data[offset + 0], data[offset + 1], data[offset + 2], data[offset + 3] });
+
+            //    for (int i = 3; i < 32; i++)
+            //    {
+            //        retBitAry[i - 3] = retBitAry[i];
+            //    }
+            //    retBitAry[29] = false;
+            //    retBitAry[30] = false;
+            //    retBitAry[31] = false;
+            //    byte[] ret = new byte[4];
+            //    retBitAry.CopyTo(ret, 0);
+            //    count = BitConverter.ToUInt32(ret,0);
+            //    return (bitAry[0]) ? baseprice + (count * tagsize) : baseprice - (count * tagsize);
+            //}
+            byte b = data[offset];
+            var isAdd = (b >> 0) & 1;//x0000000
+            var mark1 = (b >> 1) & 1;//0x000000
+            var mark2 = (b >> 2) & 1;//00x00000
+            if(mark1 == 0)
             {
-                var temp = b & 0x1F;//000xxxxx
-                double retValue = temp;
-                return baseprice + (retValue * tagsize);
+                count = (uint) (data[offset] >> 3);
+                return (isAdd==1) ? baseprice + (count * tagsize) : baseprice - (count * tagsize);
             }
-            else if(mark1 == 1 && mark2 ==0)
+            else if (mark1 == 1 && mark2 == 0)
             {
-                var temp = b & 0x1FFF;//000xxxxx(FF)2byte
-                double retValue = temp;
-                return baseprice + (retValue * tagsize);
+                count = (uint)(BitConverter.ToUInt16(data, offset) >> 3);
+                return (isAdd == 1) ? baseprice + (count * tagsize) : baseprice - (count * tagsize);
             }
             else
             {
-                var temp = b & 0x1FFFFFFF;//000xxxxx(FFFFFF)4byte
-                double retValue = temp;
-                return baseprice + (retValue * tagsize);
-            }            
-        }
-
-        static int SetZeroBit(int value, int position)
-        {
-            return value & ~(1 << position);
-        }
-
-        static int SetUnZeroBit(int value, int position)
-        {
-            return value | (1 << position);
+                count = (uint)(BitConverter.ToUInt32(data, offset) >> 3);
+                return (isAdd == 1) ? baseprice + (count * tagsize) : baseprice - (count * tagsize);
+            }
         }
 
         /// <summary>

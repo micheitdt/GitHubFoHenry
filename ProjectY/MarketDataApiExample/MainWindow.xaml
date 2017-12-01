@@ -20,7 +20,7 @@
             </Grid.RowDefinitions>
             <StackPanel Grid.Row="0" Margin="0,5">
                 <StackPanel Margin="0,5" Orientation="Horizontal">
-                    <Label Content="IP Address:" />
+                    <Label Content="訂閱行情IP:" />
                     <TextBox
                         Width="150"
                         Margin="5,0"
@@ -32,6 +32,18 @@
                         VerticalAlignment="Center"
                         MaxLength="4"
                         Text="{Binding IPPort, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                    <Label Content="Service IP:" />
+                    <TextBox
+                        Width="150"
+                        Margin="5,0"
+                        VerticalAlignment="Center"
+                        Text="{Binding ReqIPAddress, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                    <TextBox
+                        Width="60"
+                        Margin="5,0"
+                        VerticalAlignment="Center"
+                        MaxLength="4"
+                        Text="{Binding ReqIPPort, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                     <Button
                         Name="BtnIPConnect"
                         VerticalAlignment="Center"
@@ -77,6 +89,12 @@
                         VerticalAlignment="Center"
                         Command="{Binding UnsupscribeCommand}"
                         Content="取消訂閱" />
+                    <Button
+                        Name="BtnSymbolSnapshot"
+                        Margin="10,0"
+                        VerticalAlignment="Center"
+                        Command="{Binding GetSnapshotCommand}"
+                        Content="取得快照" />
                 </StackPanel>
             </StackPanel>
             <GridSplitter

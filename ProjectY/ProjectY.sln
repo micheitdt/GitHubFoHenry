@@ -51,6 +51,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Process.CleanMarketData", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Process.MarketDataSnapshot", "Process.MarketDataSnapshot\Process.MarketDataSnapshot.csproj", "{34AD77CE-E5E7-4423-BCAB-876399BAFA54}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "APIUserExample", "APIUserExample\APIUserExample.csproj", "{C243F413-58F7-4BCE-8A4B-1BF8492CB5C9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -154,6 +156,10 @@ Global
 		{34AD77CE-E5E7-4423-BCAB-876399BAFA54}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{34AD77CE-E5E7-4423-BCAB-876399BAFA54}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{34AD77CE-E5E7-4423-BCAB-876399BAFA54}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C243F413-58F7-4BCE-8A4B-1BF8492CB5C9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C243F413-58F7-4BCE-8A4B-1BF8492CB5C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C243F413-58F7-4BCE-8A4B-1BF8492CB5C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C243F413-58F7-4BCE-8A4B-1BF8492CB5C9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

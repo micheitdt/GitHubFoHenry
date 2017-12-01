@@ -37,12 +37,15 @@ namespace MarketDataApiExample.ViewModels
         private static MainViewModel _instance;
         private string _ipAddress = "10.214.19.51";//"10.214.19.51";"203.66.93.83";"127.0.0.1";47.52.229.28;
         private string _ipPort = "6688";
-        private string _selectMarket = "6-PATS";//"6-PATS";
+        private string _reqipAddress = "10.214.19.51";//"10.214.19.51";"203.66.93.83";"127.0.0.1";47.52.229.28;
+        private string _reqipPort = "5588";
+        private string _selectMarket = "0-上市";//"6-PATS";
         private string _selectType = "0";
-        private string _symbolNo = "all";//CME_ES.GE0.DEC07//all
+        private string _symbolNo = "";//CME_ES.GE0.DEC07//all
         private string _selectSubscribe = string.Empty;
         private ObservableCollection<string> _subscribeList = new ObservableCollection<string>();
         private ObservableCollection<Quotes> _quotesList = new ObservableCollection<Quotes>();
+        private ObservableCollection<Quotes> _quotesSnapshotList = new ObservableCollection<Quotes>();
         private Quotes _selectQuotes;
         private string _tSESymbolNoFilter = string.Empty;
         private string _tPEXSymbolNoFilter = string.Empty;
@@ -53,14 +56,14 @@ namespace MarketDataApiExample.ViewModels
         private SymbolTpex _selectTpex;
         private ObservableCollection<SymbolTaifex> _symbolTaifexDictionary = new ObservableCollection<SymbolTaifex>();
         private SymbolTaifex _selectTaifex;
-        MarketDataApi.MarketDataApi api;
+        MdApi api;
         private long _gridSeq = 1;
         RedisClient _redisClient;
 
-        private ObservableCollection<MarketDataApi.Model.PacketPATS.Format0> _patsFormat0List = new ObservableCollection<MarketDataApi.Model.PacketPATS.Format0>();
-        private ObservableCollection<MarketDataApi.Model.PacketPATS.Format1> _patsFormat1List = new ObservableCollection<MarketDataApi.Model.PacketPATS.Format1>();
-        private ObservableCollection<MarketDataApi.Model.PacketPATS.Format2> _patsFormat2List = new ObservableCollection<MarketDataApi.Model.PacketPATS.Format2>();
-        private MarketDataApi.Model.PacketPATS.Format0 _selectPats;
+        private ObservableCollection<MarketDataApi.PacketPATS.Format0> _patsFormat0List = new ObservableCollection<MarketDataApi.PacketPATS.Format0>();
+        private ObservableCollection<MarketDataApi.PacketPATS.Format1> _patsFormat1List = new ObservableCollection<MarketDataApi.PacketPATS.Format1>();
+        private ObservableCollection<MarketDataApi.PacketPATS.Format2> _patsFormat2List = new ObservableCollection<MarketDataApi.PacketPATS.Format2>();
+        private MarketDataApi.PacketPATS.Format0 _selectPats;
         private ObservableCollection<string> _statusMessageList = new ObservableCollection<string>();
         #endregion
 
@@ -74,30 +77,19 @@ namespace MarketDataApiExample.ViewModels
                 {
                     _redisClient = new RedisClient(DefaultSettings.Instance.REDIS_DB_IP, DefaultSettings.Instance.REDIS_DB_PORT);
 
-                    //for(uint i = 0; i < (UInt32.MaxValue /4); i++)
+                    //for (uint i = 0; i < (UInt32.MaxValue / 8); i++)
                     //{
-                    //    getConvertTime(i);
+                    //    getConvertTime1(i);
+                    //    getConvertTime2(i);
                     //}
-                    //byte[] data = new byte[10];
-                    //int byteCount = CommonLibrary.Utility.SetDoubleToDynamicBytes( ref data, 0,100, 90, 1);//10
-                    //double price = CommonLibrary.Utility.GetDoubleToDynamicBytes(ref data, 0, 90, 1);//10
-                    //byteCount = CommonLibrary.Utility.SetDoubleToDynamicBytes(ref data, 0, 100, 90, 0.1);//100
-                    //price = CommonLibrary.Utility.GetDoubleToDynamicBytes(ref data, 0, 90, 0.1);//100
-                    //byteCount = CommonLibrary.Utility.SetDoubleToDynamicBytes(ref data, 0, 100, 90, 0.01);//1000
-                    //price = CommonLibrary.Utility.GetDoubleToDynamicBytes(ref data, 0, 90, 0.01);//1000
-                    //byteCount = CommonLibrary.Utility.SetDoubleToDynamicBytes(ref data, 0, 100, 90, 0.001);//10000
-                    //price = CommonLibrary.Utility.GetDoubleToDynamicBytes(ref data, 0, 90, 0.001);//10000
-                    //byteCount = CommonLibrary.Utility.SetDoubleToDynamicBytes(ref data, 0, 100, 90, 0.0001);//100000
-                    //price = CommonLibrary.Utility.GetDoubleToDynamicBytes(ref data, 0, 90, 0.0001);//100000
 
+                    CommonLibrary.Utility.GetTAIFEXRedisDB(_redisClient, CommonLibrary.Parameter.I010_HASH_KEY);
+                    CommonLibrary.Utility.GetTPEXRedisDB(_redisClient, CommonLibrary.Parameter.TPEX_FORMAT1_HASH_KEY);
+                    CommonLibrary.Utility.GetTSERedisDB(_redisClient, CommonLibrary.Parameter.TSE_FORMAT1_HASH_KEY);
 
-                    CommonLibrary.Utility.GetTAIFEXRedisDB(_redisClient, Parameter.I010_HASH_KEY);
-                    CommonLibrary.Utility.GetTPEXRedisDB(_redisClient, Parameter.TPEX_FORMAT1_HASH_KEY);
-                    CommonLibrary.Utility.GetTSERedisDB(_redisClient, Parameter.TSE_FORMAT1_HASH_KEY);
-
-                    SymbolTaifexDictionary = SymbolTaifexList.GetAllSymbolTpexCollection();
+                    SymbolTaifexDictionary = SymbolTaifexList.GetAllSymbolTaifexCollection();
                     SymbolTpexDictionary = SymbolTpexList.GetAllSymbolTpexCollection();
-                    SymbolTseDictionary = SymbolTseList.GetAllSymbolTpexCollection();
+                    SymbolTseDictionary = SymbolTseList.GetAllSymbolTseCollection();
                 }
                 else
                 {
@@ -110,27 +102,60 @@ namespace MarketDataApiExample.ViewModels
             }
         }
 
-        //private void getConvertTime( uint i)
-        //{
-        //    byte[] data = new byte[10];
+        private void getConvertTime1(uint i)
+        {
+            byte[] data = new byte[10];
 
-        //    System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();//引用stopwatch物件
-        //    sw.Reset();
-        //    sw.Start();;
+            System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();//引用stopwatch物件
+            sw.Reset();
+            sw.Start(); ;
 
-        //    int count = CommonLibrary.Utility.SetIntToDynamicBytes(ref data, 0, i);
+            int count = CommonLibrary.Utility.SetIntToDynamicBytes(ref data, 0, i);
 
-        //    sw.Stop();
-        //    Debug.WriteLine("int to byte array :" + sw.Elapsed.TotalMilliseconds.ToString());
+            sw.Stop();
+            Debug.WriteLine("int to byte array :" + sw.Elapsed.TotalMilliseconds.ToString() + "i :" + i );
 
-        //    sw.Reset();
-        //    sw.Start();
+            sw.Reset();
+            sw.Start();
 
-        //    int value = CommonLibrary.Utility.GetIntToDynamicBytes(data, 0);
+            var value = CommonLibrary.Utility.GetIntToDynamicBytes(data, 0);
 
-        //    sw.Stop();
-        //    Debug.WriteLine("byte array to int :" + sw.Elapsed.TotalMilliseconds.ToString());
-        //}
+            sw.Stop();
+            Debug.WriteLine("byte array to int :" + sw.Elapsed.TotalMilliseconds.ToString() + "value:" + value);
+            if( i != value)
+            {
+                MessageBox.Show(i + "error" + value);
+            }
+        }
+
+        private void getConvertTime2(uint i)
+        {
+            //EX1:( P=100, B=90, T=1~0.1E7 )= 100。價 > 基 & 正值
+            //EX2:( P=-90, B=-100, T=1~0.1E7 )= 100。價 > 基 & 負值
+            //EX3:( P=100, B=100, T=1~0.1E7 )= 100。價 = 基 & 正值
+            //EX4:( P=-100, B=-100, T=1~0.1E7 )= 100。價 = 基 & 負值
+            //EX5:( P=10.215, B=10, T=1~0.1E7 )= 100。價 > 基 & 正小數值
+            //EX6:( P=10.215, B=-10, T=1~0.1E7 )= 100。價 > 基 & 負小數值
+            //EX7:( P=-11.215, B=-10, T=1~0.1E7 )= 100。價 < 基 & 負小數值
+            //EX8:( P=-11.215, B=651, T=1~0.1E7 )= 100。價 < 基 & 負小數值
+            byte[] data = new byte[10];
+            Stopwatch sw = new Stopwatch();//引用stopwatch物件
+            sw.Reset();
+            sw.Start(); ;
+            uint count = 0;
+            CommonLibrary.Utility.SetDoubleToDynamicBytes(ref data, 0, -11.0215m, -10m, (decimal)(1/Math.Pow(10,i)) , ref count);//10
+
+            sw.Stop();
+            Debug.WriteLine("int to byte array :" + sw.Elapsed.TotalMilliseconds.ToString());
+
+            sw.Reset();
+            sw.Start();
+            
+            decimal price = CommonLibrary.Utility.GetDoubleToDynamicBytes(ref data, 0, -10m, (decimal)(1 / Math.Pow(10, i)), ref count);//10
+
+            sw.Stop();
+            Debug.WriteLine("byte array to int :" + sw.Elapsed.TotalMilliseconds.ToString());
+        }
 
         #region prop
         /// <summary>
@@ -148,7 +173,7 @@ namespace MarketDataApiExample.ViewModels
             }
         }
         /// <summary>
-        /// IP位址
+        /// 行情IP位址
         /// </summary>
         public string IPAddress
         {
@@ -162,7 +187,7 @@ namespace MarketDataApiExample.ViewModels
             }
         }
         /// <summary>
-        /// IP port
+        /// 行情IP port
         /// </summary>
         public string IPPort
         {
@@ -173,6 +198,34 @@ namespace MarketDataApiExample.ViewModels
             set
             {
                 _ipPort = value;
+            }
+        }
+        /// <summary>
+        /// 要求IP位址
+        /// </summary>
+        public string ReqIPAddress
+        {
+            get
+            {
+                return _reqipAddress;
+            }
+            set
+            {
+                _reqipAddress = value;
+            }
+        }
+        /// <summary>
+        /// 要求IP port
+        /// </summary>
+        public string ReqIPPort
+        {
+            get
+            {
+                return _reqipPort;
+            }
+            set
+            {
+                _reqipPort = value;
             }
         }
         /// <summary>
@@ -233,6 +286,21 @@ namespace MarketDataApiExample.ViewModels
             {
                 _quotesList = value;
                 OnPropertyChanged("QuotesList");
+            }
+        }
+        /// <summary>
+        /// 快照行情內容
+        /// </summary>
+        public ObservableCollection<Quotes> QuotesSnapshotList
+        {
+            get
+            {
+                return _quotesSnapshotList;
+            }
+            set
+            {
+                _quotesSnapshotList = value;
+                OnPropertyChanged("QuotesSnapshotList");
             }
         }
         /// <summary>
@@ -381,7 +449,7 @@ namespace MarketDataApiExample.ViewModels
             }
         }
         
-        public ObservableCollection<MarketDataApi.Model.PacketPATS.Format0> PatsFormat0List
+        public ObservableCollection<MarketDataApi.PacketPATS.Format0> PatsFormat0List
         {
             get
             {
@@ -393,7 +461,7 @@ namespace MarketDataApiExample.ViewModels
                 OnPropertyChanged("PatsFormat0List");
             }
         }
-        public ObservableCollection<MarketDataApi.Model.PacketPATS.Format1> PatsFormat1List
+        public ObservableCollection<MarketDataApi.PacketPATS.Format1> PatsFormat1List
         {
             get
             {
@@ -405,7 +473,7 @@ namespace MarketDataApiExample.ViewModels
                 OnPropertyChanged("PatsFormat1List");
             }
         }
-        public ObservableCollection<MarketDataApi.Model.PacketPATS.Format2> PatsFormat2List
+        public ObservableCollection<MarketDataApi.PacketPATS.Format2> PatsFormat2List
         {
             get
             {
@@ -491,7 +559,7 @@ namespace MarketDataApiExample.ViewModels
         /// <summary>
         /// 所選盤前PATS
         /// </summary>
-        public MarketDataApi.Model.PacketPATS.Format0 SelectPats
+        public MarketDataApi.PacketPATS.Format0 SelectPats
         {
             get
             {
@@ -669,6 +737,21 @@ namespace MarketDataApiExample.ViewModels
                 return _singleSubCommand;
             }
         }
+
+        private ICommand _getSnapshotCommand;
+        public ICommand GetSnapshotCommand
+        {
+            get
+            {
+                if (_getSnapshotCommand == null)
+                {
+                    _getSnapshotCommand = new RelayCommand(
+                        GetSnapshot
+                    );
+                }
+                return _getSnapshotCommand;
+            }
+        }
         
 
         /// <summary>
@@ -678,21 +761,22 @@ namespace MarketDataApiExample.ViewModels
         {
             try
             {
-                api = new MarketDataApi.MarketDataApi(IPAddress, int.Parse(IPPort));
+                api = new MdApi(IPAddress, int.Parse(IPPort), ReqIPAddress, int.Parse(ReqIPPort));
                 api.TaifexI020Received += api_TaifexI020Received;  /// <- 期貨I020[成交]回呼事件
+                api.TaifexI022Received += api_TaifexI022Received;  /// <- 期貨I022試撮[成交]回呼事件
                 api.TaifexI080Received += api_TaifexI080Received;  /// <- 期貨I080[委買委賣]回呼事件
+                api.TaifexI082Received += api_TaifexI082Received;  /// <- 期貨I082試撮回呼事件
                 api.TseFormat6Received += api_TseFormat6Received;  /// <- 上市現貨格式6(Format6)回呼事件
                 api.TpexFormat6Received += api_TpexFormat6Received; /// <- 上櫃現貨格式6(Format6)回呼事件
-                api.TseFormat17Received += api_TseFormat17Received;  /// <- 上市現貨格式6(Format17)回呼事件
-                api.TpexFormat17Received += api_TpexFormat17Received; /// <- 上櫃現貨格式6(Format17)回呼事件
+                api.TseFormat17Received += api_TseFormat17Received;  /// <- 上市現貨格式17(Format17)回呼事件
+                api.TpexFormat17Received += api_TpexFormat17Received; /// <- 上櫃現貨格式17(Format17)回呼事件
                 api.TaifexI010Received += api_TaifexI010Received; /// <- 期貨I010[盘前]回呼事件
                 api.TseFormat1Received += api_TseFormat1Received; /// <- 上櫃現貨格式1(盘前)回呼事件
                 api.TpexFormat1Received += api_TpexFormat1Received;/// <- 上市現貨格式1(盘前)回呼事件
                 api.PatsFormat0Received += api_PatsFormat0Received; ; /// <- pats(盤前)格式0回呼事件
                 api.PatsFormat1Received += api_PatsFormat1Received; ; /// <- pats(行情)格式1回呼事件
                 api.PatsFormat2Received += api_PatsFormat2Received; ; /// <- pats(行情)格式1回呼事件
-
-                StatusMessageList.Insert(0, DateTime.Now.ToString("HH:mm:ss:ttt") + "    " + "連接" + IPAddress + ":" + IPPort);
+                StatusMessageList.Insert(0, DateTime.Now.ToString("HH:mm:ss:ttt") + "    " + "連接" + IPAddress + ":" + IPPort + "," + ReqIPAddress + ":" + ReqIPPort);
             }
             catch (Exception err)
             {
@@ -728,7 +812,7 @@ namespace MarketDataApiExample.ViewModels
                 return;
             }
             string subSymbol = SelectMarket + ";" + SelectType + ";" + SymbolNo;
-            if (Rtn_adapterCode(SelectMarket) == AdapterCode.TAIFEX_GLOBAL_PATS && SymbolNo != "all")
+            if (Rtn_adapterCode(SelectMarket) == AdapterCode.GLOBAL_PATS && SymbolNo != "all")
             {
                 //訂閱易盛商品轉換PATS商品
                 string[] subSymbolAry = SymbolNo.Split('.');
@@ -799,7 +883,7 @@ namespace MarketDataApiExample.ViewModels
         }
         //------------------------------------------------------------------------------------------------------------------------------------------
         /// <summary>
-        /// 取消註冊報價
+        /// 清除內容
         /// </summary>
         private void clearContent()
         {
@@ -931,7 +1015,84 @@ namespace MarketDataApiExample.ViewModels
             };
             new System.Threading.Thread(ts).Start();
         }
+        /// <summary>
+        /// 取得快照
+        /// </summary>
+        private void GetSnapshot()
+        {
+            if (api == null || string.IsNullOrEmpty(SelectMarket) || string.IsNullOrEmpty(SelectType) || string.IsNullOrEmpty(SymbolNo))
+            {
+                MessageBox.Show("連接錯誤或無商品資料");
+                return;
+            }
+            string subSymbol = SelectMarket + ";" + SelectType + ";" + SymbolNo;
+            var ret = api.GetSnapshot(Rtn_adapterCode(SelectMarket), SelectType, SymbolNo);
+            if (ret == null)
+            {
+                StatusMessageList.Insert(0, DateTime.Now.ToString("HH:mm:ss:ttt") + "    " + "取得快照失敗:" + subSymbol);
+                return;
+            }
 
+            Quotes model = new Quotes();
+            switch (SelectMarket.Substring(0, 1))
+            {
+                case "0":
+                    switch(SelectType)
+                    {
+                        case "1":
+                            SymbolTseList.AddSymbolTseData(new SymbolTse(ret as MarketDataApi.PacketTSE.Format1));
+                            SymbolTseDictionary = SymbolTseList.GetAllSymbolTseCollection();
+                            break;
+                        case "6":
+                            model.SetTseData(_gridSeq, ret as MarketDataApi.PacketTSE.Format6);
+                            QuotesSnapshotList.Insert(0, model);
+                            break;
+                        case "17":
+                            model.SetTseData(_gridSeq, ret as MarketDataApi.PacketTSE.Format17);
+                            QuotesSnapshotList.Insert(0, model);
+                            break;
+                    }
+                    break;
+                case "1":
+                    switch (SelectType)
+                    {
+                        case "1":
+                            SymbolTpexList.AddSymbolTpexData(new SymbolTpex(ret as MarketDataApi.PacketTPEX.Format1));
+                            SymbolTpexDictionary = SymbolTpexList.GetAllSymbolTpexCollection();
+                            break;
+                        case "6":
+                            model.SetTpexData(_gridSeq, ret as MarketDataApi.PacketTPEX.Format6);
+                            QuotesSnapshotList.Insert(0, model);
+                            break;
+                        case "17":
+                            model.SetTpexData(_gridSeq, ret as MarketDataApi.PacketTPEX.Format17);
+                            QuotesSnapshotList.Insert(0, model);
+                            break;
+                    }
+                    break;
+                case "2"://日期
+                case "3"://日選
+                case "4"://夜期
+                case "5"://夜選
+                    switch (SelectType)
+                    {
+                        case "I010":
+                            SymbolTaifexList.AddSymbolTalfexData(new SymbolTaifex(ret as MarketDataApi.PacketTAIFEX.I010));
+                            SymbolTaifexDictionary = SymbolTaifexList.GetAllSymbolTaifexCollection();
+                            break;
+                        case "I020":
+                            model.SetI020Data(_gridSeq, ret as MarketDataApi.PacketTAIFEX.I020);
+                            QuotesSnapshotList.Insert(0, model);
+                            break;
+                        case "I080":
+                            model.SetI080Data(_gridSeq, ret as MarketDataApi.PacketTAIFEX.I080);
+                            QuotesSnapshotList.Insert(0, model);
+                            break;
+                    }
+                    break;
+            }
+                StatusMessageList.Insert(0, DateTime.Now.ToString("HH:mm:ss:ttt") + "    " + "取得快照成功:" + subSymbol);
+        }
         #endregion
 
         #region Event
@@ -939,7 +1100,7 @@ namespace MarketDataApiExample.ViewModels
         /// <summary>
         /// 期貨I080[委買委賣]回呼事件
         /// </summary>
-        void api_TaifexI080Received(object sender, MarketDataApi.MarketDataApi.TaifexI080ReceivedEventArgs e)
+        void api_TaifexI080Received(object sender, MdApi.TaifexI080ReceivedEventArgs e)
         {
             /// <- Bid Asl 0~1表示1檔~5檔
             App.Current.Dispatcher.Invoke((Action)(() =>
@@ -969,7 +1130,7 @@ namespace MarketDataApiExample.ViewModels
         /// <summary>
         /// 期貨I020[成交]回呼事件
         /// </summary>
-        void api_TaifexI020Received(object sender, MarketDataApi.MarketDataApi.TaifexI020ReceivedEventArgs e)
+        void api_TaifexI020Received(object sender, MdApi.TaifexI020ReceivedEventArgs e)
         {
             App.Current.Dispatcher.Invoke((Action)(() =>
             {
@@ -992,9 +1153,37 @@ namespace MarketDataApiExample.ViewModels
         }
         //------------------------------------------------------------------------------------------------------------------------------------------
         /// <summary>
+        /// 期貨I082
+        /// </summary>
+        void api_TaifexI082Received(object sender, MdApi.TaifexI082ReceivedEventArgs e)
+        {
+            App.Current.Dispatcher.Invoke((Action)(() =>
+            {
+                Quotes model = new Quotes();
+                model.SetI082Data(_gridSeq, e.PacketData);
+                QuotesList.Insert(0, model);
+                _gridSeq++;
+            }));
+        }
+        //------------------------------------------------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// 期貨I022
+        /// </summary>
+        void api_TaifexI022Received(object sender, MdApi.TaifexI022ReceivedEventArgs e)
+        {
+            App.Current.Dispatcher.Invoke((Action)(() =>
+            {
+                Quotes model = new Quotes();
+                model.SetI022Data(_gridSeq, e.PacketData);
+                QuotesList.Insert(0, model);
+                _gridSeq++;
+            }));
+        }
+        //------------------------------------------------------------------------------------------------------------------------------------------
+        /// <summary>
         /// 上櫃現貨格式6回呼事件
         /// </summary>
-        void api_TpexFormat6Received(object sender, MarketDataApi.MarketDataApi.TpexFormat6ReceivedEventArgs e)
+        void api_TpexFormat6Received(object sender, MdApi.TpexFormat6ReceivedEventArgs e)
         {
             App.Current.Dispatcher.Invoke((Action)(() =>
             {
@@ -1021,7 +1210,7 @@ namespace MarketDataApiExample.ViewModels
         /// <summary>
         /// 上市現貨格式6回呼事件
         /// </summary>
-        void api_TseFormat6Received(object sender, MarketDataApi.MarketDataApi.TseFormat6ReceivedEventArgs e)
+        void api_TseFormat6Received(object sender, MdApi.TseFormat6ReceivedEventArgs e)
         {
             App.Current.Dispatcher.Invoke((Action)(() =>
             {
@@ -1048,7 +1237,7 @@ namespace MarketDataApiExample.ViewModels
         /// <summary>
         /// 上櫃現貨格式17回呼事件
         /// </summary>
-        void api_TpexFormat17Received(object sender, MarketDataApi.MarketDataApi.TpexFormat17ReceivedEventArgs e)
+        void api_TpexFormat17Received(object sender, MdApi.TpexFormat17ReceivedEventArgs e)
         {
             App.Current.Dispatcher.Invoke((Action)(() =>
             {
@@ -1075,7 +1264,7 @@ namespace MarketDataApiExample.ViewModels
         /// <summary>
         /// 上市現貨格式17回呼事件
         /// </summary>
-        void api_TseFormat17Received(object sender, MarketDataApi.MarketDataApi.TseFormat17ReceivedEventArgs e)
+        void api_TseFormat17Received(object sender, MdApi.TseFormat17ReceivedEventArgs e)
         {
             App.Current.Dispatcher.Invoke((Action)(() =>
             {
@@ -1102,7 +1291,7 @@ namespace MarketDataApiExample.ViewModels
         /// <summary>
         /// 上市現貨格式1回呼事件
         /// </summary>
-        void api_TseFormat1Received(object sender, MarketDataApi.MarketDataApi.TseFormat1ReceivedEventArgs e)
+        void api_TseFormat1Received(object sender, MdApi.TseFormat1ReceivedEventArgs e)
         {
             App.Current.Dispatcher.Invoke((Action)(() =>
             {
@@ -1113,7 +1302,7 @@ namespace MarketDataApiExample.ViewModels
         /// <summary>
         /// 上櫃現貨格式1回呼事件
         /// </summary>
-        void api_TpexFormat1Received(object sender, MarketDataApi.MarketDataApi.TpexFormat1ReceivedEventArgs e)
+        void api_TpexFormat1Received(object sender, MdApi.TpexFormat1ReceivedEventArgs e)
         {
             App.Current.Dispatcher.Invoke((Action)(() =>
             {
@@ -1124,7 +1313,7 @@ namespace MarketDataApiExample.ViewModels
         /// <summary>
         /// 期貨I010[資訊]回呼事件
         /// </summary>
-        void api_TaifexI010Received(object sender, MarketDataApi.MarketDataApi.TaifexI010ReceivedEventArgs e)
+        void api_TaifexI010Received(object sender, MdApi.TaifexI010ReceivedEventArgs e)
         {
             App.Current.Dispatcher.Invoke((Action)(() =>
             {
@@ -1135,7 +1324,7 @@ namespace MarketDataApiExample.ViewModels
         /// <summary>
         /// pats盤前回呼事件
         /// </summary>
-        private void api_PatsFormat0Received(object sender, MarketDataApi.MarketDataApi.PatsFormat0ReceivedEventArgs e)
+        private void api_PatsFormat0Received(object sender, MdApi.PatsFormat0ReceivedEventArgs e)
         {
             App.Current.Dispatcher.Invoke((Action)(() =>
             {
@@ -1155,7 +1344,7 @@ namespace MarketDataApiExample.ViewModels
         /// <summary>
         /// pats回呼事件
         /// </summary>
-        private void api_PatsFormat1Received(object sender, MarketDataApi.MarketDataApi.PatsFormat1ReceivedEventArgs e)
+        private void api_PatsFormat1Received(object sender, MdApi.PatsFormat1ReceivedEventArgs e)
         {
             App.Current.Dispatcher.Invoke((Action)(() =>
             {
@@ -1170,7 +1359,7 @@ namespace MarketDataApiExample.ViewModels
         /// <summary>
         /// pats回呼事件
         /// </summary>
-        private void api_PatsFormat2Received(object sender, MarketDataApi.MarketDataApi.PatsFormat2ReceivedEventArgs e)
+        private void api_PatsFormat2Received(object sender, MdApi.PatsFormat2ReceivedEventArgs e)
         {
             App.Current.Dispatcher.Invoke((Action)(() =>
             {
@@ -1202,7 +1391,7 @@ namespace MarketDataApiExample.ViewModels
                 case "5":
                     adapterCode = AdapterCode.TAIFEX_OPTIONS_NIGHT; break; /// <- 選擇權PM盤
                 case "6":
-                    adapterCode = AdapterCode.TAIFEX_GLOBAL_PATS; break; /// <- PATS
+                    adapterCode = AdapterCode.GLOBAL_PATS; break; /// <- PATS
                 default:
                     adapterCode = AdapterCode.TSE;
                     break;
@@ -1228,7 +1417,7 @@ namespace MarketDataApiExample.ViewModels
                         {
                             continue;
                         }
-                        MarketDataApi.Model.PacketTSE.Format1 data = new MarketDataApi.Model.PacketTSE.Format1(Encoding.Default.GetBytes(line));
+                        MarketDataApi.PacketTSE.Format1 data = new MarketDataApi.PacketTSE.Format1(Encoding.Default.GetBytes(line));
                         AddSymbolTseDictionary(data);
                     }
                 }
@@ -1238,7 +1427,7 @@ namespace MarketDataApiExample.ViewModels
                 _logger.Error(err, string.Format("LoadTSEData(): ErrMsg = {0}.", err.Message));
             }
         }
-        private void AddSymbolTseDictionary(MarketDataApi.Model.PacketTSE.Format1 data)
+        private void AddSymbolTseDictionary(MarketDataApi.PacketTSE.Format1 data)
         {
 
             if (string.IsNullOrEmpty(data.StockID) || SymbolTseList.AllSymbolTseList.ContainsKey(data.StockID))
@@ -1247,7 +1436,7 @@ namespace MarketDataApiExample.ViewModels
             }
 
             SymbolTseList.AddSymbolTseData(new SymbolTse(data));
-            SymbolTseDictionary = SymbolTseList.GetAllSymbolTpexCollection();
+            SymbolTseDictionary = SymbolTseList.GetAllSymbolTseCollection();
         }
 
         private void LoadTPEXData()
@@ -1268,7 +1457,7 @@ namespace MarketDataApiExample.ViewModels
                         {
                             continue;
                         }
-                        MarketDataApi.Model.PacketTPEX.Format1 data = new MarketDataApi.Model.PacketTPEX.Format1(Encoding.Default.GetBytes(line));
+                        MarketDataApi.PacketTPEX.Format1 data = new MarketDataApi.PacketTPEX.Format1(Encoding.Default.GetBytes(line));
                         AddSymbolTpexDictionary(data);
                     }
                 }
@@ -1278,7 +1467,7 @@ namespace MarketDataApiExample.ViewModels
                 _logger.Error(err, string.Format("LoadData(): ErrMsg = {0}.", err.Message));
             }
         }
-        private void AddSymbolTpexDictionary(MarketDataApi.Model.PacketTPEX.Format1 data)
+        private void AddSymbolTpexDictionary(MarketDataApi.PacketTPEX.Format1 data)
         {
 
             if (string.IsNullOrEmpty(data.StockID) || SymbolTpexList.AllSymbolTpexList.ContainsKey(data.StockID))
@@ -1308,7 +1497,7 @@ namespace MarketDataApiExample.ViewModels
                         {
                             continue;
                         }
-                        MarketDataApi.Model.PacketTAIFEX.I010 data = new MarketDataApi.Model.PacketTAIFEX.I010(Encoding.Default.GetBytes(line), 0);
+                        MarketDataApi.PacketTAIFEX.I010 data = new MarketDataApi.PacketTAIFEX.I010(Encoding.Default.GetBytes(line), 0);
                         AddSymbolTaifexDictionary(data);
                     }
                 }
@@ -1318,7 +1507,7 @@ namespace MarketDataApiExample.ViewModels
                 _logger.Error(err, string.Format("LoadData(): ErrMsg = {0}.", err.Message));
             }
         }
-        private void AddSymbolTaifexDictionary(MarketDataApi.Model.PacketTAIFEX.I010 data)
+        private void AddSymbolTaifexDictionary(MarketDataApi.PacketTAIFEX.I010 data)
         {
 
             if (string.IsNullOrEmpty(data.B_ProdId) || SymbolTaifexList.AllSymbolTaifexList.ContainsKey(data.B_ProdId))
@@ -1327,7 +1516,7 @@ namespace MarketDataApiExample.ViewModels
             }
 
             SymbolTaifexList.AddSymbolTalfexData(new SymbolTaifex(data));
-            SymbolTaifexDictionary = SymbolTaifexList.GetAllSymbolTpexCollection();
+            SymbolTaifexDictionary = SymbolTaifexList.GetAllSymbolTaifexCollection();
         }
 
         /// <summary>

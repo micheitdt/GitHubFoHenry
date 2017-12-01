@@ -16,7 +16,7 @@ namespace CommonLibrary.Model
         public SymbolTaifex()
         { }
 
-        public SymbolTaifex(MarketDataApi.Model.PacketTAIFEX.I010 data)
+        public SymbolTaifex(MarketDataApi.PacketTAIFEX.I010 data)
         {
             _symbolNo = data.B_ProdId;
             _typeNo = (data.H_TransmissionCode == "1") ? "期貨" : "選擇權";
@@ -384,7 +384,7 @@ namespace CommonLibrary.Model
             internal set;
         }
 
-        public static ObservableCollection<SymbolTaifex> GetAllSymbolTpexCollection()
+        public static ObservableCollection<SymbolTaifex> GetAllSymbolTaifexCollection()
         {
             return new ObservableCollection<SymbolTaifex>(AllSymbolTaifexList.Values);
         }
@@ -394,7 +394,19 @@ namespace CommonLibrary.Model
             AllSymbolTaifexList.TryAdd(data.SymbolNo , data);
         }
 
-        public static void SetSymbolTaifexDataList(IDictionary<string, MarketDataApi.Model.PacketTAIFEX.I010> data)
+        public static void UpdateSymbolTalfexData(SymbolTaifex data)
+        {
+            if (AllSymbolTaifexList.ContainsKey(data.SymbolNo))
+            {
+                AllSymbolTaifexList[data.SymbolNo] = data;
+            }
+            else
+            {
+                AllSymbolTaifexList.TryAdd(data.SymbolNo, data);
+            }
+        }
+
+        public static void SetSymbolTaifexDataList(IDictionary<string, MarketDataApi.PacketTAIFEX.I010> data)
         {
             foreach (var obj in data)
             {
@@ -402,7 +414,7 @@ namespace CommonLibrary.Model
             }
         }
 
-        public void AddTalfexData(MarketDataApi.Model.PacketTAIFEX.I010 data)
+        public void AddTalfexData(MarketDataApi.PacketTAIFEX.I010 data)
         {
             SymbolTaifex temp = new SymbolTaifex(data);
             AllSymbolTaifexList.TryAdd(data.B_ProdId, temp);

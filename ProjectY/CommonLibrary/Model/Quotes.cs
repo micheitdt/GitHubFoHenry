@@ -500,7 +500,7 @@ namespace CommonLibrary.Model
         #endregion
 
         #region func
-        public void SetI080Data(long seq, MarketDataApi.Model.PacketTAIFEX.I080 data)
+        public void SetI080Data(long seq, MarketDataApi.PacketTAIFEX.I080 data)
         {
             _seq = seq;
             _symbolNo = data.B_ProdId;
@@ -530,7 +530,37 @@ namespace CommonLibrary.Model
             OnPropertyChanged();
         }
 
-        public void SetI020Data(long seq, MarketDataApi.Model.PacketTAIFEX.I020 data)
+        public void SetI082Data(long seq, MarketDataApi.PacketTAIFEX.I082 data)
+        {
+            _seq = seq;
+            _symbolNo = data.B_ProdId;
+            _typeNo = "I082";
+            _market = (data.H_TransmissionCode == "2") ? "期貨" : "選擇權";
+            _time = data.H_InformationTime.ToString();
+            _bid1Price = data.B_BuyOrderBook[0].MatchPrice;
+            _bid1Qty = data.B_BuyOrderBook[0].MatchQuantity;
+            _bid2Price = data.B_BuyOrderBook[1].MatchPrice;
+            _bid2Qty = data.B_BuyOrderBook[1].MatchQuantity;
+            _bid3Price = data.B_BuyOrderBook[2].MatchPrice;
+            _bid3Qty = data.B_BuyOrderBook[2].MatchQuantity;
+            _bid4Price = data.B_BuyOrderBook[3].MatchPrice;
+            _bid4Qty = data.B_BuyOrderBook[3].MatchQuantity;
+            _bid5Price = data.B_BuyOrderBook[4].MatchPrice;
+            _bid5Qty = data.B_BuyOrderBook[4].MatchQuantity;
+            _ask1Price = data.B_SellOrderBook[0].MatchPrice;
+            _ask1Qty = data.B_SellOrderBook[0].MatchQuantity;
+            _ask2Price = data.B_SellOrderBook[1].MatchPrice;
+            _ask2Qty = data.B_SellOrderBook[1].MatchQuantity;
+            _ask3Price = data.B_SellOrderBook[2].MatchPrice;
+            _ask3Qty = data.B_SellOrderBook[2].MatchQuantity;
+            _ask4Price = data.B_SellOrderBook[3].MatchPrice;
+            _ask4Qty = data.B_SellOrderBook[3].MatchQuantity;
+            _ask5Price = data.B_SellOrderBook[4].MatchPrice;
+            _ask5Qty = data.B_SellOrderBook[4].MatchQuantity;
+            OnPropertyChanged();
+        }
+
+        public void SetI020Data(long seq, MarketDataApi.PacketTAIFEX.I020 data)
         {
             _seq = seq;
             _symbolNo = data.B_ProdId;
@@ -539,11 +569,24 @@ namespace CommonLibrary.Model
             _matchPrice = data.B_FirstMatchPrice;
             _matchQty = data.B_FirstMatchQnty;
             _matchTotalQty = data.B_MatchTotalQty;
+            _time = data.B_MatchTime.ToString();
+            OnPropertyChanged();
+        }
+
+        public void SetI022Data(long seq, MarketDataApi.PacketTAIFEX.I022 data)
+        {
+            _seq = seq;
+            _symbolNo = data.B_ProdId;
+            _typeNo = "I022";
+            _market = (data.H_TransmissionCode == "2") ? "期貨" : "選擇權";
+            _matchPrice = data.B_FirstMatchPrice;
+            _matchQty = data.B_FirstMatchQnty;
+            _matchTotalQty = data.B_MatchTotalQty;
             _time = data.H_InformationTime.ToString();
             OnPropertyChanged();
         }
 
-        public void SetTpexData(long seq, MarketDataApi.Model.PacketTPEX.Format6 data)
+        public void SetTpexData(long seq, MarketDataApi.PacketTPEX.Format6 data)
         {
             _seq = seq;
             _symbolNo = data.StockID;
@@ -560,7 +603,7 @@ namespace CommonLibrary.Model
             OnPropertyChanged();
         }
 
-        public void SetTseData(long seq, MarketDataApi.Model.PacketTSE.Format6 data)
+        public void SetTseData(long seq, MarketDataApi.PacketTSE.Format6 data)
         {
             _seq = seq;
             _symbolNo = data.StockID;
@@ -577,7 +620,7 @@ namespace CommonLibrary.Model
             OnPropertyChanged();
         }
 
-        public void SetTpexData(long seq, MarketDataApi.Model.PacketTPEX.Format17 data)
+        public void SetTpexData(long seq, MarketDataApi.PacketTPEX.Format17 data)
         {
             _seq = seq;
             _symbolNo = data.StockID;
@@ -594,7 +637,7 @@ namespace CommonLibrary.Model
             OnPropertyChanged();
         }
 
-        public void SetTseData(long seq, MarketDataApi.Model.PacketTSE.Format17 data)
+        public void SetTseData(long seq, MarketDataApi.PacketTSE.Format17 data)
         {
             _seq = seq;
             _symbolNo = data.StockID;

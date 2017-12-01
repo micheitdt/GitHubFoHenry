@@ -16,7 +16,7 @@ namespace CommonLibrary.Model
         public SymbolTpex()
         { }
         
-        public SymbolTpex(MarketDataApi.Model.PacketTPEX.Format1 data)
+        public SymbolTpex(MarketDataApi.PacketTPEX.Format1 data)
         {
             _symbolNo = data.StockID;
             _symbolName = data.StockName;
@@ -681,7 +681,19 @@ namespace CommonLibrary.Model
             AllSymbolTpexList.TryAdd(data.SymbolNo, data);
         }
 
-        public static void SetSymbolTpexDataList(IDictionary<string, MarketDataApi.Model.PacketTPEX.Format1> data)
+        public static void UpdateSymbolTpexData(SymbolTpex data)
+        {
+            if (AllSymbolTpexList.ContainsKey(data.SymbolNo))
+            {
+                AllSymbolTpexList[data.SymbolNo] = data;
+            }
+            else
+            {
+                AllSymbolTpexList.TryAdd(data.SymbolNo, data);
+            }
+        }
+
+        public static void SetSymbolTpexDataList(IDictionary<string, MarketDataApi.PacketTPEX.Format1> data)
         {
             foreach (var obj in data)
             {
@@ -689,7 +701,7 @@ namespace CommonLibrary.Model
             }
         }
 
-        public static void AddTpexData(MarketDataApi.Model.PacketTPEX.Format1 data)
+        public static void AddTpexData(MarketDataApi.PacketTPEX.Format1 data)
         {
             SymbolTpex temp = new SymbolTpex(data);
             AllSymbolTpexList.TryAdd(data.StockID, temp);

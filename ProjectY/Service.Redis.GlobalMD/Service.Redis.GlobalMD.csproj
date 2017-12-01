@@ -36,6 +36,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="MarketDataApi, Version=1.0.0.2, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\CommonLibrary\Resources\MarketDataApi.dll</HintPath>
+    </Reference>
     <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
       <HintPath>..\packages\NLog.4.4.12\lib\net45\NLog.dll</HintPath>
       <Private>True</Private>
@@ -133,10 +137,6 @@
     <ProjectReference Include="..\CommonLibrary\CommonLibrary.csproj">
       <Project>{9d37d39e-bb99-4b75-9f25-cd9d2c993915}</Project>
       <Name>CommonLibrary</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\MarketDataApi\MarketDataApi.csproj">
-      <Project>{4e233e12-b86b-46ef-9525-2922796d28df}</Project>
-      <Name>MarketDataApi</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup />
