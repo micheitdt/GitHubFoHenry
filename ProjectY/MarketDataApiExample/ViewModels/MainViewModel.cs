@@ -44,7 +44,8 @@ namespace MarketDataApiExample.ViewModels
         private string _symbolNo = "";//CME_ES.GE0.DEC07//all
         private string _selectSubscribe = string.Empty;
         private ObservableCollection<string> _subscribeList = new ObservableCollection<string>();
-        private ObservableCollection<Quotes> _quotesList = new ObservableCollection<Quotes>();
+        private Dictionary<string, Quotes> _quotesList = new Dictionary<string, Quotes>();
+        private ObservableCollection<Quotes> _quotesValueList = new ObservableCollection<Quotes>();
         private ObservableCollection<Quotes> _quotesSnapshotList = new ObservableCollection<Quotes>();
         private Quotes _selectQuotes;
         private string _tSESymbolNoFilter = string.Empty;
@@ -57,7 +58,7 @@ namespace MarketDataApiExample.ViewModels
         private ObservableCollection<SymbolTaifex> _symbolTaifexDictionary = new ObservableCollection<SymbolTaifex>();
         private SymbolTaifex _selectTaifex;
         MdApi api;
-        private long _gridSeq = 1;
+        private long _packetSize = 0;
 
         private ObservableCollection<MarketDataApi.PacketPATS.Format0> _patsFormat0List = new ObservableCollection<MarketDataApi.PacketPATS.Format0>();
         private ObservableCollection<MarketDataApi.PacketPATS.Format1> _patsFormat1List = new ObservableCollection<MarketDataApi.PacketPATS.Format1>();
@@ -257,7 +258,7 @@ namespace MarketDataApiExample.ViewModels
         /// <summary>
         /// 訂閱行情內容
         /// </summary>
-        public ObservableCollection<Quotes> QuotesList
+        public Dictionary<string,Quotes> QuotesList
         {
             get
             {
@@ -266,7 +267,15 @@ namespace MarketDataApiExample.ViewModels
             set
             {
                 _quotesList = value;
-                OnPropertyChanged("QuotesList");
+                OnPropertyChanged("QuotesValueList");
+            }
+        }
+        public ObservableCollection<Quotes> QuotesValueList
+        {
+            get
+            {
+                
+                return new ObservableCollection<Quotes>(_quotesList.Values);
             }
         }
         /// <summary>
@@ -550,7 +559,21 @@ namespace MarketDataApiExample.ViewModels
             {
                 _selectPats = value;
             }
-        }        
+        }
+        /// <summary>
+        /// 接收封包大小
+        /// </summary>
+        public long PacketSize
+        {
+            get
+            {
+                return _packetSize;
+            }
+            set
+            {
+                _packetSize = value;
+            }
+        }
 
         #endregion
 
@@ -733,7 +756,36 @@ namespace MarketDataApiExample.ViewModels
                 return _getSnapshotCommand;
             }
         }
-        
+
+        private ICommand _getPreSymbolCommand;
+        public ICommand GetPreSymbolCommand
+        {
+            get
+            {
+                if (_getPreSymbolCommand == null)
+                {
+                    _getPreSymbolCommand = new RelayCommand(
+                        GetPreSymbol
+                    );
+                }
+                return _getPreSymbolCommand;
+            }
+        }
+
+        private ICommand _allSubPacketCommand;
+        public ICommand AllSubPacketCommand
+        {
+            get
+            {
+                if (_allSubPacketCommand == null)
+                {
+                    _allSubPacketCommand = new RelayCommand(
+                        AllSubPacket
+                    );
+                }
+                return _allSubPacketCommand;
+            }
+        }
 
         /// <summary>
         /// 連接行情伺服器
@@ -869,7 +921,6 @@ namespace MarketDataApiExample.ViewModels
         private void clearContent()
         {
             QuotesList.Clear();
-            _gridSeq = 1;
         }
         //------------------------------------------------------------------------------------------------------------------------------------------
         /// <summary>
@@ -877,6 +928,8 @@ namespace MarketDataApiExample.ViewModels
         /// </summary>
         private void QuotesGridDoubleClick()
         {
+            if (_selectQuotes == null)
+                return;
             switch (_selectQuotes.Market)
             {
                 case "上市":
@@ -902,6 +955,8 @@ namespace MarketDataApiExample.ViewModels
         /// </summary>
         private void TseGridDoubleClick()
         {
+            if (_selectTse == null)
+                return;
             GeneralSupscribeSymbol("0-上市", "6", _selectTse.SymbolNo);
             GeneralSupscribeSymbol("0-上市", "17", _selectTse.SymbolNo);
         }
@@ -911,6 +966,8 @@ namespace MarketDataApiExample.ViewModels
         /// </summary>
         private void TpexGridDoubleClick()
         {
+            if (_selectTpex == null)
+                return;
             GeneralSupscribeSymbol("1-上櫃", "6", _selectTpex.SymbolNo);
             GeneralSupscribeSymbol("1-上櫃", "17", _selectTpex.SymbolNo);
         }
@@ -920,7 +977,9 @@ namespace MarketDataApiExample.ViewModels
         /// </summary>
         private void TaifexGridDoubleClick()
         {
-            if(_selectTaifex.TypeNo == "期貨")
+            if (_selectTaifex == null)
+                return;
+            if (_selectTaifex.TypeNo == "期貨")
             {
                 GeneralSupscribeSymbol("2-期貨AM盤", "I020", _selectTaifex.SymbolNo);
                 GeneralSupscribeSymbol("2-期貨AM盤", "I080", _selectTaifex.SymbolNo);
@@ -941,6 +1000,8 @@ namespace MarketDataApiExample.ViewModels
         /// </summary>
         private void PATSGridDoubleClick()
         {
+            if (SelectPats == null)
+                return;
             GeneralSupscribeSymbol("6-PATS", "1", string.Format("{0}.{1}.{2}", SelectPats.Exchange , SelectPats.Commodity , SelectPats.Contract));
         }
         //------------------------------------------------------------------------------------------------------------------------------------------
@@ -1020,16 +1081,12 @@ namespace MarketDataApiExample.ViewModels
                 case "0":
                     switch(SelectType)
                     {
-                        case "1":
-                            SymbolTseList.AddSymbolTseData(new SymbolTse(ret as MarketDataApi.PacketTSE.Format1));
-                            SymbolTseDictionary = SymbolTseList.GetAllSymbolTseCollection();
-                            break;
                         case "6":
-                            model.SetTseData(_gridSeq, ret as MarketDataApi.PacketTSE.Format6);
+                            model.SetTseData(0, ret as MarketDataApi.PacketTSE.Format6);
                             QuotesSnapshotList.Insert(0, model);
                             break;
                         case "17":
-                            model.SetTseData(_gridSeq, ret as MarketDataApi.PacketTSE.Format17);
+                            model.SetTseData(0, ret as MarketDataApi.PacketTSE.Format17);
                             QuotesSnapshotList.Insert(0, model);
                             break;
                     }
@@ -1037,16 +1094,12 @@ namespace MarketDataApiExample.ViewModels
                 case "1":
                     switch (SelectType)
                     {
-                        case "1":
-                            SymbolTpexList.AddSymbolTpexData(new SymbolTpex(ret as MarketDataApi.PacketTPEX.Format1));
-                            SymbolTpexDictionary = SymbolTpexList.GetAllSymbolTpexCollection();
-                            break;
                         case "6":
-                            model.SetTpexData(_gridSeq, ret as MarketDataApi.PacketTPEX.Format6);
+                            model.SetTpexData(0, ret as MarketDataApi.PacketTPEX.Format6);
                             QuotesSnapshotList.Insert(0, model);
                             break;
                         case "17":
-                            model.SetTpexData(_gridSeq, ret as MarketDataApi.PacketTPEX.Format17);
+                            model.SetTpexData(0, ret as MarketDataApi.PacketTPEX.Format17);
                             QuotesSnapshotList.Insert(0, model);
                             break;
                     }
@@ -1057,22 +1110,60 @@ namespace MarketDataApiExample.ViewModels
                 case "5"://夜選
                     switch (SelectType)
                     {
-                        case "I010":
-                            SymbolTaifexList.AddSymbolTalfexData(new SymbolTaifex(ret as MarketDataApi.PacketTAIFEX.I010));
-                            SymbolTaifexDictionary = SymbolTaifexList.GetAllSymbolTaifexCollection();
-                            break;
                         case "I020":
-                            model.SetI020Data(_gridSeq, ret as MarketDataApi.PacketTAIFEX.I020);
+                            model.SetI020Data(0, ret as MarketDataApi.PacketTAIFEX.I020);
                             QuotesSnapshotList.Insert(0, model);
                             break;
                         case "I080":
-                            model.SetI080Data(_gridSeq, ret as MarketDataApi.PacketTAIFEX.I080);
+                            model.SetI080Data(0, ret as MarketDataApi.PacketTAIFEX.I080);
                             QuotesSnapshotList.Insert(0, model);
                             break;
                     }
                     break;
             }
                 StatusMessageList.Insert(0, DateTime.Now.ToString("HH:mm:ss:ttt") + "    " + "取得快照成功:" + subSymbol);
+        }
+        /// <summary>
+        /// 取得盤前資料
+        /// </summary>
+        private void GetPreSymbol()
+        {
+            foreach (MarketDataApi.PacketTAIFEX.I010 data in api.GetContracts(AdapterCode.TAIFEX_FUTURES_DAY))
+            {
+                SymbolTaifexList.AddSymbolTalfexData(new SymbolTaifex(data));
+            }
+            foreach (MarketDataApi.PacketTAIFEX.I010 data in api.GetContracts(AdapterCode.TAIFEX_OPTIONS_DAY))
+            {
+                SymbolTaifexList.AddSymbolTalfexData(new SymbolTaifex(data));
+            }
+            foreach (MarketDataApi.PacketTPEX.Format1 data in api.GetContracts(AdapterCode.TPEX))
+            {
+                SymbolTpexList.AddSymbolTpexData(new SymbolTpex(data));
+            }
+            foreach (MarketDataApi.PacketTSE.Format1 data in api.GetContracts(AdapterCode.TSE))
+            {
+                SymbolTseList.AddSymbolTseData(new SymbolTse(data));
+            }
+            SymbolTaifexDictionary = SymbolTaifexList.GetAllSymbolTaifexCollection();
+            SymbolTaifexDictionary = SymbolTaifexList.GetAllSymbolTaifexCollection();
+            SymbolTseDictionary = SymbolTseList.GetAllSymbolTseCollection();
+            SymbolTpexDictionary = SymbolTpexList.GetAllSymbolTpexCollection();
+        }
+        /// <summary>
+        /// 計算全訂閱封包流量
+        /// </summary>
+        private void AllSubPacket()
+        {
+            _packetSize = 0;
+
+            api.Sub(AdapterCode.TAIFEX_FUTURES_NIGHT, "I020");
+            api.Sub(AdapterCode.TAIFEX_FUTURES_NIGHT, "I080");
+            api.Sub(AdapterCode.TAIFEX_OPTIONS_NIGHT, "I020");
+            api.Sub(AdapterCode.TAIFEX_OPTIONS_NIGHT, "I080");
+            api.Sub(AdapterCode.TPEX, "6");
+            api.Sub(AdapterCode.TPEX, "17");
+            api.Sub(AdapterCode.TSE, "6");
+            api.Sub(AdapterCode.TSE, "17");
         }
         #endregion
 
@@ -1098,12 +1189,20 @@ namespace MarketDataApiExample.ViewModels
                     , e.PacketData.B_SellOrderBook[1].MatchPrice
                     , e.PacketData.B_SellOrderBook[1].MatchQuantity);
                 Quotes model = new Quotes();
-                model.SetI080Data(_gridSeq, e.PacketData);
-                QuotesList.Insert(0, model);
-                _gridSeq++;
+                model.SetI080Data(0, e.PacketData);
+
+                if (QuotesList.ContainsKey(model.MainKey))
+                {
+                    QuotesList[model.MainKey] = model;
+                }
+                else
+                {
+                    QuotesList.Add(model.MainKey, model);
+                }
+                OnPropertyChanged("QuotesValueList");
                 //_logger.Debug(fData);
                 //測試-商品更新個數
-                int count = QuotesList.GroupBy(x => x.SymbolNo).Count();
+                int count = QuotesList.Values.GroupBy(x => x.SymbolNo).Count();
                 StatusMessageList.Insert(0, DateTime.Now.ToString("HH:mm:ss:ttt") + "    " + "個數:" + count);
             }));
         }
@@ -1122,13 +1221,21 @@ namespace MarketDataApiExample.ViewModels
                     , e.PacketData.B_MatchTotalQty
                     , e.PacketData.H_InformationTime);
                 Quotes model = new Quotes();
-                model.SetI020Data(_gridSeq, e.PacketData);
-                QuotesList.Insert(0, model);
-                _gridSeq++;
+                model.SetI020Data(0, e.PacketData);
+
+                if (QuotesList.ContainsKey(model.MainKey))
+                {
+                    QuotesList[model.MainKey] = model;
+                }
+                else
+                {
+                    QuotesList.Add(model.MainKey, model);
+                }
+                OnPropertyChanged("QuotesValueList");
                 //_logger.Debug(fData);
 
                 //測試-商品更新個數
-                int count = QuotesList.GroupBy(x => x.SymbolNo).Count();
+                int count = QuotesList.Values.GroupBy(x => x.SymbolNo).Count();
                 StatusMessageList.Insert(0, DateTime.Now.ToString("HH:mm:ss:ttt") + "    " + "個數:" + count);
             }));
         }
@@ -1141,9 +1248,17 @@ namespace MarketDataApiExample.ViewModels
             App.Current.Dispatcher.Invoke((Action)(() =>
             {
                 Quotes model = new Quotes();
-                model.SetI082Data(_gridSeq, e.PacketData);
-                QuotesList.Insert(0, model);
-                _gridSeq++;
+                model.SetI082Data(0, e.PacketData);
+
+                if (QuotesList.ContainsKey(model.MainKey))
+                {
+                    QuotesList[model.MainKey] = model;
+                }
+                else
+                {
+                    QuotesList.Add(model.MainKey, model);
+                }
+                OnPropertyChanged("QuotesValueList");
             }));
         }
         //------------------------------------------------------------------------------------------------------------------------------------------
@@ -1155,9 +1270,17 @@ namespace MarketDataApiExample.ViewModels
             App.Current.Dispatcher.Invoke((Action)(() =>
             {
                 Quotes model = new Quotes();
-                model.SetI022Data(_gridSeq, e.PacketData);
-                QuotesList.Insert(0, model);
-                _gridSeq++;
+                model.SetI022Data(0, e.PacketData);
+
+                if (QuotesList.ContainsKey(model.MainKey))
+                {
+                    QuotesList[model.MainKey] = model;
+                }
+                else
+                {
+                    QuotesList.Add(model.MainKey, model);
+                }
+                OnPropertyChanged("QuotesValueList");
             }));
         }
         //------------------------------------------------------------------------------------------------------------------------------------------
@@ -1178,12 +1301,20 @@ namespace MarketDataApiExample.ViewModels
                         , (e.PacketData.AskData.Count == 0) ? 0 : e.PacketData.AskData[0].Price
                         , (e.PacketData.AskData.Count == 0) ? 0 : e.PacketData.AskData[0].Volume);
                 Quotes model = new Quotes();
-                model.SetTpexData(_gridSeq,  e.PacketData);
-                QuotesList.Insert(0, model);
-                _gridSeq++;
+                model.SetTpexData(0,  e.PacketData);
+
+                if (QuotesList.ContainsKey(model.MainKey))
+                {
+                    QuotesList[model.MainKey] = model;
+                }
+                else
+                {
+                    QuotesList.Add(model.MainKey, model);
+                }
+                OnPropertyChanged("QuotesValueList");
                 //_logger.Debug(fData);
                 //測試-商品更新個數
-                int count = QuotesList.GroupBy(x => x.SymbolNo).Count();
+                int count = QuotesList.Values.GroupBy(x => x.SymbolNo).Count();
                 StatusMessageList.Insert(0, DateTime.Now.ToString("HH:mm:ss:ttt") + "    " + "個數:" + count);
             }));
         }
@@ -1205,12 +1336,20 @@ namespace MarketDataApiExample.ViewModels
                     , (e.PacketData.AskData.Count == 0) ? 0 : e.PacketData.AskData[0].Price
                     , (e.PacketData.AskData.Count == 0) ? 0 : e.PacketData.AskData[0].Volume);
                 Quotes model = new Quotes();
-                model.SetTseData(_gridSeq, e.PacketData);
-                QuotesList.Insert(0,model);
-                _gridSeq++;
+                model.SetTseData(0, e.PacketData);
+
+                if (QuotesList.ContainsKey(model.MainKey))
+                {
+                    QuotesList[model.MainKey] = model;
+                }
+                else
+                {
+                    QuotesList.Add(model.MainKey, model);
+                }
+                OnPropertyChanged("QuotesValueList");
                 //_logger.Debug(fData);
                 //測試-商品更新個數
-                int count = QuotesList.GroupBy(x => x.SymbolNo).Count();
+                int count = QuotesList.Values.GroupBy(x => x.SymbolNo).Count();
                 StatusMessageList.Insert(0, DateTime.Now.ToString("HH:mm:ss:ttt") + "    " + "個數:" + count);
             }));
         }
@@ -1232,12 +1371,20 @@ namespace MarketDataApiExample.ViewModels
                         , (e.PacketData.AskData.Count == 0) ? 0 : e.PacketData.AskData[0].Price
                         , (e.PacketData.AskData.Count == 0) ? 0 : e.PacketData.AskData[0].Volume);
                 Quotes model = new Quotes();
-                model.SetTpexData(_gridSeq, e.PacketData);
-                QuotesList.Insert(0, model);
-                _gridSeq++;
+                model.SetTpexData(0, e.PacketData);
+
+                if (QuotesList.ContainsKey(model.MainKey))
+                {
+                    QuotesList[model.MainKey] = model;
+                }
+                else
+                {
+                    QuotesList.Add(model.MainKey, model);
+                }
+                OnPropertyChanged("QuotesValueList");
                 //_logger.Debug(fData);
                 //測試-商品更新個數
-                int count = QuotesList.GroupBy(x => x.SymbolNo).Count();
+                int count = QuotesList.Values.GroupBy(x => x.SymbolNo).Count();
                 StatusMessageList.Insert(0, DateTime.Now.ToString("HH:mm:ss:ttt") + "    " + "個數:" + count);
             }));
         }
@@ -1259,12 +1406,20 @@ namespace MarketDataApiExample.ViewModels
                     , (e.PacketData.AskData.Count == 0) ? 0 : e.PacketData.AskData[0].Price
                     , (e.PacketData.AskData.Count == 0) ? 0 : e.PacketData.AskData[0].Volume);
                 Quotes model = new Quotes();
-                model.SetTseData(_gridSeq, e.PacketData);
-                QuotesList.Insert(0, model);
-                _gridSeq++;
+                model.SetTseData(0, e.PacketData);
+
+                if (QuotesList.ContainsKey(model.MainKey))
+                {
+                    QuotesList[model.MainKey] = model;
+                }
+                else
+                {
+                    QuotesList.Add(model.MainKey, model);
+                }
+                OnPropertyChanged("QuotesValueList");
                 //_logger.Debug(fData);
                 //測試-商品更新個數
-                int count = QuotesList.GroupBy(x => x.SymbolNo).Count();
+                int count = QuotesList.Values.GroupBy(x => x.SymbolNo).Count();
                 StatusMessageList.Insert(0, DateTime.Now.ToString("HH:mm:ss:ttt") + "    " + "個數:" + count);
             }));
         }        
@@ -1609,7 +1764,7 @@ namespace MarketDataApiExample.ViewModels
             sheet.GetRow(1).GetCell(26).CellStyle = cellStyle;
             sheet.GetRow(1).GetCell(27).CellStyle = cellStyle;
             int i = 1;
-            foreach (Quotes quote in _quotesList)
+            foreach (Quotes quote in _quotesList.Values)
             {
                 i = i + 1;
                 sheet.GetRow(i).GetCell(0).SetCellValue(quote.Seq);

@@ -7,7 +7,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:view="clr-namespace:MarketDataApiExample.ViewModels"
     Title="MainWindow"
-    Width="800"
+    Width="900"
     Height="600"
     FontSize="16"
     mc:Ignorable="d">
@@ -95,6 +95,12 @@
                         VerticalAlignment="Center"
                         Command="{Binding GetSnapshotCommand}"
                         Content="取得快照" />
+                    <Button
+                        Name="BtnPreSymbol"
+                        Margin="0,0"
+                        VerticalAlignment="Center"
+                        Command="{Binding GetPreSymbolCommand}"
+                        Content="取得盤前" />
                 </StackPanel>
             </StackPanel>
             <GridSplitter
@@ -103,9 +109,12 @@
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Bottom"
                 Background="Transparent" />
-            <Grid Grid.Row="1">
+            <Grid
+                Name="MainControl"
+                Grid.Row="1"
+                IsEnabled="False">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="100" />
+                    <ColumnDefinition Width="150" />
                     <ColumnDefinition />
                 </Grid.ColumnDefinitions>
                 <ListView
@@ -119,21 +128,20 @@
                     VerticalAlignment="Stretch"
                     Background="Transparent" />
                 <TabControl Grid.Column="1" Margin="0,5">
-                    <TabItem Header="行情">
+                    <TabItem Header="即時行情">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition />
                                 <RowDefinition Height="40" />
                             </Grid.RowDefinitions>
                             <DataGrid
-                                x:Name="DataGrid"
+                                x:Name="QuotesDataGrid"
                                 AutoGenerateColumns="False"
                                 CanUserAddRows="False"
                                 IsReadOnly="True"
-                                ItemsSource="{Binding QuotesList, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                                ItemsSource="{Binding QuotesValueList, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
                                 SelectedItem="{Binding SelectQuotes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
                                 <DataGrid.Columns>
-                                    <DataGridTextColumn Binding="{Binding Seq}" Header="序號" />
                                     <DataGridTextColumn Binding="{Binding Market}" Header="市場別" />
                                     <DataGridTextColumn Binding="{Binding TypeNo}" Header="類型" />
                                     <DataGridTextColumn Binding="{Binding SymbolNo}" Header="商品代碼" />
@@ -150,17 +158,7 @@
                                     <MouseBinding Command="{Binding GridDoubleClickCommand}" Gesture="LeftDoubleClick" />
                                 </DataGrid.InputBindings>
                             </DataGrid>
-                            <!--<ListBox IsSynchronizedWithCurrentItem="True" Grid.Column="2" x:Name="MarketDataGrid"  ItemsSource="{Binding MarketDataList, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}" Margin="5" >-->
-                            <!--<ListBox.ItemTemplate>
-                    <DataTemplate>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="{Binding}" />
-                        </StackPanel>
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>-->
                             <StackPanel
-                                Name="ContentControlAry"
                                 Grid.Row="1"
                                 Grid.Column="1"
                                 Margin="0,5"
@@ -180,98 +178,102 @@
                             </StackPanel>
                         </Grid>
                     </TabItem>
-                    <TabItem Header="現貨_上市商品">
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="50" />
-                                <RowDefinition />
-                            </Grid.RowDefinitions>
-                            <StackPanel
-                                Grid.Row="0"
-                                Margin="0,5"
-                                Orientation="Horizontal">
-                                <Label Content="商品代碼:" />
-                                <TextBox
-                                    Width="100"
-                                    Margin="5,0"
-                                    VerticalAlignment="Center"
-                                    Text="{Binding TSESymbolNoFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                            </StackPanel>
-                            <DataGrid
-                                x:Name="TSEDataGrid"
-                                Grid.Row="1"
-                                CanUserAddRows="False"
-                                IsReadOnly="True"
-                                ItemsSource="{Binding SymbolTseDictionary, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
-                                LoadingRow="DataGrid_LoadingRow"
-                                SelectedItem="{Binding SelectTse, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
-                                <DataGrid.InputBindings>
-                                    <MouseBinding Command="{Binding GridTseDoubleClickCommand}" Gesture="LeftDoubleClick" />
-                                </DataGrid.InputBindings>
-                            </DataGrid>
-                        </Grid>
-                    </TabItem>
-                    <TabItem Header="現貨_上櫃商品">
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="50" />
-                                <RowDefinition />
-                            </Grid.RowDefinitions>
-                            <StackPanel
-                                Grid.Row="0"
-                                Margin="0,5"
-                                Orientation="Horizontal">
-                                <Label Content="商品代碼:" />
-                                <TextBox
-                                    Width="100"
-                                    Margin="5,0"
-                                    VerticalAlignment="Center"
-                                    Text="{Binding TPEXSymbolNoFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                            </StackPanel>
-                            <DataGrid
-                                x:Name="TPEXDataGrid"
-                                Grid.Row="1"
-                                CanUserAddRows="False"
-                                IsReadOnly="True"
-                                ItemsSource="{Binding SymbolTpexDictionary, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
-                                LoadingRow="DataGrid_LoadingRow"
-                                SelectedItem="{Binding SelectTpex, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
-                                <DataGrid.InputBindings>
-                                    <MouseBinding Command="{Binding GridTpexDoubleClickCommand}" Gesture="LeftDoubleClick" />
-                                </DataGrid.InputBindings>
-                            </DataGrid>
-                        </Grid>
-                    </TabItem>
-                    <TabItem Header="期貨商品">
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="50" />
-                                <RowDefinition />
-                            </Grid.RowDefinitions>
-                            <StackPanel
-                                Grid.Row="0"
-                                Margin="0,5"
-                                Orientation="Horizontal">
-                                <Label Content="商品代碼:" />
-                                <TextBox
-                                    Width="100"
-                                    Margin="5,0"
-                                    VerticalAlignment="Center"
-                                    Text="{Binding TAIFEXSymbolNoFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                            </StackPanel>
-                            <DataGrid
-                                x:Name="TAIFEXDataGrid"
-                                Grid.Row="1"
-                                CanUserAddRows="False"
-                                IsReadOnly="True"
-                                ItemsSource="{Binding SymbolTaifexDictionary, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
-                                LoadingRow="DataGrid_LoadingRow"
-                                SelectedItem="{Binding SelectTaifex, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
-                                <DataGrid.InputBindings>
-                                    <MouseBinding Command="{Binding GridTaifexDoubleClickCommand}" Gesture="LeftDoubleClick" />
-                                </DataGrid.InputBindings>
-                            </DataGrid>
-                        </Grid>
+                    <TabItem Header="盤前資料">
+                        <TabControl>
+                            <TabItem Header="現貨-上市">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="50" />
+                                        <RowDefinition />
+                                    </Grid.RowDefinitions>
+                                    <StackPanel
+                                        Grid.Row="0"
+                                        Margin="0,5"
+                                        Orientation="Horizontal">
+                                        <Label Content="商品代碼:" />
+                                        <TextBox
+                                            Width="100"
+                                            Margin="5,0"
+                                            VerticalAlignment="Center"
+                                            Text="{Binding TSESymbolNoFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                    </StackPanel>
+                                    <DataGrid
+                                        x:Name="TSEDataGrid"
+                                        Grid.Row="1"
+                                        CanUserAddRows="False"
+                                        IsReadOnly="True"
+                                        ItemsSource="{Binding SymbolTseDictionary, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                                        LoadingRow="DataGrid_LoadingRow"
+                                        SelectedItem="{Binding SelectTse, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                                        <DataGrid.InputBindings>
+                                            <MouseBinding Command="{Binding GridTseDoubleClickCommand}" Gesture="LeftDoubleClick" />
+                                        </DataGrid.InputBindings>
+                                    </DataGrid>
+                                </Grid>
+                            </TabItem>
+                            <TabItem Header="現貨-上櫃">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="50" />
+                                        <RowDefinition />
+                                    </Grid.RowDefinitions>
+                                    <StackPanel
+                                        Grid.Row="0"
+                                        Margin="0,5"
+                                        Orientation="Horizontal">
+                                        <Label Content="商品代碼:" />
+                                        <TextBox
+                                            Width="100"
+                                            Margin="5,0"
+                                            VerticalAlignment="Center"
+                                            Text="{Binding TPEXSymbolNoFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                    </StackPanel>
+                                    <DataGrid
+                                        x:Name="TPEXDataGrid"
+                                        Grid.Row="1"
+                                        CanUserAddRows="False"
+                                        IsReadOnly="True"
+                                        ItemsSource="{Binding SymbolTpexDictionary, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                                        LoadingRow="DataGrid_LoadingRow"
+                                        SelectedItem="{Binding SelectTpex, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                                        <DataGrid.InputBindings>
+                                            <MouseBinding Command="{Binding GridTpexDoubleClickCommand}" Gesture="LeftDoubleClick" />
+                                        </DataGrid.InputBindings>
+                                    </DataGrid>
+                                </Grid>
+                            </TabItem>
+                            <TabItem Header="期貨">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="50" />
+                                        <RowDefinition />
+                                    </Grid.RowDefinitions>
+                                    <StackPanel
+                                        Grid.Row="0"
+                                        Margin="0,5"
+                                        Orientation="Horizontal">
+                                        <Label Content="商品代碼:" />
+                                        <TextBox
+                                            Width="100"
+                                            Margin="5,0"
+                                            VerticalAlignment="Center"
+                                            Text="{Binding TAIFEXSymbolNoFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                    </StackPanel>
+                                    <DataGrid
+                                        x:Name="TAIFEXDataGrid"
+                                        Grid.Row="1"
+                                        CanUserAddRows="False"
+                                        IsReadOnly="True"
+                                        ItemsSource="{Binding SymbolTaifexDictionary, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                                        LoadingRow="DataGrid_LoadingRow"
+                                        SelectedItem="{Binding SelectTaifex, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                                        <DataGrid.InputBindings>
+                                            <MouseBinding Command="{Binding GridTaifexDoubleClickCommand}" Gesture="LeftDoubleClick" />
+                                        </DataGrid.InputBindings>
+                                    </DataGrid>
+                                </Grid>
+                            </TabItem>
+                        </TabControl>
                     </TabItem>
                     <TabItem Header="外期PATS">
                         <Grid>
@@ -314,6 +316,32 @@
                                     ItemsSource="{Binding PatsFormat2List, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
                                     LoadingRow="DataGrid_LoadingRow" />
                             </Grid>
+                        </Grid>
+                    </TabItem>
+                    <TabItem Header="封包流量解析">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="50" />
+                                <RowDefinition />
+                            </Grid.RowDefinitions>
+                            <StackPanel Margin="5" Orientation="Horizontal">
+                                <Button Margin="3,0" Content="全訂閱" />
+                                <Button Margin="3,0" Content="期權全訂閱" />
+                                <Button Margin="3,0" Content="現貨全訂閱" />
+                                <Button Margin="3,0" Content="現貨上市訂閱" />
+                                <Button Margin="3,0" Content="現貨上櫃訂閱" />
+                            </StackPanel>
+                            <StackPanel Grid.Row="1">
+                                <Label Content="啟始訂閱時間：" />
+                                <Label Content="09:00:00" FontWeight="Bold" />
+                                <Label Content="訂閱筆數：" />
+                                <Label Content="15639" FontWeight="Bold" />
+                                <Label Content="接收封包大小(byte)：" />
+                                <Label
+                                    Name="PacketSizeContain"
+                                    Content="{Binding PacketSize, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    FontWeight="Bold" />
+                            </StackPanel>
                         </Grid>
                     </TabItem>
                 </TabControl>

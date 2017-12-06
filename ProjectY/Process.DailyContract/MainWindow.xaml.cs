@@ -64,7 +64,7 @@ namespace Process.DailyContract
                             foreach (var prefix in subPrefixes)
                                 socket.Subscribe(prefix);
                             var messages = new List<byte[]>();
-                            byte spliterByte = 35;
+                            byte spliterByte = 35;//#
                             int indexOfSecondSpliter;
                             int indexOfThirdSpliter;
                             int lengthOfDataKey;
@@ -96,7 +96,7 @@ namespace Process.DailyContract
                                             Array.Copy(messages[0], indexOfSecondSpliter + 1, dataKey, 0, lengthOfDataKey);
                                             if (db.SAdd(setID, dataKey) == 1)
                                             {
-                                                db.RPush(listID, dataKey);                                                
+                                                db.RPush(listID, dataKey);
                                                 db.HSet(hashID, dataKey, messages[1]);
                                             }
                                         }

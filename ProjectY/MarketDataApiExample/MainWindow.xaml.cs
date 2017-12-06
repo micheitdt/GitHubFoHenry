@@ -32,7 +32,7 @@ namespace MarketDataApiExample
         {
             this.BtnIPConnect.IsEnabled = false;
             this.MarketControlAry.IsEnabled = true;
-            this.ContentControlAry.IsEnabled = true;
+            this.MainControl.IsEnabled = true;
         }
 
         private void DataGrid_LoadingRow(object sender, DataGridRowEventArgs e)
