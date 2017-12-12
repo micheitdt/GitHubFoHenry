@@ -22,6 +22,7 @@ namespace MarketDataApiExample.Model
         private int _matchPrice;
         private int _matchQty;
         private int _matchTotalQty;
+        private decimal _change;
         private string _time;
         private int _bid1Price;
         private int _bid2Price;
@@ -202,6 +203,25 @@ namespace MarketDataApiExample.Model
 
                 _matchTotalQty = value;
                 OnPropertyChanged("MatchTotalQty");
+            }
+        }
+
+        /// <summary>
+        /// 漲跌
+        /// </summary>
+        public decimal Change
+        {
+            get
+            {
+                return _change;
+            }
+            set
+            {
+                if (_change == value)
+                    return;
+
+                _change = value;
+                OnPropertyChanged("Change");
             }
         }
 
@@ -611,6 +631,10 @@ namespace MarketDataApiExample.Model
             _bid1Qty = (data.BidData.Count == 0) ? 0 : data.BidData[0].Volume;
             _ask1Price = (data.AskData.Count == 0) ? 0 : data.AskData[0].Price;
             _ask1Qty = (data.AskData.Count == 0) ? 0 : data.AskData[0].Volume;
+            _bid2Price = (data.BidData.Count < 2) ? 0 : data.BidData[1].Price;
+            _bid2Qty = (data.BidData.Count < 2) ? 0 : data.BidData[1].Volume;
+            _ask2Price = (data.AskData.Count < 2) ? 0 : data.AskData[1].Price;
+            _ask2Qty = (data.AskData.Count < 2) ? 0 : data.AskData[1].Volume;
             OnPropertyChanged();
         }
 
@@ -628,6 +652,10 @@ namespace MarketDataApiExample.Model
             _bid1Qty = (data.BidData.Count == 0) ? 0 : data.BidData[0].Volume;
             _ask1Price = (data.AskData.Count == 0) ? 0 : data.AskData[0].Price;
             _ask1Qty = (data.AskData.Count == 0) ? 0 : data.AskData[0].Volume;
+            _bid2Price = (data.BidData.Count < 2) ? 0 : data.BidData[1].Price;
+            _bid2Qty = (data.BidData.Count < 2) ? 0 : data.BidData[1].Volume;
+            _ask2Price = (data.AskData.Count < 2) ? 0 : data.AskData[1].Price;
+            _ask2Qty = (data.AskData.Count < 2) ? 0 : data.AskData[1].Volume;
             OnPropertyChanged();
         }
 
@@ -645,6 +673,10 @@ namespace MarketDataApiExample.Model
             _bid1Qty = (data.BidData.Count == 0) ? 0 : data.BidData[0].Volume;
             _ask1Price = (data.AskData.Count == 0) ? 0 : data.AskData[0].Price;
             _ask1Qty = (data.AskData.Count == 0) ? 0 : data.AskData[0].Volume;
+            _bid2Price = (data.BidData.Count < 2) ? 0 : data.BidData[1].Price;
+            _bid2Qty = (data.BidData.Count < 2) ? 0 : data.BidData[1].Volume;
+            _ask2Price = (data.AskData.Count < 2) ? 0 : data.AskData[1].Price;
+            _ask2Qty = (data.AskData.Count < 2) ? 0 : data.AskData[1].Volume;
             OnPropertyChanged();
         }
 
@@ -662,6 +694,10 @@ namespace MarketDataApiExample.Model
             _bid1Qty = (data.BidData.Count == 0) ? 0 : data.BidData[0].Volume;
             _ask1Price = (data.AskData.Count == 0) ? 0 : data.AskData[0].Price;
             _ask1Qty = (data.AskData.Count == 0) ? 0 : data.AskData[0].Volume;
+            _bid2Price = (data.BidData.Count < 2) ? 0 : data.BidData[1].Price;
+            _bid2Qty = (data.BidData.Count < 2) ? 0 : data.BidData[1].Volume;
+            _ask2Price = (data.AskData.Count < 2) ? 0 : data.AskData[1].Price;
+            _ask2Qty = (data.AskData.Count < 2) ? 0 : data.AskData[1].Volume;
             OnPropertyChanged();
         }
 

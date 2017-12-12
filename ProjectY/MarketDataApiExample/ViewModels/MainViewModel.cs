@@ -18,6 +18,7 @@ using System.Windows.Data;
 using NPOI.HSSF.UserModel;
 using ESunnyPATSConverterApi;
 using MarketDataApiExample.Model;
+using System.Windows.Threading;
 
 namespace MarketDataApiExample.ViewModels
 {
@@ -40,12 +41,12 @@ namespace MarketDataApiExample.ViewModels
         private string _reqipAddress = "10.214.19.51";//"10.214.19.51";"203.66.93.83";"127.0.0.1";47.52.229.28;
         private string _reqipPort = "5588";
         private string _selectMarket = "0-上市";//"6-PATS";
-        private string _selectType = "0";
+        private string _selectType = "6";
         private string _symbolNo = "";//CME_ES.GE0.DEC07//all
         private string _selectSubscribe = string.Empty;
         private ObservableCollection<string> _subscribeList = new ObservableCollection<string>();
         private Dictionary<string, Quotes> _quotesList = new Dictionary<string, Quotes>();
-        private ObservableCollection<Quotes> _quotesValueList = new ObservableCollection<Quotes>();
+        private List<Quotes> _historyQuotesList = new List<Quotes>();
         private ObservableCollection<Quotes> _quotesSnapshotList = new ObservableCollection<Quotes>();
         private Quotes _selectQuotes;
         private string _tSESymbolNoFilter = string.Empty;
@@ -59,6 +60,10 @@ namespace MarketDataApiExample.ViewModels
         private SymbolTaifex _selectTaifex;
         MdApi api;
         private long _packetSize = 0;
+        private DateTime _subTime;
+        private double _packetTraffic = 0;
+        private string _symbolNoA = "2330";
+        private string _symbolNoB = "0050";
 
         private ObservableCollection<MarketDataApi.PacketPATS.Format0> _patsFormat0List = new ObservableCollection<MarketDataApi.PacketPATS.Format0>();
         private ObservableCollection<MarketDataApi.PacketPATS.Format1> _patsFormat1List = new ObservableCollection<MarketDataApi.PacketPATS.Format1>();
@@ -83,7 +88,7 @@ namespace MarketDataApiExample.ViewModels
                 _logger.Error(ex, string.Format("MainViewModel(): ErrMsg = {0}.", ex.Message));
             }
         }
-
+        //test int效能
         private void getConvertTime1(uint i)
         {
             byte[] data = new byte[10];
@@ -106,10 +111,10 @@ namespace MarketDataApiExample.ViewModels
             Debug.WriteLine("byte array to int :" + sw.Elapsed.TotalMilliseconds.ToString() + "value:" + value);
             if( i != value)
             {
-                MessageBox.Show(i + "error" + value);
+                System.Windows.MessageBox.Show(i + "error" + value);
             }
         }
-
+        //test double效能
         private void getConvertTime2(uint i)
         {
             //EX1:( P=100, B=90, T=1~0.1E7 )= 100。價 > 基 & 正值
@@ -256,6 +261,36 @@ namespace MarketDataApiExample.ViewModels
             }
         }
         /// <summary>
+        /// 漲跌幅商品代碼左
+        /// </summary>
+        public string SymbolNoA
+        {
+            get
+            {
+                return _symbolNoA;
+            }
+            set
+            {
+                _symbolNoA = value;
+                OnPropertyChanged("SymbolNoA");
+            }
+        }
+        /// <summary>
+        /// 漲跌幅商品代碼右
+        /// </summary>
+        public string SymbolNoB
+        {
+            get
+            {
+                return _symbolNoB;
+            }
+            set
+            {
+                _symbolNoB = value;
+                OnPropertyChanged("SymbolNoB");
+            }
+        }
+        /// <summary>
         /// 訂閱行情內容
         /// </summary>
         public Dictionary<string,Quotes> QuotesList
@@ -274,8 +309,22 @@ namespace MarketDataApiExample.ViewModels
         {
             get
             {
-                
                 return new ObservableCollection<Quotes>(_quotesList.Values);
+            }
+        }
+        /// <summary>
+        /// 歷史行情
+        /// </summary>
+        public List<Quotes> HistoryQuotesList
+        {
+            get
+            {
+                return _historyQuotesList;
+            }
+            set
+            {
+                _historyQuotesList = value;
+                OnPropertyChanged("HistoryQuotesList");
             }
         }
         /// <summary>
@@ -560,20 +609,6 @@ namespace MarketDataApiExample.ViewModels
                 _selectPats = value;
             }
         }
-        /// <summary>
-        /// 接收封包大小
-        /// </summary>
-        public long PacketSize
-        {
-            get
-            {
-                return _packetSize;
-            }
-            set
-            {
-                _packetSize = value;
-            }
-        }
 
         #endregion
 
@@ -631,7 +666,7 @@ namespace MarketDataApiExample.ViewModels
                 if (_clearContentCommand == null)
                 {
                     _clearContentCommand = new RelayCommand(
-                        clearContent
+                        ClearContent
                     );
                 }
                 return _clearContentCommand;
@@ -787,6 +822,38 @@ namespace MarketDataApiExample.ViewModels
             }
         }
 
+        private ICommand _supscribeACommand;
+        public ICommand SupscribeACommand
+        {
+            get
+            {
+                if (_supscribeACommand == null)
+                {
+                    _supscribeACommand = new RelayCommand(
+                        SupscribeASymbol
+                    );
+                }
+                return _supscribeACommand;
+            }
+        }
+
+        private ICommand _supscribeBCommand;
+        public ICommand SupscribeBCommand
+        {
+            get
+            {
+                if (_supscribeBCommand == null)
+                {
+                    _supscribeBCommand = new RelayCommand(
+                        SupscribeBSymbol
+                    );
+                }
+                return _supscribeBCommand;
+            }
+        }
+        #endregion
+
+        #region Command func
         /// <summary>
         /// 連接行情伺服器
         /// </summary>
@@ -809,7 +876,11 @@ namespace MarketDataApiExample.ViewModels
                 api.PatsFormat0Received += api_PatsFormat0Received; ; /// <- pats(盤前)格式0回呼事件
                 api.PatsFormat1Received += api_PatsFormat1Received; ; /// <- pats(行情)格式1回呼事件
                 api.PatsFormat2Received += api_PatsFormat2Received; ; /// <- pats(行情)格式1回呼事件
+                //test
+                //api.QuotesByteArrayReceived += Api_QuotesByteArrayReceived;
                 StatusMessageList.Insert(0, DateTime.Now.ToString("HH:mm:ss:ttt") + "    " + "連接" + IPAddress + ":" + IPPort + "," + ReqIPAddress + ":" + ReqIPPort);
+
+                GetPreSymbol();
             }
             catch (Exception err)
             {
@@ -817,29 +888,20 @@ namespace MarketDataApiExample.ViewModels
                 StatusMessageList.Insert(0, DateTime.Now.ToString("HH:mm:ss:ttt") + "    " + string.Format("ConncetMarketData(): ErrMsg = {0}.", err.Message));
             }
         }
+        //test
+        //private void Api_QuotesByteArrayReceived(object sender, MdApi.QuotesByteArrayEventArgs e)
+        //{
+        //    _packetSize += e.PacketData.Length;
+        //    _packetTraffic = (_packetSize / ((DateTime.Now - _subTime).TotalSeconds)) / 1024d / 1024d;
+        //    _logger.Debug(string.Format("訂閱時間:{0},  封包大小:{1},   每秒接收(mb/s):{2}", _subTime, _packetSize, _packetTraffic));
+        //}
+
         //------------------------------------------------------------------------------------------------------------------------------------------
         /// <summary>
         /// 註冊報價
         /// </summary>
         private void SupscribeSymbol()
         {
-            //TEST類別商品訂閱
-            //api.Sub(AdapterCode.TAIFEX_FUTURES_NIGHT, "I020");
-            //System.Threading.Thread.Sleep(100);
-            //api.Sub(AdapterCode.TAIFEX_FUTURES_NIGHT, "I080");
-            //System.Threading.Thread.Sleep(100);
-            //api.Sub(AdapterCode.TAIFEX_OPTIONS_NIGHT, "I020");
-            //System.Threading.Thread.Sleep(100);
-            //api.Sub(AdapterCode.TAIFEX_OPTIONS_NIGHT, "I080");
-            //System.Threading.Thread.Sleep(100);
-            //api.Sub(AdapterCode.TPEX, "6");
-            //System.Threading.Thread.Sleep(100);
-            //api.Sub(AdapterCode.TPEX, "17");
-            //System.Threading.Thread.Sleep(100);
-            //api.Sub(AdapterCode.TSE, "6");
-            //System.Threading.Thread.Sleep(100);
-            //api.Sub(AdapterCode.TSE, "17");
-            //return;
             if (api == null || string.IsNullOrEmpty(SelectMarket) || string.IsNullOrEmpty(SelectType))
             {
                 return;
@@ -893,7 +955,7 @@ namespace MarketDataApiExample.ViewModels
         /// </summary>
         private void UnSupscribeSymbol()
         {
-            if(string.IsNullOrEmpty( SelectMarket) || string.IsNullOrEmpty(SelectType))
+            if (string.IsNullOrEmpty(SelectMarket) || string.IsNullOrEmpty(SelectType))
             {
                 return;
             }
@@ -918,13 +980,13 @@ namespace MarketDataApiExample.ViewModels
         /// <summary>
         /// 清除內容
         /// </summary>
-        private void clearContent()
+        private void ClearContent()
         {
             QuotesList.Clear();
         }
         //------------------------------------------------------------------------------------------------------------------------------------------
         /// <summary>
-        /// 行情滑鼠左鍵點2下
+        /// 行情訂閱
         /// </summary>
         private void QuotesGridDoubleClick()
         {
@@ -947,11 +1009,11 @@ namespace MarketDataApiExample.ViewModels
                     GeneralSupscribeSymbol("5-選擇權PM盤", _selectQuotes.TypeNo, _selectQuotes.SymbolNo);
                     break;
             }
-            
+
         }
         //------------------------------------------------------------------------------------------------------------------------------------------
         /// <summary>
-        /// TSE滑鼠左鍵點2下
+        /// 盤前TSE訂閱
         /// </summary>
         private void TseGridDoubleClick()
         {
@@ -962,7 +1024,7 @@ namespace MarketDataApiExample.ViewModels
         }
         //------------------------------------------------------------------------------------------------------------------------------------------
         /// <summary>
-        /// TPEX滑鼠左鍵點2下
+        /// 盤前TPEX訂閱
         /// </summary>
         private void TpexGridDoubleClick()
         {
@@ -973,7 +1035,7 @@ namespace MarketDataApiExample.ViewModels
         }
         //------------------------------------------------------------------------------------------------------------------------------------------
         /// <summary>
-        /// TAIFEX滑鼠左鍵點2下
+        /// 盤前TAIFEX訂閱
         /// </summary>
         private void TaifexGridDoubleClick()
         {
@@ -996,13 +1058,13 @@ namespace MarketDataApiExample.ViewModels
         }
         //------------------------------------------------------------------------------------------------------------------------------------------
         /// <summary>
-        /// PATS滑鼠左鍵點2下
+        /// 盤前PATS訂閱
         /// </summary>
         private void PATSGridDoubleClick()
         {
             if (SelectPats == null)
                 return;
-            GeneralSupscribeSymbol("6-PATS", "1", string.Format("{0}.{1}.{2}", SelectPats.Exchange , SelectPats.Commodity , SelectPats.Contract));
+            GeneralSupscribeSymbol("6-PATS", "1", string.Format("{0}.{1}.{2}", SelectPats.Exchange, SelectPats.Commodity, SelectPats.Contract));
         }
         //------------------------------------------------------------------------------------------------------------------------------------------
         /// <summary>
@@ -1064,7 +1126,7 @@ namespace MarketDataApiExample.ViewModels
         {
             if (api == null || string.IsNullOrEmpty(SelectMarket) || string.IsNullOrEmpty(SelectType) || string.IsNullOrEmpty(SymbolNo))
             {
-                MessageBox.Show("連接錯誤或無商品資料");
+                System.Windows.MessageBox.Show("連接錯誤或無商品資料");
                 return;
             }
             string subSymbol = SelectMarket + ";" + SelectType + ";" + SymbolNo;
@@ -1079,7 +1141,7 @@ namespace MarketDataApiExample.ViewModels
             switch (SelectMarket.Substring(0, 1))
             {
                 case "0":
-                    switch(SelectType)
+                    switch (SelectType)
                     {
                         case "6":
                             model.SetTseData(0, ret as MarketDataApi.PacketTSE.Format6);
@@ -1121,33 +1183,41 @@ namespace MarketDataApiExample.ViewModels
                     }
                     break;
             }
-                StatusMessageList.Insert(0, DateTime.Now.ToString("HH:mm:ss:ttt") + "    " + "取得快照成功:" + subSymbol);
+            StatusMessageList.Insert(0, DateTime.Now.ToString("HH:mm:ss:ttt") + "    " + "取得快照成功:" + subSymbol);
         }
         /// <summary>
         /// 取得盤前資料
         /// </summary>
         private void GetPreSymbol()
         {
-            foreach (MarketDataApi.PacketTAIFEX.I010 data in api.GetContracts(AdapterCode.TAIFEX_FUTURES_DAY))
+            try
             {
-                SymbolTaifexList.AddSymbolTalfexData(new SymbolTaifex(data));
+                foreach (MarketDataApi.PacketTAIFEX.I010 data in api.GetContracts(AdapterCode.TAIFEX_FUTURES_DAY))
+                {
+                    SymbolTaifexList.AddSymbolTalfexData(new SymbolTaifex(data));
+                }
+                foreach (MarketDataApi.PacketTAIFEX.I010 data in api.GetContracts(AdapterCode.TAIFEX_OPTIONS_DAY))
+                {
+                    SymbolTaifexList.AddSymbolTalfexData(new SymbolTaifex(data));
+                }
+                foreach (MarketDataApi.PacketTPEX.Format1 data in api.GetContracts(AdapterCode.TPEX))
+                {
+                    SymbolTpexList.AddSymbolTpexData(new SymbolTpex(data));
+                }
+                foreach (MarketDataApi.PacketTSE.Format1 data in api.GetContracts(AdapterCode.TSE))
+                {
+                    SymbolTseList.AddSymbolTseData(new SymbolTse(data));
+                }
+                SymbolTaifexDictionary = SymbolTaifexList.GetAllSymbolTaifexCollection();
+                SymbolTaifexDictionary = SymbolTaifexList.GetAllSymbolTaifexCollection();
+                SymbolTseDictionary = SymbolTseList.GetAllSymbolTseCollection();
+                SymbolTpexDictionary = SymbolTpexList.GetAllSymbolTpexCollection();
+                StatusMessageList.Insert(0, DateTime.Now.ToString("HH:mm:ss:ttt") + "    " + "讀取盤前資料成功!!!");
             }
-            foreach (MarketDataApi.PacketTAIFEX.I010 data in api.GetContracts(AdapterCode.TAIFEX_OPTIONS_DAY))
+            catch (Exception ex)
             {
-                SymbolTaifexList.AddSymbolTalfexData(new SymbolTaifex(data));
+                StatusMessageList.Insert(0, DateTime.Now.ToString("HH:mm:ss:ttt") + "    " + "讀取盤前資料失敗!!!" + ex.Message);
             }
-            foreach (MarketDataApi.PacketTPEX.Format1 data in api.GetContracts(AdapterCode.TPEX))
-            {
-                SymbolTpexList.AddSymbolTpexData(new SymbolTpex(data));
-            }
-            foreach (MarketDataApi.PacketTSE.Format1 data in api.GetContracts(AdapterCode.TSE))
-            {
-                SymbolTseList.AddSymbolTseData(new SymbolTse(data));
-            }
-            SymbolTaifexDictionary = SymbolTaifexList.GetAllSymbolTaifexCollection();
-            SymbolTaifexDictionary = SymbolTaifexList.GetAllSymbolTaifexCollection();
-            SymbolTseDictionary = SymbolTseList.GetAllSymbolTseCollection();
-            SymbolTpexDictionary = SymbolTpexList.GetAllSymbolTpexCollection();
         }
         /// <summary>
         /// 計算全訂閱封包流量
@@ -1155,7 +1225,12 @@ namespace MarketDataApiExample.ViewModels
         private void AllSubPacket()
         {
             _packetSize = 0;
+            _subTime = DateTime.Now;
 
+            api.Sub(AdapterCode.TAIFEX_FUTURES_DAY, "I020");
+            api.Sub(AdapterCode.TAIFEX_FUTURES_DAY, "I080");
+            api.Sub(AdapterCode.TAIFEX_OPTIONS_DAY, "I020");
+            api.Sub(AdapterCode.TAIFEX_OPTIONS_DAY, "I080");
             api.Sub(AdapterCode.TAIFEX_FUTURES_NIGHT, "I020");
             api.Sub(AdapterCode.TAIFEX_FUTURES_NIGHT, "I080");
             api.Sub(AdapterCode.TAIFEX_OPTIONS_NIGHT, "I020");
@@ -1164,6 +1239,38 @@ namespace MarketDataApiExample.ViewModels
             api.Sub(AdapterCode.TPEX, "17");
             api.Sub(AdapterCode.TSE, "6");
             api.Sub(AdapterCode.TSE, "17");
+        }
+        /// <summary>
+        /// 訂閱設定圖表商品A
+        /// </summary>
+        private void SupscribeASymbol()
+        {
+            if (api == null || string.IsNullOrEmpty(SelectMarket) || string.IsNullOrEmpty(SelectType))
+            {
+                return;
+            }
+            if (Rtn_adapterCode(SelectMarket) != AdapterCode.GLOBAL_PATS)
+            {
+                GeneralSupscribeSymbol(SelectMarket, SelectType, SymbolNo);
+                SymbolNoA = SymbolNo;
+                StatusMessageList.Insert(0, DateTime.Now.ToString("HH:mm:ss:ttt") + "    " + "設定圖表商品A:" + SymbolNo);
+            }
+        }
+        /// <summary>
+        /// 訂閱設定圖表商品B
+        /// </summary>
+        private void SupscribeBSymbol()
+        {
+            if (api == null || string.IsNullOrEmpty(SelectMarket) || string.IsNullOrEmpty(SelectType))
+            {
+                return;
+            }
+            if (Rtn_adapterCode(SelectMarket) != AdapterCode.GLOBAL_PATS)
+            {
+                GeneralSupscribeSymbol(SelectMarket, SelectType, SymbolNo);
+                SymbolNoB = SymbolNo;
+                StatusMessageList.Insert(0, DateTime.Now.ToString("HH:mm:ss:ttt") + "    " + "設定圖表商品B:" + SymbolNo);
+            }
         }
         #endregion
 
@@ -1190,6 +1297,8 @@ namespace MarketDataApiExample.ViewModels
                     , e.PacketData.B_SellOrderBook[1].MatchQuantity);
                 Quotes model = new Quotes();
                 model.SetI080Data(0, e.PacketData);
+
+                _historyQuotesList.Add(model);
 
                 if (QuotesList.ContainsKey(model.MainKey))
                 {
@@ -1223,6 +1332,8 @@ namespace MarketDataApiExample.ViewModels
                 Quotes model = new Quotes();
                 model.SetI020Data(0, e.PacketData);
 
+                _historyQuotesList.Add(model);
+
                 if (QuotesList.ContainsKey(model.MainKey))
                 {
                     QuotesList[model.MainKey] = model;
@@ -1250,6 +1361,8 @@ namespace MarketDataApiExample.ViewModels
                 Quotes model = new Quotes();
                 model.SetI082Data(0, e.PacketData);
 
+                _historyQuotesList.Add(model);
+
                 if (QuotesList.ContainsKey(model.MainKey))
                 {
                     QuotesList[model.MainKey] = model;
@@ -1271,6 +1384,8 @@ namespace MarketDataApiExample.ViewModels
             {
                 Quotes model = new Quotes();
                 model.SetI022Data(0, e.PacketData);
+
+                _historyQuotesList.Add(model);
 
                 if (QuotesList.ContainsKey(model.MainKey))
                 {
@@ -1302,6 +1417,8 @@ namespace MarketDataApiExample.ViewModels
                         , (e.PacketData.AskData.Count == 0) ? 0 : e.PacketData.AskData[0].Volume);
                 Quotes model = new Quotes();
                 model.SetTpexData(0,  e.PacketData);
+
+                _historyQuotesList.Add(model);
 
                 if (QuotesList.ContainsKey(model.MainKey))
                 {
@@ -1338,6 +1455,8 @@ namespace MarketDataApiExample.ViewModels
                 Quotes model = new Quotes();
                 model.SetTseData(0, e.PacketData);
 
+                _historyQuotesList.Add(model);
+
                 if (QuotesList.ContainsKey(model.MainKey))
                 {
                     QuotesList[model.MainKey] = model;
@@ -1373,6 +1492,8 @@ namespace MarketDataApiExample.ViewModels
                 Quotes model = new Quotes();
                 model.SetTpexData(0, e.PacketData);
 
+                _historyQuotesList.Add(model);
+
                 if (QuotesList.ContainsKey(model.MainKey))
                 {
                     QuotesList[model.MainKey] = model;
@@ -1407,6 +1528,8 @@ namespace MarketDataApiExample.ViewModels
                     , (e.PacketData.AskData.Count == 0) ? 0 : e.PacketData.AskData[0].Volume);
                 Quotes model = new Quotes();
                 model.SetTseData(0, e.PacketData);
+
+                _historyQuotesList.Add(model);
 
                 if (QuotesList.ContainsKey(model.MainKey))
                 {
@@ -1535,6 +1658,7 @@ namespace MarketDataApiExample.ViewModels
             return adapterCode;
         }
 
+        #region 讀盤前檔
         private void LoadTSEData()
         {
             try
@@ -1654,6 +1778,7 @@ namespace MarketDataApiExample.ViewModels
             SymbolTaifexList.AddSymbolTalfexData(new SymbolTaifex(data));
             SymbolTaifexDictionary = SymbolTaifexList.GetAllSymbolTaifexCollection();
         }
+        #endregion
 
         /// <summary>
         /// 一般訂閱
@@ -1662,7 +1787,7 @@ namespace MarketDataApiExample.ViewModels
         {
             if (api == null)
             {
-                MessageBox.Show("未連接或連接錯誤");
+                System.Windows.MessageBox.Show("未連接或連接錯誤");
                 return;
             }
             string subSymbol = market + ";" + type + ";" + symbolno;

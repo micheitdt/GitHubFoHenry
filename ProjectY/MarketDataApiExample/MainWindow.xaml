@@ -2,10 +2,13 @@
     x:Class="MarketDataApiExample.MainWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:CHR="clr-namespace:System.Windows.Forms.DataVisualization.Charting;assembly=System.Windows.Forms.DataVisualization"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:MarketDataApiExample"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:view="clr-namespace:MarketDataApiExample.ViewModels"
+    xmlns:wf="clr-namespace:System.Windows.Forms;assembly=System.Windows.Forms"
+    xmlns:wfi="clr-namespace:System.Windows.Forms.Integration;assembly=WindowsFormsIntegration"
     Title="MainWindow"
     Width="900"
     Height="600"
@@ -14,7 +17,7 @@
     <Grid>
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="90" />
+                <RowDefinition Height="125" />
                 <RowDefinition />
                 <RowDefinition Height="100" />
             </Grid.RowDefinitions>
@@ -50,10 +53,6 @@
                         Click="BtnIPConnect_Click"
                         Command="{Binding ConncetCommand}"
                         Content="連接" />
-                    <Button
-                        VerticalAlignment="Center"
-                        Command="{Binding SingleSubCommand}"
-                        Content="單一訂閱測試" />
                 </StackPanel>
                 <StackPanel
                     Name="MarketControlAry"
@@ -89,6 +88,13 @@
                         VerticalAlignment="Center"
                         Command="{Binding UnsupscribeCommand}"
                         Content="取消訂閱" />
+                </StackPanel>
+                <StackPanel Margin="0,5" Orientation="Horizontal">
+                    <Button
+                        Margin="10,0,0,0"
+                        VerticalAlignment="Center"
+                        Command="{Binding SingleSubCommand}"
+                        Content="單一訂閱測試" />
                     <Button
                         Name="BtnSymbolSnapshot"
                         Margin="10,0"
@@ -97,10 +103,21 @@
                         Content="取得快照" />
                     <Button
                         Name="BtnPreSymbol"
-                        Margin="0,0"
                         VerticalAlignment="Center"
                         Command="{Binding GetPreSymbolCommand}"
-                        Content="取得盤前" />
+                        Content="取得盤前"
+                        IsEnabled="False" />
+                    <Button
+                        Margin="10,0"
+                        VerticalAlignment="Center"
+                        Command="{Binding SupscribeACommand}"
+                        CommandParameter="Custom"
+                        Content="設定商品A" />
+                    <Button
+                        VerticalAlignment="Center"
+                        Command="{Binding SupscribeBCommand}"
+                        CommandParameter="Custom"
+                        Content="設定商品B" />
                 </StackPanel>
             </StackPanel>
             <GridSplitter
@@ -142,28 +159,29 @@
                                 ItemsSource="{Binding QuotesValueList, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
                                 SelectedItem="{Binding SelectQuotes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
                                 <DataGrid.Columns>
+                                    <DataGridTextColumn Binding="{Binding Time}" Header="時間" />
                                     <DataGridTextColumn Binding="{Binding Market}" Header="市場別" />
                                     <DataGridTextColumn Binding="{Binding TypeNo}" Header="類型" />
                                     <DataGridTextColumn Binding="{Binding SymbolNo}" Header="商品代碼" />
                                     <DataGridTextColumn Binding="{Binding MatchPrice}" Header="撮合價" />
                                     <DataGridTextColumn Binding="{Binding MatchQty}" Header="撮合量" />
                                     <DataGridTextColumn Binding="{Binding MatchTotalQty}" Header="總量" />
-                                    <DataGridTextColumn Binding="{Binding Time}" Header="時間" />
                                     <DataGridTextColumn Binding="{Binding Bid1Qty}" Header="買一量" />
                                     <DataGridTextColumn Binding="{Binding Bid1Price}" Header="買一價" />
                                     <DataGridTextColumn Binding="{Binding Ask1Qty}" Header="賣一量" />
                                     <DataGridTextColumn Binding="{Binding Ask1Price}" Header="賣一價" />
                                 </DataGrid.Columns>
-                                <DataGrid.InputBindings>
-                                    <MouseBinding Command="{Binding GridDoubleClickCommand}" Gesture="LeftDoubleClick" />
-                                </DataGrid.InputBindings>
+                                <DataGrid.ContextMenu>
+                                    <ContextMenu>
+                                        <MenuItem Command="{Binding GridDoubleClickCommand}" Header="訂閱" />
+                                    </ContextMenu>
+                                </DataGrid.ContextMenu>
                             </DataGrid>
                             <StackPanel
                                 Grid.Row="1"
                                 Grid.Column="1"
                                 Margin="0,5"
                                 HorizontalAlignment="Right"
-                                IsEnabled="False"
                                 Orientation="Horizontal">
                                 <Button
                                     Margin="5,0"
@@ -205,9 +223,13 @@
                                         ItemsSource="{Binding SymbolTseDictionary, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
                                         LoadingRow="DataGrid_LoadingRow"
                                         SelectedItem="{Binding SelectTse, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
-                                        <DataGrid.InputBindings>
-                                            <MouseBinding Command="{Binding GridTseDoubleClickCommand}" Gesture="LeftDoubleClick" />
-                                        </DataGrid.InputBindings>
+                                        <DataGrid.ContextMenu>
+                                            <ContextMenu>
+                                                <MenuItem Command="{Binding GridTseDoubleClickCommand}" Header="訂閱" />
+                                                <MenuItem Command="{Binding SupscribeTseACommand}" Header="設定漲跌幅A" />
+                                                <MenuItem Command="{Binding SupscribeTseBCommand}" Header="設定漲跌幅B" />
+                                            </ContextMenu>
+                                        </DataGrid.ContextMenu>
                                     </DataGrid>
                                 </Grid>
                             </TabItem>
@@ -236,9 +258,13 @@
                                         ItemsSource="{Binding SymbolTpexDictionary, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
                                         LoadingRow="DataGrid_LoadingRow"
                                         SelectedItem="{Binding SelectTpex, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
-                                        <DataGrid.InputBindings>
-                                            <MouseBinding Command="{Binding GridTpexDoubleClickCommand}" Gesture="LeftDoubleClick" />
-                                        </DataGrid.InputBindings>
+                                        <DataGrid.ContextMenu>
+                                            <ContextMenu>
+                                                <MenuItem Command="{Binding GridTpexDoubleClickCommand}" Header="訂閱" />
+                                                <MenuItem Command="{Binding SupscribeTpexACommand}" Header="設定漲跌幅A" />
+                                                <MenuItem Command="{Binding SupscribeTpexBCommand}" Header="設定漲跌幅B" />
+                                            </ContextMenu>
+                                        </DataGrid.ContextMenu>
                                     </DataGrid>
                                 </Grid>
                             </TabItem>
@@ -267,9 +293,13 @@
                                         ItemsSource="{Binding SymbolTaifexDictionary, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
                                         LoadingRow="DataGrid_LoadingRow"
                                         SelectedItem="{Binding SelectTaifex, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
-                                        <DataGrid.InputBindings>
-                                            <MouseBinding Command="{Binding GridTaifexDoubleClickCommand}" Gesture="LeftDoubleClick" />
-                                        </DataGrid.InputBindings>
+                                        <DataGrid.ContextMenu>
+                                            <ContextMenu>
+                                                <MenuItem Command="{Binding GridTaifexDoubleClickCommand}" Header="訂閱" />
+                                                <MenuItem Command="{Binding SupscribeTaifexACommand}" Header="設定漲跌幅A" />
+                                                <MenuItem Command="{Binding SupscribeTaifexBCommand}" Header="設定漲跌幅B" />
+                                            </ContextMenu>
+                                        </DataGrid.ContextMenu>
                                     </DataGrid>
                                 </Grid>
                             </TabItem>
@@ -288,9 +318,11 @@
                                 ItemsSource="{Binding PatsFormat0List, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
                                 LoadingRow="DataGrid_LoadingRow"
                                 SelectedItem="{Binding SelectPats, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
-                                <DataGrid.InputBindings>
-                                    <MouseBinding Command="{Binding GridPatsDoubleClickCommand}" Gesture="LeftDoubleClick" />
-                                </DataGrid.InputBindings>
+                                <DataGrid.ContextMenu>
+                                    <ContextMenu>
+                                        <MenuItem Command="{Binding GridPatsDoubleClickCommand}" Header="訂閱" />
+                                    </ContextMenu>
+                                </DataGrid.ContextMenu>
                             </DataGrid>
                             <GridSplitter
                                 Width="5"
@@ -318,30 +350,51 @@
                             </Grid>
                         </Grid>
                     </TabItem>
-                    <TabItem Header="封包流量解析">
+                    <TabItem Header="行情測試">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="50" />
                                 <RowDefinition />
                             </Grid.RowDefinitions>
                             <StackPanel Margin="5" Orientation="Horizontal">
-                                <Button Margin="3,0" Content="全訂閱" />
-                                <Button Margin="3,0" Content="期權全訂閱" />
-                                <Button Margin="3,0" Content="現貨全訂閱" />
-                                <Button Margin="3,0" Content="現貨上市訂閱" />
-                                <Button Margin="3,0" Content="現貨上櫃訂閱" />
+                                <Button
+                                    Margin="3,0"
+                                    Command="{Binding AllSubPacketCommand}"
+                                    Content="全訂閱測試" />
                             </StackPanel>
-                            <StackPanel Grid.Row="1">
-                                <Label Content="啟始訂閱時間：" />
-                                <Label Content="09:00:00" FontWeight="Bold" />
-                                <Label Content="訂閱筆數：" />
-                                <Label Content="15639" FontWeight="Bold" />
-                                <Label Content="接收封包大小(byte)：" />
-                                <Label
-                                    Name="PacketSizeContain"
-                                    Content="{Binding PacketSize, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                    FontWeight="Bold" />
+                        </Grid>
+                    </TabItem>
+                    <TabItem Header="漲跌差線圖">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="50" />
+                                <RowDefinition />
+                            </Grid.RowDefinitions>
+                            <StackPanel Margin="5" Orientation="Horizontal">
+                                <Label VerticalAlignment="Center" Content="商品A" />
+                                <TextBox
+                                    Width="150"
+                                    Margin="10,0"
+                                    VerticalAlignment="Center"
+                                    IsEnabled="False"
+                                    Text="{Binding SymbolNoA}" />
+                                <Label VerticalAlignment="Center" Content="商品B" />
+                                <TextBox
+                                    Width="150"
+                                    Margin="10,0"
+                                    VerticalAlignment="Center"
+                                    IsEnabled="False"
+                                    Text="{Binding SymbolNoB}" />
+                                <Button
+                                    Margin="3"
+                                    Click="CreateChart_Click"
+                                    Content="5秒漲跌幅圖表" />
                             </StackPanel>
+                            <Grid Grid.Row="1">
+                                <wfi:WindowsFormsHost x:Name="mainFGrid">
+                                    <CHR:Chart x:Name="mainChart" />
+                                </wfi:WindowsFormsHost>
+                            </Grid>
                         </Grid>
                     </TabItem>
                 </TabControl>
