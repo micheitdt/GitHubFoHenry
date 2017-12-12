@@ -22,7 +22,6 @@ namespace MarketDataApiExample.Model
         private int _matchPrice;
         private int _matchQty;
         private int _matchTotalQty;
-        private decimal _change;
         private string _time;
         private int _bid1Price;
         private int _bid2Price;
@@ -203,25 +202,6 @@ namespace MarketDataApiExample.Model
 
                 _matchTotalQty = value;
                 OnPropertyChanged("MatchTotalQty");
-            }
-        }
-
-        /// <summary>
-        /// 漲跌
-        /// </summary>
-        public decimal Change
-        {
-            get
-            {
-                return _change;
-            }
-            set
-            {
-                if (_change == value)
-                    return;
-
-                _change = value;
-                OnPropertyChanged("Change");
             }
         }
 
