@@ -62,8 +62,6 @@ namespace MarketDataApiExample.ViewModels
         private long _packetSize = 0;
         private DateTime _subTime;
         private double _packetTraffic = 0;
-        private string _symbolNoA = "2330";
-        private string _symbolNoB = "0050";
 
         private ObservableCollection<MarketDataApi.PacketPATS.Format0> _patsFormat0List = new ObservableCollection<MarketDataApi.PacketPATS.Format0>();
         private ObservableCollection<MarketDataApi.PacketPATS.Format1> _patsFormat1List = new ObservableCollection<MarketDataApi.PacketPATS.Format1>();
@@ -258,36 +256,6 @@ namespace MarketDataApiExample.ViewModels
             {
                 _symbolNo = value;
                 OnPropertyChanged("SymbolNo");
-            }
-        }
-        /// <summary>
-        /// 漲跌幅商品代碼左
-        /// </summary>
-        public string SymbolNoA
-        {
-            get
-            {
-                return _symbolNoA;
-            }
-            set
-            {
-                _symbolNoA = value;
-                OnPropertyChanged("SymbolNoA");
-            }
-        }
-        /// <summary>
-        /// 漲跌幅商品代碼右
-        /// </summary>
-        public string SymbolNoB
-        {
-            get
-            {
-                return _symbolNoB;
-            }
-            set
-            {
-                _symbolNoB = value;
-                OnPropertyChanged("SymbolNoB");
             }
         }
         /// <summary>
@@ -821,36 +789,6 @@ namespace MarketDataApiExample.ViewModels
                 return _allSubPacketCommand;
             }
         }
-
-        private ICommand _supscribeACommand;
-        public ICommand SupscribeACommand
-        {
-            get
-            {
-                if (_supscribeACommand == null)
-                {
-                    _supscribeACommand = new RelayCommand(
-                        SupscribeASymbol
-                    );
-                }
-                return _supscribeACommand;
-            }
-        }
-
-        private ICommand _supscribeBCommand;
-        public ICommand SupscribeBCommand
-        {
-            get
-            {
-                if (_supscribeBCommand == null)
-                {
-                    _supscribeBCommand = new RelayCommand(
-                        SupscribeBSymbol
-                    );
-                }
-                return _supscribeBCommand;
-            }
-        }
         #endregion
 
         #region Command func
@@ -1240,38 +1178,6 @@ namespace MarketDataApiExample.ViewModels
             api.Sub(AdapterCode.TSE, "6");
             api.Sub(AdapterCode.TSE, "17");
         }
-        /// <summary>
-        /// 訂閱設定圖表商品A
-        /// </summary>
-        private void SupscribeASymbol()
-        {
-            if (api == null || string.IsNullOrEmpty(SelectMarket) || string.IsNullOrEmpty(SelectType))
-            {
-                return;
-            }
-            if (Rtn_adapterCode(SelectMarket) != AdapterCode.GLOBAL_PATS)
-            {
-                GeneralSupscribeSymbol(SelectMarket, SelectType, SymbolNo);
-                SymbolNoA = SymbolNo;
-                StatusMessageList.Insert(0, DateTime.Now.ToString("HH:mm:ss:ttt") + "    " + "設定圖表商品A:" + SymbolNo);
-            }
-        }
-        /// <summary>
-        /// 訂閱設定圖表商品B
-        /// </summary>
-        private void SupscribeBSymbol()
-        {
-            if (api == null || string.IsNullOrEmpty(SelectMarket) || string.IsNullOrEmpty(SelectType))
-            {
-                return;
-            }
-            if (Rtn_adapterCode(SelectMarket) != AdapterCode.GLOBAL_PATS)
-            {
-                GeneralSupscribeSymbol(SelectMarket, SelectType, SymbolNo);
-                SymbolNoB = SymbolNo;
-                StatusMessageList.Insert(0, DateTime.Now.ToString("HH:mm:ss:ttt") + "    " + "設定圖表商品B:" + SymbolNo);
-            }
-        }
         #endregion
 
         #region Event
@@ -1311,8 +1217,8 @@ namespace MarketDataApiExample.ViewModels
                 OnPropertyChanged("QuotesValueList");
                 //_logger.Debug(fData);
                 //測試-商品更新個數
-                int count = QuotesList.Values.GroupBy(x => x.SymbolNo).Count();
-                StatusMessageList.Insert(0, DateTime.Now.ToString("HH:mm:ss:ttt") + "    " + "個數:" + count);
+                //int count = QuotesList.Values.GroupBy(x => x.SymbolNo).Count();
+                //StatusMessageList.Insert(0, DateTime.Now.ToString("HH:mm:ss:ttt") + "    " + "個數:" + count);
             }));
         }
         //------------------------------------------------------------------------------------------------------------------------------------------
@@ -1346,8 +1252,8 @@ namespace MarketDataApiExample.ViewModels
                 //_logger.Debug(fData);
 
                 //測試-商品更新個數
-                int count = QuotesList.Values.GroupBy(x => x.SymbolNo).Count();
-                StatusMessageList.Insert(0, DateTime.Now.ToString("HH:mm:ss:ttt") + "    " + "個數:" + count);
+                //int count = QuotesList.Values.GroupBy(x => x.SymbolNo).Count();
+                //StatusMessageList.Insert(0, DateTime.Now.ToString("HH:mm:ss:ttt") + "    " + "個數:" + count);
             }));
         }
         //------------------------------------------------------------------------------------------------------------------------------------------
@@ -1431,8 +1337,8 @@ namespace MarketDataApiExample.ViewModels
                 OnPropertyChanged("QuotesValueList");
                 //_logger.Debug(fData);
                 //測試-商品更新個數
-                int count = QuotesList.Values.GroupBy(x => x.SymbolNo).Count();
-                StatusMessageList.Insert(0, DateTime.Now.ToString("HH:mm:ss:ttt") + "    " + "個數:" + count);
+                //int count = QuotesList.Values.GroupBy(x => x.SymbolNo).Count();
+                //StatusMessageList.Insert(0, DateTime.Now.ToString("HH:mm:ss:ttt") + "    " + "個數:" + count);
             }));
         }
         //------------------------------------------------------------------------------------------------------------------------------------------
@@ -1468,8 +1374,8 @@ namespace MarketDataApiExample.ViewModels
                 OnPropertyChanged("QuotesValueList");
                 //_logger.Debug(fData);
                 //測試-商品更新個數
-                int count = QuotesList.Values.GroupBy(x => x.SymbolNo).Count();
-                StatusMessageList.Insert(0, DateTime.Now.ToString("HH:mm:ss:ttt") + "    " + "個數:" + count);
+                //int count = QuotesList.Values.GroupBy(x => x.SymbolNo).Count();
+                //StatusMessageList.Insert(0, DateTime.Now.ToString("HH:mm:ss:ttt") + "    " + "個數:" + count);
             }));
         }
         //------------------------------------------------------------------------------------------------------------------------------------------
@@ -1505,8 +1411,8 @@ namespace MarketDataApiExample.ViewModels
                 OnPropertyChanged("QuotesValueList");
                 //_logger.Debug(fData);
                 //測試-商品更新個數
-                int count = QuotesList.Values.GroupBy(x => x.SymbolNo).Count();
-                StatusMessageList.Insert(0, DateTime.Now.ToString("HH:mm:ss:ttt") + "    " + "個數:" + count);
+                //int count = QuotesList.Values.GroupBy(x => x.SymbolNo).Count();
+                //StatusMessageList.Insert(0, DateTime.Now.ToString("HH:mm:ss:ttt") + "    " + "個數:" + count);
             }));
         }
         //------------------------------------------------------------------------------------------------------------------------------------------
@@ -1542,8 +1448,8 @@ namespace MarketDataApiExample.ViewModels
                 OnPropertyChanged("QuotesValueList");
                 //_logger.Debug(fData);
                 //測試-商品更新個數
-                int count = QuotesList.Values.GroupBy(x => x.SymbolNo).Count();
-                StatusMessageList.Insert(0, DateTime.Now.ToString("HH:mm:ss:ttt") + "    " + "個數:" + count);
+                //int count = QuotesList.Values.GroupBy(x => x.SymbolNo).Count();
+                //StatusMessageList.Insert(0, DateTime.Now.ToString("HH:mm:ss:ttt") + "    " + "個數:" + count);
             }));
         }        
         //------------------------------------------------------------------------------------------------------------------------------------------

@@ -364,39 +364,6 @@
                             </StackPanel>
                         </Grid>
                     </TabItem>
-                    <TabItem Header="漲跌差線圖">
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="50" />
-                                <RowDefinition />
-                            </Grid.RowDefinitions>
-                            <StackPanel Margin="5" Orientation="Horizontal">
-                                <Label VerticalAlignment="Center" Content="商品A" />
-                                <TextBox
-                                    Width="150"
-                                    Margin="10,0"
-                                    VerticalAlignment="Center"
-                                    IsEnabled="False"
-                                    Text="{Binding SymbolNoA}" />
-                                <Label VerticalAlignment="Center" Content="商品B" />
-                                <TextBox
-                                    Width="150"
-                                    Margin="10,0"
-                                    VerticalAlignment="Center"
-                                    IsEnabled="False"
-                                    Text="{Binding SymbolNoB}" />
-                                <Button
-                                    Margin="3"
-                                    Click="CreateChart_Click"
-                                    Content="5秒漲跌幅圖表" />
-                            </StackPanel>
-                            <Grid Grid.Row="1">
-                                <wfi:WindowsFormsHost x:Name="mainFGrid">
-                                    <CHR:Chart x:Name="mainChart" />
-                                </wfi:WindowsFormsHost>
-                            </Grid>
-                        </Grid>
-                    </TabItem>
                 </TabControl>
             </Grid>
             <Grid Grid.Row="2">
