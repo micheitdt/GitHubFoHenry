@@ -86,32 +86,6 @@ namespace ESunnyPATSConverterApi
         }
 
         /// <summary>
-        /// 易盛 to 取得PATS交易所代碼
-        /// </summary>
-        public bool GetPATSExchangeNo(string key, ref string returnvalue)
-        {
-            if (_eSunnyToPATS.ParamMap.ContainsKey(key))
-            {
-                returnvalue = _eSunnyToPATS.ParamMap[key];
-                return true;
-            }
-            return false;
-        }
-
-        /// <summary>
-        /// 易盛 to 取得PATS商品
-        /// </summary>
-        public bool GetPATSCommondityNo(string key, ref string returnvalue)
-        {
-            if (_eSunnyToPATS.ParamMap.ContainsKey(key))
-            {
-                returnvalue = _eSunnyToPATS.ParamMap[key];
-                return true;
-            }
-            return false;
-        }
-
-        /// <summary>
         /// 易盛 to PATS交易所&商品代碼
         /// </summary>
         public bool GetPATSExchangeNoCommondityNo(string patsexchangekey, string patscommonditykey, ref string returnexchange, ref string returncommondity)
@@ -226,7 +200,10 @@ namespace ESunnyPATSConverterApi
                 return false;
             }
         }
-
+        /// <summary>
+        /// 是否含商品代碼
+        /// </summary>
+        /// <returns></returns>
         public bool ContainESunnyCommondityNo(string commondityno)
         {
             return _patsToESunny.ParamMap.ContainsKey(commondityno);
