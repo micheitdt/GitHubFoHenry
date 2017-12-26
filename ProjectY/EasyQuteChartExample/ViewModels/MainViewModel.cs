@@ -23,6 +23,8 @@ namespace EasyQuteChartExample.ViewModels
         public MainViewModel()
         {
             DefaultSettings.Instance.Initialize();//讀設定檔
+            SymbolNoA = DefaultSettings.Instance.INSTRUMENT_A;
+            SymbolNoB = DefaultSettings.Instance.INSTRUMENT_B;
 
             _api = new MdApi(DefaultSettings.Instance.SUP_IP, DefaultSettings.Instance.SUP_PORT, DefaultSettings.Instance.SERVICE_IP, DefaultSettings.Instance.SERVICE_PORT);
             _api.PatsFormat2Received += api_PatsFormat2Received; ; /// <- pats(行情)格式2回呼事件
@@ -173,16 +175,6 @@ namespace EasyQuteChartExample.ViewModels
             {
                 _patsFormat2List = value;
                 OnPropertyChanged("PatsFormat2List");
-            }
-        }
-        /// <summary>
-        /// PATS商品列表
-        /// </summary>
-        public ObservableCollection<string> PatsSymbolList
-        {
-            get
-            {
-                return new ObservableCollection<string>( DefaultSettings.Instance.PATS_SYMBOL);
             }
         }
         #endregion

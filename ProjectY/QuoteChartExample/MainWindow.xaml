@@ -10,7 +10,7 @@
     xmlns:wf="clr-namespace:System.Windows.Forms;assembly=System.Windows.Forms"
     xmlns:wfi="clr-namespace:System.Windows.Forms.Integration;assembly=WindowsFormsIntegration"
     Title="MainWindow"
-    Width="900"
+    Width="1100"
     Height="600"
     mc:Ignorable="d">
     <Grid>
@@ -200,10 +200,21 @@
                             VerticalAlignment="Center"
                             Content="{Binding QuotesAnswer, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
                             ContentStringFormat="{}{0:P2}" />
+                        <TextBox
+                            Name="MainChartPoint"
+                            Width="auto"
+                            Margin="10,0"
+                            VerticalAlignment="Center"
+                            IsEnabled="False"
+                            Text="" />
                     </StackPanel>
                     <Grid Grid.Row="1" Margin="5">
                         <wfi:WindowsFormsHost x:Name="mainFGrid">
-                            <CHR:Chart x:Name="mainChart" />
+                            <CHR:Chart
+                                x:Name="mainChart"
+                                BorderlineColor="Black"
+                                BorderlineDashStyle="Solid"
+                                BorderlineWidth="2" />
                         </wfi:WindowsFormsHost>
                     </Grid>
                 </Grid>

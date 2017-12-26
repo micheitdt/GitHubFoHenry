@@ -1,6 +1,7 @@
 ﻿using QuoteChartExample.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,7 +11,6 @@ using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Forms.DataVisualization.Charting;
 using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
@@ -26,11 +26,47 @@ namespace QuoteChartExample
         private DispatcherTimer _dispatcherTimer = new DispatcherTimer();
         private double _maxValue = 0;
         private double _minValue = 0;
+        private float x1 = 0;
+        private float y1 = 0;
+        System.Windows.Forms.ToolTip tooltip = new System.Windows.Forms.ToolTip();
 
         public MainWindow()
         {
             InitializeComponent();
             this.DataContext = MainViewModel.Instance;
+
+            this.mainChart.MouseMove += MainChart_MouseMove;
+            this.mainChart.Paint += MainChart_Paint;
+        }
+
+        private void MainChart_Paint(object sender, System.Windows.Forms.PaintEventArgs e)
+        {
+            Pen mypen = new Pen(Brushes.Black, 1);
+
+            e.Graphics.DrawLine(mypen, 0, y1, mainChart.Width, y1);
+            e.Graphics.DrawLine(mypen, x1, 0, x1, mainChart.Height);
+        }
+
+        private void MainChart_MouseMove(object sender, System.Windows.Forms.MouseEventArgs e)
+        {
+            this.mainChart.Enabled = false;
+            System.Windows.Forms.DataVisualization.Charting.HitTestResult result = this.mainChart.HitTest(e.X, e.Y);
+
+            if (result.ChartElementType == ChartElementType.PlottingArea)
+            {
+                MainChartPoint.Text = "X=" + DateTime.FromOADate(result.ChartArea.AxisX.PixelPositionToValue(e.X)).ToShortTimeString() + ", Y=" + Math.Round(result.ChartArea.AxisY.PixelPositionToValue(e.Y), 4).ToString("P2");
+            }
+            else if(result.ChartElementType == ChartElementType.DataPoint)
+            {
+                DataPoint point = this.mainChart.Series[0].Points[result.PointIndex];
+
+                //把資料輸出到TextBox
+                MainChartPoint.Text = "(X=" + DateTime.FromOADate(point.XValue).ToShortTimeString() + ", Y=" + Math.Round(point.YValues[0], 4).ToString("P2") +")";
+            }
+
+            x1 = e.X ;//滑鼠X座標
+            y1 = e.Y ;//滑鼠Y座標
+            this.mainChart.Enabled = true;
         }
 
         private void DataGrid_LoadingRow(object sender, DataGridRowEventArgs e)
@@ -121,11 +157,6 @@ namespace QuoteChartExample
                     MainViewModel.Instance.StatusMessageList.Insert(0, DateTime.Now.ToString("HH:mm:ss:ttt") + "    " + "比對商品B錯誤或未有商品資料");
                     return;
                 }
-                //if (quoteA.Market != quoteB.Market)
-                //{
-                //    MainViewModel.Instance.StatusMessageList.Insert(0, DateTime.Now.ToString("HH:mm:ss:ttt") + "    " + "比對商品類別不同");
-                //    return;
-                //}
                 decimal quotesValue = 0;
                 switch (quoteA.Market)
                 {

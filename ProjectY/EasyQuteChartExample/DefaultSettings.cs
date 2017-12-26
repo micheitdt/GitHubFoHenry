@@ -12,7 +12,8 @@ namespace EasyQuteChartExample
         public int SUP_PORT;
         public string SERVICE_IP;
         public int SERVICE_PORT;
-        public string[] PATS_SYMBOL;
+        public string INSTRUMENT_A;
+        public string INSTRUMENT_B;
 
         private DefaultSettings() { }
 
@@ -23,7 +24,8 @@ namespace EasyQuteChartExample
             SUP_PORT = Convert.ToInt32(mapIni.ParamMap["SUP_PORT"]);
             SERVICE_IP = mapIni.ParamMap["SERVICE_IP"];
             SERVICE_PORT = Convert.ToInt32(mapIni.ParamMap["SERVICE_PORT"]);
-            PATS_SYMBOL = mapIni.ParamMap["PATS_SYMBOL"].Split(',');
+            INSTRUMENT_A = mapIni.ParamMap["INSTRUMENT_A"];
+            INSTRUMENT_B = mapIni.ParamMap["INSTRUMENT_B"];
         }
     }
 }

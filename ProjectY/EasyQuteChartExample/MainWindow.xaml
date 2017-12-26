@@ -8,7 +8,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:wf="clr-namespace:System.Windows.Forms;assembly=System.Windows.Forms"
     xmlns:wfi="clr-namespace:System.Windows.Forms.Integration;assembly=WindowsFormsIntegration"
-    Title="MainWindow"
+    Title="商品漲跌幅差異圖"
     Width="800"
     Height="600"
     FontSize="16"
@@ -20,89 +20,25 @@
                 <RowDefinition />
             </Grid.RowDefinitions>
             <StackPanel Margin="5" Orientation="Horizontal">
-                <ToggleButton
+                <TextBlock
                     Name="ButonA"
+                    Width="auto"
                     Margin="10,0"
                     VerticalAlignment="Center"
-                    CommandParameter="Custom"
-                    Content="商品A">
-                    <ToggleButton.Style>
-                        <Style TargetType="{x:Type ToggleButton}">
-                            <Setter Property="IsHitTestVisible" Value="True" />
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding ElementName=PopupA, Path=IsOpen}" Value="True">
-                                    <Setter Property="IsHitTestVisible" Value="False" />
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </ToggleButton.Style>
-                </ToggleButton>
-                <Popup
-                    x:Name="PopupA"
-                    Closed="PopupA_Closed"
-                    IsOpen="{Binding IsChecked, ElementName=ButonA, Mode=TwoWay}"
-                    PlacementTarget="{Binding ElementName=TogglePopupButton}"
-                    PopupAnimation="Slide"
-                    StaysOpen="false">
-                    <StackPanel Background="Gray">
-                        <Label Content="交易所.商品:" />
-                        <ComboBox
-                            VerticalAlignment="Center"
-                            ItemsSource="{Binding PatsSymbolList, Mode=OneTime}"
-                            SelectedItem="{Binding SelectMarketA, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                            Text="I020" />
-                        <Label Content="日期:" />
-                        <TextBox
-                            Width="250"
-                            Margin="10,3"
-                            VerticalAlignment="Center"
-                            Text="{Binding SymbolNoA, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                    </StackPanel>
-                </Popup>
+                    Background="Gray"
+                    Text="{Binding SymbolNoA, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                 <Label
                     VerticalAlignment="Center"
                     Content="{Binding QuotesA, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                     ContentStringFormat="{}{0:P2}" />
                 <Label VerticalAlignment="Center" Content="-" />
-                <ToggleButton
+                <TextBlock
                     Name="ButonB"
+                    Width="auto"
                     Margin="10,0"
                     VerticalAlignment="Center"
-                    CommandParameter="Custom"
-                    Content="商品B">
-                    <ToggleButton.Style>
-                        <Style TargetType="{x:Type ToggleButton}">
-                            <Setter Property="IsHitTestVisible" Value="True" />
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding ElementName=PopupB, Path=IsOpen}" Value="True">
-                                    <Setter Property="IsHitTestVisible" Value="False" />
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </ToggleButton.Style>
-                </ToggleButton>
-                <Popup
-                    x:Name="PopupB"
-                    Closed="PopupB_Closed"
-                    IsOpen="{Binding IsChecked, ElementName=ButonB, Mode=TwoWay}"
-                    PlacementTarget="{Binding ElementName=TogglePopupButton}"
-                    PopupAnimation="Slide"
-                    StaysOpen="false">
-                    <StackPanel Background="Gray">
-                        <Label Content="交易所.商品:" />
-                        <ComboBox
-                            VerticalAlignment="Center"
-                            ItemsSource="{Binding PatsSymbolList, Mode=OneTime}"
-                            SelectedItem="{Binding SelectMarketB, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                            Text="I020" />
-                        <Label Content="日期:" />
-                        <TextBox
-                            Width="250"
-                            Margin="10,3"
-                            VerticalAlignment="Center"
-                            Text="{Binding SymbolNoB, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                    </StackPanel>
-                </Popup>
+                    Background="Gray"
+                    Text="{Binding SymbolNoB, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                 <Label
                     VerticalAlignment="Center"
                     Content="{Binding QuotesB, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"

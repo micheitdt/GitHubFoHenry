@@ -27,8 +27,8 @@ namespace EasyQuteChartExample
     public partial class MainWindow : Window
     {
         private DispatcherTimer _dispatcherTimer = new DispatcherTimer();
-        private double _maxValue = 0;
-        private double _minValue = 0;
+        private double _maxValue = 0.01;
+        private double _minValue = -0.01;
         private MarketDataApi.PacketPATS.Format1 preQuotesA;
         private MarketDataApi.PacketPATS.Format1 preQuotesB;
 
@@ -37,21 +37,13 @@ namespace EasyQuteChartExample
             InitializeComponent();
             this.DataContext = MainViewModel.Instance;
             this.Closing += MainWindow_Closing;
+
+            CheckChartAreasData();
         }
 
         void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             Environment.Exit(0);
-        }
-
-        private void PopupA_Closed(object sender, EventArgs e)
-        {
-            CheckChartAreasData();
-        }
-
-        private void PopupB_Closed(object sender, EventArgs e)
-        {
-            CheckChartAreasData();
         }
         /// <summary>
         /// 檢查圖表是否完成
@@ -59,67 +51,59 @@ namespace EasyQuteChartExample
         private void CheckChartAreasData()
         {
             _dispatcherTimer.Stop();
-            if (InitSymbolA() && InitSymbolB())//2個商品初始化完成
+            InitSymbolA();
+            InitSymbolB();
+            //開始畫圖表
+            if (this.mainChart.ChartAreas.Count == 0)
             {
-                //開始畫圖表
-                if (this.mainChart.ChartAreas.Count == 0)
-                {
-                    SetChart();
+                SetChart();
 
-                    _dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
-                    _dispatcherTimer.Interval = new TimeSpan(0, 0, 5);
-                }
-                else
-                {
-                    this.mainChart.ChartAreas.Clear();
-                    this.mainChart.Legends.Clear();
-                    this.mainChart.Series.Clear();
-                    SetChart();
-                }
-                this.mainChart.DataBind();//這時候先DataBind()是為了顯示空白的圖表
-
-                _dispatcherTimer.Start();
+                _dispatcherTimer.Tick += new EventHandler(dispatcherTimer_Tick);
+                _dispatcherTimer.Interval = new TimeSpan(0, 0, 5);
             }
+            else
+            {
+                this.mainChart.ChartAreas.Clear();
+                this.mainChart.Legends.Clear();
+                this.mainChart.Series.Clear();
+                SetChart();
+            }
+            this.mainChart.DataBind();//這時候先DataBind()是為了顯示空白的圖表
+
+            _dispatcherTimer.Start();
         }
 
         private bool InitSymbolA()
-        {
-            string symbol = string.Format("{0}.{1}", MainViewModel.Instance.SelectMarketA, MainViewModel.Instance.SymbolNoA);
-            preQuotesA = MainViewModel.Instance.MDAPI.GetSnapshot(AdapterCode.GLOBAL_PATS, "1", symbol) as MarketDataApi.PacketPATS.Format1;
-            MarketDataApi.PacketPATS.Format2 ret2 = MainViewModel.Instance.MDAPI.GetSnapshot(AdapterCode.GLOBAL_PATS, "2", symbol) as MarketDataApi.PacketPATS.Format2;
+        {            
+            preQuotesA = MainViewModel.Instance.MDAPI.GetSnapshot(AdapterCode.GLOBAL_PATS, "1", MainViewModel.Instance.SymbolNoA) as MarketDataApi.PacketPATS.Format1;
+            MarketDataApi.PacketPATS.Format2 ret2 = MainViewModel.Instance.MDAPI.GetSnapshot(AdapterCode.GLOBAL_PATS, "2", MainViewModel.Instance.SymbolNoA) as MarketDataApi.PacketPATS.Format2;
             if (preQuotesA == null || ret2 == null || preQuotesA.OpeningPrice == 0)
             {
-                this.ButonA.Content = "商品A";
                 return false;
             }
 
             MainViewModel.Instance.QuotesA = 0;
-            //MainViewModel.Instance.MDAPI.Sub(AdapterCode.GLOBAL_PATS, "1", symbol);
-            MainViewModel.Instance.MDAPI.Sub(AdapterCode.GLOBAL_PATS, "2", symbol);
+            //MainViewModel.Instance.MDAPI.Sub(AdapterCode.GLOBAL_PATS, "1", MainViewModel.Instance.SymbolNoA);
+            MainViewModel.Instance.MDAPI.Sub(AdapterCode.GLOBAL_PATS, "2", MainViewModel.Instance.SymbolNoA);
 
             MainViewModel.Instance.QuotesA = ((((decimal)(ret2.LastPrice - preQuotesA.OpeningPrice))) / ((decimal)preQuotesA.OpeningPrice));
-
-            this.ButonA.Content = symbol;
             return true;
         }
 
         private bool InitSymbolB()
         {
-            string symbol = string.Format("{0}.{1}", MainViewModel.Instance.SelectMarketB, MainViewModel.Instance.SymbolNoB);
-            preQuotesB = MainViewModel.Instance.MDAPI.GetSnapshot(AdapterCode.GLOBAL_PATS, "1", symbol) as MarketDataApi.PacketPATS.Format1;
-            MarketDataApi.PacketPATS.Format2 ret2 = MainViewModel.Instance.MDAPI.GetSnapshot(AdapterCode.GLOBAL_PATS, "2", symbol) as MarketDataApi.PacketPATS.Format2;
+            preQuotesB = MainViewModel.Instance.MDAPI.GetSnapshot(AdapterCode.GLOBAL_PATS, "1", MainViewModel.Instance.SymbolNoB) as MarketDataApi.PacketPATS.Format1;
+            MarketDataApi.PacketPATS.Format2 ret2 = MainViewModel.Instance.MDAPI.GetSnapshot(AdapterCode.GLOBAL_PATS, "2", MainViewModel.Instance.SymbolNoB) as MarketDataApi.PacketPATS.Format2;
             if (preQuotesB == null || ret2 == null || preQuotesB.OpeningPrice == 0)
             {
-                this.ButonB.Content = "商品B";
                 return false;
             }
 
             MainViewModel.Instance.QuotesB = 0;
-            //MainViewModel.Instance.MDAPI.Sub(AdapterCode.GLOBAL_PATS, "1", symbol);
-            MainViewModel.Instance.MDAPI.Sub(AdapterCode.GLOBAL_PATS, "2", symbol);
+            //MainViewModel.Instance.MDAPI.Sub(AdapterCode.GLOBAL_PATS, "1", MainViewModel.Instance.SymbolNoB);
+            MainViewModel.Instance.MDAPI.Sub(AdapterCode.GLOBAL_PATS, "2", MainViewModel.Instance.SymbolNoB);
 
             MainViewModel.Instance.QuotesB = ((((decimal)(ret2.LastPrice - preQuotesB.OpeningPrice))) / ((decimal)preQuotesB.OpeningPrice));
-            this.ButonB.Content = symbol;
             return true;
         }
 
@@ -170,10 +154,8 @@ namespace EasyQuteChartExample
             try
             {
                 //即時
-                string symbolA = string.Format("{0}.{1}", MainViewModel.Instance.SelectMarketA, MainViewModel.Instance.SymbolNoA);
-                string symbolB = string.Format("{0}.{1}", MainViewModel.Instance.SelectMarketB, MainViewModel.Instance.SymbolNoB);
-                MarketDataApi.PacketPATS.Format2 quoteA = MainViewModel.Instance.PatsFormat2List.FirstOrDefault(x => string.Format("{0}.{1}.{2}",x.ExchangeNo,x.CommodityNo,x.ContractDate) == symbolA);
-                MarketDataApi.PacketPATS.Format2 quoteB = MainViewModel.Instance.PatsFormat2List.FirstOrDefault(x => string.Format("{0}.{1}.{2}", x.ExchangeNo, x.CommodityNo, x.ContractDate) == symbolB);
+                MarketDataApi.PacketPATS.Format2 quoteA = MainViewModel.Instance.PatsFormat2List.FirstOrDefault(x => string.Format("{0}.{1}.{2}",x.ExchangeNo,x.CommodityNo,x.ContractDate) == MainViewModel.Instance.SymbolNoA);
+                MarketDataApi.PacketPATS.Format2 quoteB = MainViewModel.Instance.PatsFormat2List.FirstOrDefault(x => string.Format("{0}.{1}.{2}", x.ExchangeNo, x.CommodityNo, x.ContractDate) == MainViewModel.Instance.SymbolNoB);
                 if (quoteA == null || quoteA.LastPrice == 0)
                 {
                     Utility.SaveLog(DateTime.Now.ToString("HH:mm:ss:ttt") + "    " + "比對商品A錯誤或未有商品資料");
@@ -190,15 +172,15 @@ namespace EasyQuteChartExample
                 quotesValue = MainViewModel.Instance.QuotesA - MainViewModel.Instance.QuotesB;
 
                 var data = Math.Round((double)quotesValue, 2);
-                _minValue = Math.Round((_minValue < (data - 0.05)) ? _minValue : (data - 0.05), 2);
-                _maxValue = Math.Round((_maxValue < (data + 0.05)) ? (data + 0.05) : _maxValue, 2);
+                _minValue = Math.Round((_minValue < (data - 0.002)) ? _minValue : (data - 0.002), 2);
+                _maxValue = Math.Round((_maxValue < (data + 0.002)) ? (data + 0.002) : _maxValue, 2);
                 this.mainChart.ChartAreas[0].AxisY.Minimum = _minValue;
                 this.mainChart.ChartAreas[0].AxisY.Maximum = _maxValue;
                 this.mainChart.ChartAreas[0].AxisY.Interval = 0.01;
                 this.mainChart.ChartAreas[0].AxisY.IntervalOffset = 0.01;
                 if ((_maxValue - _minValue) != 0)
                 {
-                    double tick = Math.Round((_maxValue - _minValue) / 10, 2);
+                    double tick = Math.Round((_maxValue - _minValue) / 5, 2);
                     this.mainChart.ChartAreas[0].AxisY.Interval = tick;
                     this.mainChart.ChartAreas[0].AxisY.IntervalOffset = tick;
                 }

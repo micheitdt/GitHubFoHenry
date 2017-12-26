@@ -36,12 +36,12 @@ namespace MarketDataApiExample.ViewModels
         public static readonly List<string> TypeList = new List<string>() { "I010", "I020", "I080", "1", "6", "17", "0", "2" };
 
         private static MainViewModel _instance;
-        private string _ipAddress = "10.214.19.51";//"10.214.19.51";"203.66.93.83";"127.0.0.1";47.52.229.28;
+        private string _ipAddress = "47.52.229.28";//"10.214.19.51";"203.66.93.83";"127.0.0.1";47.52.229.28;
         private string _ipPort = "6688";
-        private string _reqipAddress = "10.214.19.51";//"10.214.19.51";"203.66.93.83";"127.0.0.1";47.52.229.28;
+        private string _reqipAddress = "47.52.229.28";//"10.214.19.51";"203.66.93.83";"127.0.0.1";47.52.229.28;
         private string _reqipPort = "5588";
-        private string _selectMarket = "0-上市";//"6-PATS";
-        private string _selectType = "6";
+        private string _selectMarket = "6-PATS";//"6-PATS";
+        private string _selectType = "1";
         private string _symbolNo = "";//CME_ES.GE0.DEC07//all
         private string _selectSubscribe = string.Empty;
         private ObservableCollection<string> _subscribeList = new ObservableCollection<string>();
@@ -1067,8 +1067,27 @@ namespace MarketDataApiExample.ViewModels
                 System.Windows.MessageBox.Show("連接錯誤或無商品資料");
                 return;
             }
+
             string subSymbol = SelectMarket + ";" + SelectType + ";" + SymbolNo;
             var ret = api.GetSnapshot(Rtn_adapterCode(SelectMarket), SelectType, SymbolNo);
+            if (SelectMarket == "6-PATS")
+            {
+                string[] subSymbolAry = SymbolNo.Split(' ');
+                string exchangeNo = string.Empty;
+                string commondityNo = string.Empty;
+                string contractNo = string.Empty;
+                string msg = string.Empty;
+                //顯示轉換易盛2PATS
+                if (ESunnyPATSMapConverter.Instance.ESunnyConverterToPATS(subSymbolAry[0], subSymbolAry[1], subSymbolAry[2], ref exchangeNo, ref commondityNo, ref contractNo, ref msg))
+                {
+                    ret = api.GetSnapshot(Rtn_adapterCode(SelectMarket), SelectType, string.Format("{0}.{1}.{2}", exchangeNo, commondityNo, contractNo));                    
+                }
+                else
+                {
+                    StatusMessageList.Insert(0, DateTime.Now.ToString("HH:mm:ss:ttt") + "    " + "轉換失敗:" + subSymbol);
+                    return;
+                }
+            }
             if (ret == null)
             {
                 StatusMessageList.Insert(0, DateTime.Now.ToString("HH:mm:ss:ttt") + "    " + "取得快照失敗:" + subSymbol);
@@ -1117,6 +1136,17 @@ namespace MarketDataApiExample.ViewModels
                         case "I080":
                             model.SetI080Data(0, ret as MarketDataApi.PacketTAIFEX.I080);
                             QuotesSnapshotList.Insert(0, model);
+                            break;
+                    }
+                    break;
+                case "6":
+                    switch (SelectType)
+                    {
+                        case "1":
+                            _patsFormat1List.Insert(0, ret as MarketDataApi.PacketPATS.Format1);
+                            break;
+                        case "2":
+                            _patsFormat2List.Insert(0, ret as MarketDataApi.PacketPATS.Format2);
                             break;
                     }
                     break;
