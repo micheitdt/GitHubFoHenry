@@ -1,8 +1,0 @@
-﻿<Window x:Class="Adapter.Tpex.MainWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Adapter.Tpex" SizeToContent="Height" Width="300">
-    <Grid>
-        <TextBlock Name="tbMessage" VerticalAlignment="Center" HorizontalAlignment="Center" TextWrapping="Wrap"></TextBlock>
-    </Grid>
-</Window>
